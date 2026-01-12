@@ -8,8 +8,8 @@ from time import sleep
 # =============================
 # CONFIG
 # =============================
-N_DEBRIS = 50        # Number of debris objects
-SLEEP_SEC = 2        # Space-Track rate limit safety
+N_DEBRIS = 30000       # Number of debris objects
+SLEEP_SEC = 2         # Space-Track rate limit safety
 
 # =============================
 # LOAD CREDENTIALS
@@ -50,6 +50,13 @@ st = SpaceTrackClient(identity=USERNAME, password=PASSWORD)
 # FETCH TLE HISTORY
 # =============================
 for i, norad_id in enumerate(norad_ids, start=1):
+    out_file = os.path.join(TLE_DIR, f"{norad_id}_tle.csv")
+
+    # 🔹 SKIP IF CSV ALREADY EXISTS
+    if os.path.exists(out_file):
+        print(f"[{i}/{len(norad_ids)}] ⏭️ NORAD {norad_id} — already exists, skipping")
+        continue
+
     print(f"[{i}/{len(norad_ids)}] NORAD {norad_id}")
 
     try:
@@ -83,7 +90,6 @@ for i, norad_id in enumerate(norad_ids, start=1):
         df_tle = df_tle.drop_duplicates()
 
         # Save
-        out_file = os.path.join(TLE_DIR, f"{norad_id}_tle.csv")
         df_tle.to_csv(out_file, index=False)
 
         print(f"✅ Saved {len(df_tle)} timestamped TLEs → {out_file}")

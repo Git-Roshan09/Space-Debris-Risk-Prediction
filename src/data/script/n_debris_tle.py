@@ -4,12 +4,15 @@ import pandas as pd
 from dotenv import load_dotenv
 from spacetrack import SpaceTrackClient
 from time import sleep
+import requests
 
 # =============================
 # CONFIG
 # =============================
 N_DEBRIS = 30000       # Number of debris objects
-SLEEP_SEC = 2         # Space-Track rate limit safety
+SLEEP_SEC = 5         # Space-Track rate limit safety (increased)
+BATCH_SIZE = 50       # Pause longer after every batch
+BATCH_SLEEP = 60      # Extra sleep after each batch (seconds)
 
 # =============================
 # LOAD CREDENTIALS
@@ -36,10 +39,10 @@ norad_ids = (
     df["NORAD_CAT_ID"]
     .dropna()
     .astype(int)
-    .unique()[:N_DEBRIS]
+    .unique()[880:N_DEBRIS]
 )
 
-print(f"📦 Extracting timestamped TLEs for {len(norad_ids)} debris objects")
+print(f"📦 Extracting timestamped TLEs for {len(norad_ids)} debris objects (starting from index 880)")
 
 # =============================
 # INIT CLIENT
@@ -59,44 +62,70 @@ for i, norad_id in enumerate(norad_ids, start=1):
 
     print(f"[{i}/{len(norad_ids)}] NORAD {norad_id}")
 
-    try:
-        response = st.gp_history(
-            norad_cat_id=norad_id,
-            orderby="epoch asc",
-            format="json"
-        )
+    # Retry logic with exponential backoff
+    max_retries = 3
+    retry_count = 0
+    success = False
 
-        data = json.loads(response) if isinstance(response, str) else response
+    while retry_count < max_retries and not success:
+        try:
+            response = st.gp_history(
+                norad_cat_id=norad_id,
+                orderby="epoch asc",
+                format="json"
+            )
 
-        if not data:
-            print(f"⚠️ No TLEs for {norad_id}")
-            continue
+            data = json.loads(response) if isinstance(response, str) else response
 
-        df_tle = pd.DataFrame(data)
+            if not data:
+                print(f"⚠️ No TLEs for {norad_id}")
+                success = True
+                break
 
-        # Ensure required columns exist
-        required = {"EPOCH", "TLE_LINE1", "TLE_LINE2"}
-        if not required.issubset(df_tle.columns):
-            print(f"⚠️ Missing required fields for {norad_id}")
-            continue
+            df_tle = pd.DataFrame(data)
 
-        # Keep ONLY timestamp + TLE lines
-        df_tle = df_tle[["EPOCH", "TLE_LINE1", "TLE_LINE2"]]
+            # Ensure required columns exist
+            required = {"EPOCH", "TLE_LINE1", "TLE_LINE2"}
+            if not required.issubset(df_tle.columns):
+                print(f"⚠️ Missing required fields for {norad_id}")
+                print(df_tle)
+                success = True
+                break
 
-        # Convert timestamp
-        df_tle["EPOCH"] = pd.to_datetime(df_tle["EPOCH"], utc=True)
+            # Keep ONLY timestamp + TLE lines
+            df_tle = df_tle[["EPOCH", "TLE_LINE1", "TLE_LINE2"]]
 
-        # Remove duplicates
-        df_tle = df_tle.drop_duplicates()
+            # Convert timestamp
+            df_tle["EPOCH"] = pd.to_datetime(df_tle["EPOCH"], utc=True)
 
-        # Save
-        df_tle.to_csv(out_file, index=False)
+            # Remove duplicates
+            df_tle = df_tle.drop_duplicates()
 
-        print(f"✅ Saved {len(df_tle)} timestamped TLEs → {out_file}")
+            # Save
+            df_tle.to_csv(out_file, index=False)
 
+            print(f"✅ Saved {len(df_tle)} timestamped TLEs → {out_file}")
+            success = True
+
+        except requests.exceptions.HTTPError as e:
+            if "429" in str(e) or "rate" in str(e).lower():
+                retry_count += 1
+                wait_time = SLEEP_SEC * (2 ** retry_count)  # Exponential backoff
+                print(f"⚠️ Rate limit hit for {norad_id}. Waiting {wait_time}s... (retry {retry_count}/{max_retries})")
+                sleep(wait_time)
+            else:
+                print(f"❌ HTTP Error for NORAD {norad_id}: {e}")
+                break
+        except Exception as e:
+            print(f"❌ Error for NORAD {norad_id}: {e}")
+            break
+
+    if success:
         sleep(SLEEP_SEC)
-
-    except Exception as e:
-        print(f"❌ Error for NORAD {norad_id}: {e}")
+        
+        # Batch pause
+        if i % BATCH_SIZE == 0:
+            print(f"⏸️ Batch pause: waiting {BATCH_SLEEP}s after {i} requests...")
+            sleep(BATCH_SLEEP)
 
 print("🎯 Finished extracting timestamped TLE history.")

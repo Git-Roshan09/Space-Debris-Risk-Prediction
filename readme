@@ -4,6 +4,8 @@ uv sync
 ./script/start-containers.sh
 ./hdfs-cli.sh
 
+#run each in seperate terminals
+
 uv run src/demo/api/tle_stream_api.py
 uv run src/kafka/tle_api_to_kafka_producer.py --limit 100
 

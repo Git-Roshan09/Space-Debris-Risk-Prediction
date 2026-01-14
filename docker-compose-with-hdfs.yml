@@ -35,6 +35,4 @@
       - confluent
 
 # Add to volumes section:
-volumes:
-  hadoop_namenode:
-  hadoop_datanode:
+

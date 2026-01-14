@@ -1,0 +1,21 @@
+[project]
+name = "project"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "dotenv>=0.9.9",
+    "flask>=3.1.2",
+    "ipykernel>=7.1.0",
+    "matplotlib>=3.10.8",
+    "numpy>=2.4.0",
+    "pandas>=2.3.3",
+    "requests>=2.32.5",
+    "scipy>=1.16.3",
+    "seaborn>=0.13.2",
+    "sgp4>=2.25",
+    "skyfield>=1.53",
+    "spacetrack>=1.4.0",
+    "tqdm>=4.67.1",
+]

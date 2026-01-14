@@ -1,0 +1,12 @@
+# Kafka dependencies
+kafka-python==2.0.2
+
+# Apache dependencies
+apache-airflow-providers-apache-kafka==1.0.0
+
+# Data processing
+pandas==2.0.3
+numpy==1.24.3
+
+# HTTP requests
+requests==2.31.0

@@ -16,7 +16,7 @@ from pathlib import Path
 app = Flask(__name__)
 
 # Configuration
-TLE_DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'Output', 'TLE_History')
+TLE_DATA_DIR = os.path.join( 'Output', 'TLE_History')
 DEFAULT_ACCELERATION = 100  # 100x faster than real-time
 DEFAULT_MAX_DELAY = 5.0  # Maximum delay between records in seconds (None for unlimited)
 

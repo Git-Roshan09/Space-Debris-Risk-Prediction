@@ -1,22 +1,20 @@
-version: '3.8'
-
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.4.0
-    hostname: zookeeper
-    container_name: zookeeper
-    ports:
-      - "2181:2181"
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    healthcheck:
-      test: ['CMD', 'bash', '-c', "echo 'ruok' | nc localhost 2181"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - confluent
+      image: confluentinc/cp-zookeeper:7.4.0
+      hostname: zookeeper
+      container_name: zookeeper
+      ports:
+        - "2181:2181"
+      environment:
+        ZOOKEEPER_CLIENT_PORT: 2181
+        ZOOKEEPER_TICK_TIME: 2000
+      healthcheck:
+        test: ['CMD', 'bash', '-c', "echo 'ruok' | nc localhost 2181"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+      networks:
+        - confluent
 
   broker:
     image: confluentinc/cp-server:7.4.0
@@ -50,7 +48,7 @@ services:
     networks:
       - confluent
     healthcheck:
-      test: ["CMD", "bash", "-c", 'nc -z localhost 9092']
+      test: [ "CMD", "bash", "-c", 'nc -z localhost 9092' ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -71,7 +69,7 @@ services:
     networks:
       - confluent
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8081/" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -99,39 +97,19 @@ services:
     networks:
       - confluent
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9021/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:9021/health" ]
       interval: 30s
       timeout: 10s
       retries: 5
 
-  postgres:
-    image: postgres:14.0
-    container_name: postgres-airflow
-    environment:
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=airflow
-      - POSTGRES_DB=airflow
-    volumes:
-      - postgres-db-volume:/var/lib/postgresql/data
-    logging:
-      options:
-        max-size: 10m
-        max-file: "3"
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "airflow"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - confluent
-
   webserver:
     image: apache/airflow:2.6.0-python3.9
     container_name: airflow-webserver
+    command: webserver
     entrypoint: ['/opt/airflow/script/entrypoint.sh', 'webserver']
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_started
     environment:
       - LOAD_EX=n
       - EXECUTOR=Sequential
@@ -162,6 +140,7 @@ services:
   scheduler:
     image: apache/airflow:2.6.0-python3.9
     container_name: airflow-scheduler
+    command: scheduler
     entrypoint: ['/opt/airflow/script/entrypoint.sh', 'scheduler']
     depends_on:
       webserver:
@@ -181,9 +160,22 @@ services:
     networks:
       - confluent
 
-  spark-master:
-    image: apache/spark:latest
-    container_name: spark-master
+  postgres:
+    image: postgres:14.0
+    container_name: postgres-airflow
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      ntainer_name: spark-master
     command: bin/spark-class org.apache.spark.deploy.master.Master
     ports:
       - "9090:8080"
@@ -212,6 +204,14 @@ services:
       - SPARK_RPC_ENCRYPTION_ENABLED=no
     volumes:
       - ./src/kafka:/opt/spark-apps
+    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    depends_on:
+      - spark-master
+    environment:
+      SPARK_MODE: worker
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 1g
+      SPARK_MASTER_URL: spark://spark-master:7077
     networks:
       - confluent
   
@@ -232,21 +232,7 @@ services:
     dns:
       - 8.8.8.8
       - 8.8.4.4
-    networks:
-      - confluent
-
-  cassandra_db:
-    image: cassandra:latest
-    container_name: cassandra
-    hostname: cassandra
-    ports:
-      - "9042:9042"
-    environment:
-      - MAX_HEAP_SIZE=512M
-      - HEAP_NEWSIZE=100M
-      - CASSANDRA_USERNAME=cassandra
-      - CASSANDRA_PASSWORD=cassandra
-    volumes:
+volumes:
       - cassandra-data:/var/lib/cassandra
     healthcheck:
       test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
@@ -261,5 +247,18 @@ volumes:
   cassandra-data:
   airflow-logs:
 
+  cassandra_db:
+    image: cassandra:latest
+    container_name: cassandra
+    hostname: cassandra
+    ports:
+      - "9042:9042"
+    environment:
+      - MAX_HEAP_SIZE=512M
+      - HEAP_NEWSIZE=100M
+      - CASSANDRA_USERNAME=cassandra
+      - CASSANDRA_PASSWORD=cassandra
+    networks:
+      - confluent
 networks:
   confluent:

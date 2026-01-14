@@ -1,0 +1,3 @@
+run
+uv sync
+uv run ./src/data/script/download_sat.py 

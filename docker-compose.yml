@@ -182,36 +182,49 @@ services:
       - confluent
 
   spark-master:
-    image: apache/spark:latest
+    image: apache/spark:3.5.0-scala2.12-java11-python3-ubuntu
     container_name: spark-master
-    command: bin/spark-class org.apache.spark.deploy.master.Master
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
     ports:
       - "9090:8080"
       - "7077:7077"
+    depends_on:
+      - namenode
+      - datanode
     environment:
       - SPARK_MODE=master
       - SPARK_RPC_AUTHENTICATION_ENABLED=no
       - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
     volumes:
-      - ./src/kafka:/opt/spark-apps
+      - ./src:/opt/spark/work-dir/src
+      - ./Output:/opt/spark/work-dir/output
+      - ./hadoop-config:/opt/hadoop/etc/hadoop:ro
     networks:
       - confluent
     
   spark-worker:
-    image: apache/spark:latest
+    image: apache/spark:3.5.0-scala2.12-java11-python3-ubuntu
     container_name: spark-worker
-    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
     depends_on:
       - spark-master
+      - namenode
+      - datanode
     environment:
       - SPARK_MODE=worker
       - SPARK_WORKER_CORES=2
-      - SPARK_WORKER_MEMORY=1g
+      - SPARK_WORKER_MEMORY=2g
       - SPARK_MASTER_URL=spark://spark-master:7077
       - SPARK_RPC_AUTHENTICATION_ENABLED=no
       - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
     volumes:
+      - ./src:/opt/spark/work-dir/src
       - ./src/kafka:/opt/spark-apps
+      - ./hadoop-config:/opt/hadoop/etc/hadoop:ro
     networks:
       - confluent
   
@@ -256,10 +269,58 @@ services:
     networks:
       - confluent
 
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: namenode
+    restart: always
+    ports:
+      - "9870:9870"  # HDFS Web UI
+      - "9820:9000"  # HDFS RPC (mapped to avoid conflict)
+    volumes:
+      - hadoop_namenode:/hadoop/dfs/name
+    environment:
+      - CLUSTER_NAME=space-debris-cluster
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - CORE_CONF_hadoop_http_staticuser_user=root
+      - CORE_CONF_hadoop_proxyuser_hue_hosts=*
+      - CORE_CONF_hadoop_proxyuser_hue_groups=*
+      - HDFS_CONF_dfs_webhdfs_enabled=true
+      - HDFS_CONF_dfs_permissions_enabled=false
+      - HDFS_CONF_dfs_replication=1
+    networks:
+      - confluent
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9870/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode
+    restart: always
+    depends_on:
+      - namenode
+    ports:
+      - "9864:9864"
+    volumes:
+      - hadoop_datanode:/hadoop/dfs/data
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - CORE_CONF_hadoop_http_staticuser_user=root
+      - CORE_CONF_hadoop_proxyuser_hue_hosts=*
+      - CORE_CONF_hadoop_proxyuser_hue_groups=*
+      - HDFS_CONF_dfs_webhdfs_enabled=true
+      - HDFS_CONF_dfs_permissions_enabled=false
+    networks:
+      - confluent
+
 volumes:
   postgres-db-volume:
   cassandra-data:
   airflow-logs:
+  hadoop_namenode:
+  hadoop_datanode:
 
 networks:
   confluent:

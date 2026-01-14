@@ -1,3 +1,14 @@
 run
 uv sync
-uv run ./src/data/script/download_sat.py 
+
+./script/start-containers.sh
+./hdfs-cli.sh
+
+uv run src/demo/api/tle_stream_api.py
+uv run src/kafka/tle_api_to_kafka_producer.py --limit 100
+
+
+docker exec -u root spark-master /opt/spark/bin/spark-submit \
+  --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0 \
+  /opt/spark/work-dir/src/kafka/spark_sgp4_to_hdfs.py \
+  --kafka broker:29092

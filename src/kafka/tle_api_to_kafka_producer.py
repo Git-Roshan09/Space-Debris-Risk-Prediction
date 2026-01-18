@@ -9,7 +9,7 @@ import json
 import time
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from kafka import KafkaProducer
 from kafka.errors import KafkaError
 
@@ -102,7 +102,7 @@ class TLEApiToKafkaProducer:
         # Create enriched message
         enriched = {
             'message_id': str(uuid.uuid4()),
-            'message_timestamp': datetime.utcnow().isoformat(),
+            'message_timestamp': datetime.now(timezone.utc).isoformat(),
             'source': 'tle_stream_api',
             'satellite_id': record['satellite_id'],
             'epoch': record['epoch'],

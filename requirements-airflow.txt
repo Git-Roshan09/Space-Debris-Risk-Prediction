@@ -1,0 +1,4 @@
+# Airflow additional requirements
+kafka-python==2.0.2
+requests==2.31.0
+apache-airflow-providers-apache-spark==4.5.0

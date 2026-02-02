@@ -1,0 +1,32 @@
+[2026-01-29T03:27:43.555+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: spark_sgp4_streaming.submit_spark_streaming_job manual__2026-01-29T03:22:09.632225+00:00 [queued]>
+[2026-01-29T03:27:43.565+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: spark_sgp4_streaming.submit_spark_streaming_job manual__2026-01-29T03:22:09.632225+00:00 [queued]>
+[2026-01-29T03:27:43.565+0000] {taskinstance.py:2170} INFO - Starting attempt 2 of 2
+[2026-01-29T03:27:43.585+0000] {taskinstance.py:2191} INFO - Executing <Task(BashOperator): submit_spark_streaming_job> on 2026-01-29 03:22:09.632225+00:00
+[2026-01-29T03:27:43.595+0000] {standard_task_runner.py:60} INFO - Started process 9608 to run task
+[2026-01-29T03:27:43.601+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'spark_sgp4_streaming', 'submit_spark_streaming_job', 'manual__2026-01-29T03:22:09.632225+00:00', '--job-id', '45', '--raw', '--subdir', 'DAGS_FOLDER/***_dag_spark_streaming.py', '--cfg-path', '/tmp/tmp5jw08nck']
+[2026-01-29T03:27:43.605+0000] {standard_task_runner.py:88} INFO - Job 45: Subtask submit_spark_streaming_job
+[2026-01-29T03:27:43.703+0000] {task_command.py:423} INFO - Running <TaskInstance: spark_sgp4_streaming.submit_spark_streaming_job manual__2026-01-29T03:22:09.632225+00:00 [running]> on host ***-scheduler
+[2026-01-29T03:27:43.833+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='space-debris-team' AIRFLOW_CTX_DAG_ID='spark_sgp4_streaming' AIRFLOW_CTX_TASK_ID='submit_spark_streaming_job' AIRFLOW_CTX_EXECUTION_DATE='2026-01-29T03:22:09.632225+00:00' AIRFLOW_CTX_TRY_NUMBER='2' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-01-29T03:22:09.632225+00:00'
+[2026-01-29T03:27:43.834+0000] {subprocess.py:63} INFO - Tmp dir root location: /tmp
+[2026-01-29T03:27:43.834+0000] {subprocess.py:75} INFO - Running command: ['/usr/bin/bash', '-c', 'docker exec spark-master \n    /opt/spark/bin/spark-submit \\\n        --master spark://spark-master:7077 \\\n        --deploy-mode client \\\n        --name "SGP4-Vector-Computation" \\\n        --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0 \\\n        --conf spark.executor.memory=2g \\\n        --conf spark.executor.cores=2 \\\n        --conf spark.driver.memory=1g \\\n        --conf spark.sql.streaming.checkpointLocation=hdfs://namenode:9000/tmp/spark-checkpoint-sgp4 \\\n        /opt/spark-apps/processing/spark_sgp4_to_hdfs.py \\\n        --kafka kafka:9093\n    ']
+[2026-01-29T03:27:43.856+0000] {subprocess.py:86} INFO - Output:
+[2026-01-29T03:27:43.941+0000] {subprocess.py:93} INFO - "docker exec" requires at least 2 arguments.
+[2026-01-29T03:27:43.942+0000] {subprocess.py:93} INFO - See 'docker exec --help'.
+[2026-01-29T03:27:43.942+0000] {subprocess.py:93} INFO - 
+[2026-01-29T03:27:43.943+0000] {subprocess.py:93} INFO - Usage:  docker exec [OPTIONS] CONTAINER COMMAND [ARG...]
+[2026-01-29T03:27:43.943+0000] {subprocess.py:93} INFO - 
+[2026-01-29T03:27:43.943+0000] {subprocess.py:93} INFO - Execute a command in a running container
+[2026-01-29T03:27:43.943+0000] {subprocess.py:93} INFO - /usr/bin/bash: line 3: /opt/spark/bin/spark-submit: No such file or directory
+[2026-01-29T03:27:43.944+0000] {subprocess.py:97} INFO - Command exited with return code 127
+[2026-01-29T03:27:43.963+0000] {taskinstance.py:2698} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 433, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/bash.py", line 212, in execute
+    raise AirflowException(
+airflow.exceptions.AirflowException: Bash command failed. The command returned a non-zero exit code 127.
+[2026-01-29T03:27:43.967+0000] {taskinstance.py:1138} INFO - Marking task as FAILED. dag_id=spark_sgp4_streaming, task_id=submit_spark_streaming_job, execution_date=20260129T032209, start_date=20260129T032743, end_date=20260129T032743
+[2026-01-29T03:27:43.983+0000] {standard_task_runner.py:107} ERROR - Failed to execute job 45 for task submit_spark_streaming_job (Bash command failed. The command returned a non-zero exit code 127.; 9608)
+[2026-01-29T03:27:44.012+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 1
+[2026-01-29T03:27:44.037+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

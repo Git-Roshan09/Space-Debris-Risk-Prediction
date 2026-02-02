@@ -1,0 +1,14 @@
+[2026-02-01T11:17:35.293+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: spark_sgp4_streaming.check_hdfs_namenode manual__2026-02-01T05:47:34.378857+00:00 [queued]>
+[2026-02-01T11:17:35.305+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: spark_sgp4_streaming.check_hdfs_namenode manual__2026-02-01T05:47:34.378857+00:00 [queued]>
+[2026-02-01T11:17:35.305+0530] {taskinstance.py:2170} INFO - Starting attempt 1 of 2
+[2026-02-01T11:17:35.321+0530] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): check_hdfs_namenode> on 2026-02-01 05:47:34.378857+00:00
+[2026-02-01T11:17:35.328+0530] {standard_task_runner.py:60} INFO - Started process 399 to run task
+[2026-02-01T11:17:35.331+0530] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'spark_sgp4_streaming', 'check_hdfs_namenode', 'manual__2026-02-01T05:47:34.378857+00:00', '--job-id', '38', '--raw', '--subdir', 'DAGS_FOLDER/***_dag_spark_streaming.py', '--cfg-path', '/tmp/tmp3n550z22']
+[2026-02-01T11:17:35.334+0530] {standard_task_runner.py:88} INFO - Job 38: Subtask check_hdfs_namenode
+[2026-02-01T11:17:35.400+0530] {task_command.py:423} INFO - Running <TaskInstance: spark_sgp4_streaming.check_hdfs_namenode manual__2026-02-01T05:47:34.378857+00:00 [running]> on host ***-scheduler
+[2026-02-01T11:17:35.516+0530] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='space-debris-team' AIRFLOW_CTX_DAG_ID='spark_sgp4_streaming' AIRFLOW_CTX_TASK_ID='check_hdfs_namenode' AIRFLOW_CTX_EXECUTION_DATE='2026-02-01T05:47:34.378857+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-02-01T05:47:34.378857+00:00'
+[2026-02-01T11:17:35.556+0530] {airflow_dag_spark_streaming.py:57} INFO - ✓ HDFS NameNode is accessible
+[2026-02-01T11:17:35.557+0530] {python.py:201} INFO - Done. Returned value was: True
+[2026-02-01T11:17:35.593+0530] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=spark_sgp4_streaming, task_id=check_hdfs_namenode, execution_date=20260201T054734, start_date=20260201T054735, end_date=20260201T054735
+[2026-02-01T11:17:35.624+0530] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-02-01T11:17:35.656+0530] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

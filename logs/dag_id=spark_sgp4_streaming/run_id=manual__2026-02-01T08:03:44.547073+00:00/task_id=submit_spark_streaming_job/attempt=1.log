@@ -1,0 +1,25 @@
+[2026-02-01T13:33:46.912+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: spark_sgp4_streaming.submit_spark_streaming_job manual__2026-02-01T08:03:44.547073+00:00 [queued]>
+[2026-02-01T13:33:46.923+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: spark_sgp4_streaming.submit_spark_streaming_job manual__2026-02-01T08:03:44.547073+00:00 [queued]>
+[2026-02-01T13:33:46.923+0530] {taskinstance.py:2170} INFO - Starting attempt 1 of 2
+[2026-02-01T13:33:46.940+0530] {taskinstance.py:2191} INFO - Executing <Task(BashOperator): submit_spark_streaming_job> on 2026-02-01 08:03:44.547073+00:00
+[2026-02-01T13:33:46.947+0530] {standard_task_runner.py:60} INFO - Started process 2089 to run task
+[2026-02-01T13:33:46.950+0530] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'spark_sgp4_streaming', 'submit_spark_streaming_job', 'manual__2026-02-01T08:03:44.547073+00:00', '--job-id', '84', '--raw', '--subdir', 'DAGS_FOLDER/***_dag_spark_streaming.py', '--cfg-path', '/tmp/tmpeuzkqhzd']
+[2026-02-01T13:33:46.952+0530] {standard_task_runner.py:88} INFO - Job 84: Subtask submit_spark_streaming_job
+[2026-02-01T13:33:47.020+0530] {task_command.py:423} INFO - Running <TaskInstance: spark_sgp4_streaming.submit_spark_streaming_job manual__2026-02-01T08:03:44.547073+00:00 [running]> on host ***-scheduler
+[2026-02-01T13:33:47.182+0530] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='space-debris-team' AIRFLOW_CTX_DAG_ID='spark_sgp4_streaming' AIRFLOW_CTX_TASK_ID='submit_spark_streaming_job' AIRFLOW_CTX_EXECUTION_DATE='2026-02-01T08:03:44.547073+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-02-01T08:03:44.547073+00:00'
+[2026-02-01T13:33:47.184+0530] {subprocess.py:63} INFO - Tmp dir root location: /tmp
+[2026-02-01T13:33:47.185+0530] {subprocess.py:75} INFO - Running command: ['/usr/bin/bash', '-c', 'python3 /opt/***/config/submit_spark_wrapper.sh ']
+[2026-02-01T13:33:47.205+0530] {subprocess.py:86} INFO - Output:
+[2026-02-01T13:33:47.460+0530] {subprocess.py:93} INFO - [2026-02-01 13:33:47.434025] Triggering Spark job submission...
+[2026-02-01T13:33:47.461+0530] {subprocess.py:93} INFO - Endpoint: http://spark-master:6066/submit
+[2026-02-01T13:33:47.461+0530] {subprocess.py:93} INFO - Status: 200
+[2026-02-01T13:33:47.461+0530] {subprocess.py:93} INFO - Response: {
+[2026-02-01T13:33:47.461+0530] {subprocess.py:93} INFO -   "success": true,
+[2026-02-01T13:33:47.462+0530] {subprocess.py:93} INFO -   "message": "Spark job submitted",
+[2026-02-01T13:33:47.462+0530] {subprocess.py:93} INFO -   "pid": 169
+[2026-02-01T13:33:47.462+0530] {subprocess.py:93} INFO - }
+[2026-02-01T13:33:47.463+0530] {subprocess.py:93} INFO - ✓ Job submitted successfully (PID: 169)
+[2026-02-01T13:33:47.489+0530] {subprocess.py:97} INFO - Command exited with return code 0
+[2026-02-01T13:33:47.525+0530] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=spark_sgp4_streaming, task_id=submit_spark_streaming_job, execution_date=20260201T080344, start_date=20260201T080346, end_date=20260201T080347
+[2026-02-01T13:33:47.563+0530] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-02-01T13:33:47.590+0530] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

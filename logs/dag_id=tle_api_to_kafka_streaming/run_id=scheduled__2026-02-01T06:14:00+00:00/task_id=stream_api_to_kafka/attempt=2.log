@@ -1,0 +1,61 @@
+[2026-02-01T11:55:12.677+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: tle_api_to_kafka_streaming.stream_api_to_kafka scheduled__2026-02-01T06:14:00+00:00 [queued]>
+[2026-02-01T11:55:12.687+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: tle_api_to_kafka_streaming.stream_api_to_kafka scheduled__2026-02-01T06:14:00+00:00 [queued]>
+[2026-02-01T11:55:12.687+0530] {taskinstance.py:2170} INFO - Starting attempt 2 of 3
+[2026-02-01T11:55:12.702+0530] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): stream_api_to_kafka> on 2026-02-01 06:14:00+00:00
+[2026-02-01T11:55:12.710+0530] {standard_task_runner.py:60} INFO - Started process 214 to run task
+[2026-02-01T11:55:12.713+0530] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'tle_api_to_kafka_streaming', 'stream_api_to_kafka', 'scheduled__2026-02-01T06:14:00+00:00', '--job-id', '18', '--raw', '--subdir', 'DAGS_FOLDER/***_dag_api_to_kafka.py', '--cfg-path', '/tmp/tmpa8nqnv81']
+[2026-02-01T11:55:12.715+0530] {standard_task_runner.py:88} INFO - Job 18: Subtask stream_api_to_kafka
+[2026-02-01T11:55:12.772+0530] {task_command.py:423} INFO - Running <TaskInstance: tle_api_to_kafka_streaming.stream_api_to_kafka scheduled__2026-02-01T06:14:00+00:00 [running]> on host ***-scheduler
+[2026-02-01T11:55:12.867+0530] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='space-debris-team' AIRFLOW_CTX_DAG_ID='tle_api_to_kafka_streaming' AIRFLOW_CTX_TASK_ID='stream_api_to_kafka' AIRFLOW_CTX_EXECUTION_DATE='2026-02-01T06:14:00+00:00' AIRFLOW_CTX_TRY_NUMBER='2' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-02-01T06:14:00+00:00'
+[2026-02-01T11:55:12.868+0530] {airflow_dag_api_to_kafka.py:87} INFO - Starting TLE API to Kafka streaming
+[2026-02-01T11:55:12.871+0530] {conn.py:380} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connecting> [IPv4 ('172.21.0.8', 9093)]>: connecting to kafka:9093 [('172.21.0.8', 9093) IPv4]
+[2026-02-01T11:55:12.872+0530] {conn.py:1205} INFO - Probing node bootstrap-0 broker version
+[2026-02-01T11:55:12.872+0530] {conn.py:410} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connecting> [IPv4 ('172.21.0.8', 9093)]>: Connection complete.
+[2026-02-01T11:55:12.975+0530] {conn.py:1267} INFO - Broker version identified as 2.5.0
+[2026-02-01T11:55:12.975+0530] {conn.py:1268} INFO - Set configuration api_version=(2, 5, 0) to skip auto check_version requests on startup
+[2026-02-01T11:55:12.978+0530] {airflow_dag_api_to_kafka.py:98} INFO - Kafka producer initialized
+[2026-02-01T11:55:12.978+0530] {airflow_dag_api_to_kafka.py:109} INFO - Connecting to: http://tle-api:5000/stream
+[2026-02-01T11:55:12.978+0530] {airflow_dag_api_to_kafka.py:110} INFO - Parameters: {'acceleration': 100, 'mode': 'adaptive', 'max_delay': 5.0, 'limit': 1000}
+[2026-02-01T11:55:13.019+0530] {conn.py:380} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.8', 9093)]>: connecting to kafka:9093 [('172.21.0.8', 9093) IPv4]
+[2026-02-01T11:55:13.020+0530] {conn.py:410} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.8', 9093)]>: Connection complete.
+[2026-02-01T11:55:13.020+0530] {conn.py:919} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connected> [IPv4 ('172.21.0.8', 9093)]>: Closing connection. 
+[2026-02-01T12:02:37.370+0530] {local_task_job_runner.py:121} ERROR - Received SIGTERM. Terminating subprocesses
+[2026-02-01T12:02:37.395+0530] {process_utils.py:131} INFO - Sending 15 to group 214. PIDs of all processes in the group: [214]
+[2026-02-01T12:02:37.397+0530] {process_utils.py:86} INFO - Sending the signal 15 to group 214
+[2026-02-01T12:02:37.400+0530] {taskinstance.py:2450} ERROR - Received SIGTERM. Terminating subprocesses.
+[2026-02-01T12:02:37.413+0530] {airflow_dag_api_to_kafka.py:187} ERROR - Streaming error: Task received SIGTERM signal
+[2026-02-01T12:02:37.484+0530] {taskinstance.py:2698} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 433, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 199, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 216, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/airflow_dag_api_to_kafka.py", line 120, in stream_api_to_kafka
+    for line in response.iter_lines():
+  File "/home/airflow/.local/lib/python3.11/site-packages/requests/models.py", line 865, in iter_lines
+    for chunk in self.iter_content(
+  File "/home/airflow/.local/lib/python3.11/site-packages/requests/models.py", line 816, in generate
+    yield from self.raw.stream(chunk_size, decode_content=True)
+  File "/home/airflow/.local/lib/python3.11/site-packages/urllib3/response.py", line 933, in stream
+    yield from self.read_chunked(amt, decode_content=decode_content)
+  File "/home/airflow/.local/lib/python3.11/site-packages/urllib3/response.py", line 1073, in read_chunked
+    self._update_chunk_length()
+  File "/home/airflow/.local/lib/python3.11/site-packages/urllib3/response.py", line 1001, in _update_chunk_length
+    line = self._fp.fp.readline()  # type: ignore[union-attr]
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/socket.py", line 706, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 2452, in signal_handler
+    raise AirflowException("Task received SIGTERM signal")
+airflow.exceptions.AirflowException: Task received SIGTERM signal
+[2026-02-01T12:02:37.501+0530] {taskinstance.py:1138} INFO - Marking task as UP_FOR_RETRY. dag_id=tle_api_to_kafka_streaming, task_id=stream_api_to_kafka, execution_date=20260201T061400, start_date=20260201T062512, end_date=20260201T063237
+[2026-02-01T12:02:37.543+0530] {standard_task_runner.py:107} ERROR - Failed to execute job 18 for task stream_api_to_kafka (Task received SIGTERM signal; 214)
+[2026-02-01T12:02:37.572+0530] {process_utils.py:79} INFO - Process psutil.Process(pid=214, status='terminated', exitcode=1, started='11:55:11') (214) terminated with exit code 1
+[2026-02-01T12:02:37.574+0530] {local_task_job_runner.py:234} INFO - Task exited with return code 143
+[2026-02-01T12:02:37.627+0530] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

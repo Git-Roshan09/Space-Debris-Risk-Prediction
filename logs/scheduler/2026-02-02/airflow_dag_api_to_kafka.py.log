@@ -1,0 +1,366 @@
+[2026-02-02T10:37:12.791+0530] {processor.py:161} INFO - Started process (PID=9150) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:37:12.792+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:37:12.794+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:37:12.793+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:37:12.902+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:37:12.963+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:37:12.962+0530] {taskinstance.py:2700} ERROR - {'DAG Id': 'tle_api_to_kafka_streaming', 'Task Id': 'stream_api_to_kafka', 'Run Id': 'scheduled__2026-02-01T16:26:00+00:00', 'Hostname': 'airflow-scheduler'}
+[2026-02-02T10:37:13.018+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:37:13.017+0530] {taskinstance.py:1138} INFO - Marking task as UP_FOR_RETRY. dag_id=tle_api_to_kafka_streaming, task_id=stream_api_to_kafka, execution_date=20260201T162600, start_date=20260201T163000, end_date=20260202T050712
+[2026-02-02T10:37:13.039+0530] {processor.py:791} INFO - Executed failure callback for <TaskInstance: tle_api_to_kafka_streaming.stream_api_to_kafka scheduled__2026-02-01T16:26:00+00:00 [up_for_retry]> in state up_for_retry
+[2026-02-02T10:37:13.042+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:37:13.042+0530] {taskinstance.py:2700} ERROR - {'DAG Id': 'tle_api_to_kafka_streaming', 'Task Id': 'stream_api_to_kafka', 'Run Id': 'scheduled__2026-02-01T16:32:00+00:00', 'Hostname': 'airflow-scheduler'}
+[2026-02-02T10:37:13.061+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:37:13.060+0530] {taskinstance.py:1138} INFO - Marking task as UP_FOR_RETRY. dag_id=tle_api_to_kafka_streaming, task_id=stream_api_to_kafka, execution_date=20260201T163200, start_date=20260201T163602, end_date=20260202T050713
+[2026-02-02T10:37:13.065+0530] {processor.py:791} INFO - Executed failure callback for <TaskInstance: tle_api_to_kafka_streaming.stream_api_to_kafka scheduled__2026-02-01T16:32:00+00:00 [up_for_retry]> in state up_for_retry
+[2026-02-02T10:37:13.068+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:37:13.068+0530] {taskinstance.py:2700} ERROR - {'DAG Id': 'tle_api_to_kafka_streaming', 'Task Id': 'stream_api_to_kafka', 'Run Id': 'scheduled__2026-02-01T17:10:00+00:00', 'Hostname': 'airflow-scheduler'}
+[2026-02-02T10:37:13.082+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:37:13.082+0530] {taskinstance.py:1138} INFO - Marking task as UP_FOR_RETRY. dag_id=tle_api_to_kafka_streaming, task_id=stream_api_to_kafka, execution_date=20260201T171000, start_date=20260201T171204, end_date=20260202T050713
+[2026-02-02T10:37:13.087+0530] {processor.py:791} INFO - Executed failure callback for <TaskInstance: tle_api_to_kafka_streaming.stream_api_to_kafka scheduled__2026-02-01T17:10:00+00:00 [up_for_retry]> in state up_for_retry
+[2026-02-02T10:37:13.090+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:37:13.089+0530] {taskinstance.py:2700} ERROR - {'DAG Id': 'tle_api_to_kafka_streaming', 'Task Id': 'stream_api_to_kafka', 'Run Id': 'scheduled__2026-02-01T16:56:00+00:00', 'Hostname': 'airflow-scheduler'}
+[2026-02-02T10:37:13.107+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:37:13.106+0530] {taskinstance.py:1138} INFO - Marking task as UP_FOR_RETRY. dag_id=tle_api_to_kafka_streaming, task_id=stream_api_to_kafka, execution_date=20260201T165600, start_date=20260201T165803, end_date=20260202T050713
+[2026-02-02T10:37:13.111+0530] {processor.py:791} INFO - Executed failure callback for <TaskInstance: tle_api_to_kafka_streaming.stream_api_to_kafka scheduled__2026-02-01T16:56:00+00:00 [up_for_retry]> in state up_for_retry
+[2026-02-02T10:37:13.114+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:37:13.114+0530] {taskinstance.py:2700} ERROR - {'DAG Id': 'tle_api_to_kafka_streaming', 'Task Id': 'stream_api_to_kafka', 'Run Id': 'scheduled__2026-02-01T16:18:00+00:00', 'Hostname': 'airflow-scheduler'}
+[2026-02-02T10:37:13.130+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:37:13.130+0530] {taskinstance.py:1138} INFO - Marking task as UP_FOR_RETRY. dag_id=tle_api_to_kafka_streaming, task_id=stream_api_to_kafka, execution_date=20260201T161800, start_date=20260201T162159, end_date=20260202T050713
+[2026-02-02T10:37:13.135+0530] {processor.py:791} INFO - Executed failure callback for <TaskInstance: tle_api_to_kafka_streaming.stream_api_to_kafka scheduled__2026-02-01T16:18:00+00:00 [up_for_retry]> in state up_for_retry
+[2026-02-02T10:37:13.138+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:37:13.138+0530] {taskinstance.py:2700} ERROR - {'DAG Id': 'tle_api_to_kafka_streaming', 'Task Id': 'stream_api_to_kafka', 'Run Id': 'scheduled__2026-02-01T17:04:00+00:00', 'Hostname': 'airflow-scheduler'}
+[2026-02-02T10:37:13.152+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:37:13.152+0530] {taskinstance.py:1138} INFO - Marking task as UP_FOR_RETRY. dag_id=tle_api_to_kafka_streaming, task_id=stream_api_to_kafka, execution_date=20260201T170400, start_date=20260201T170603, end_date=20260202T050713
+[2026-02-02T10:37:13.156+0530] {processor.py:791} INFO - Executed failure callback for <TaskInstance: tle_api_to_kafka_streaming.stream_api_to_kafka scheduled__2026-02-01T17:04:00+00:00 [up_for_retry]> in state up_for_retry
+[2026-02-02T10:37:13.183+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:37:13.183+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:37:13.239+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.455 seconds
+[2026-02-02T10:37:44.034+0530] {processor.py:161} INFO - Started process (PID=9167) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:37:44.035+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:37:44.036+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:37:44.036+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:37:44.087+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:37:44.119+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:37:44.119+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:37:44.165+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.134 seconds
+[2026-02-02T10:38:14.328+0530] {processor.py:161} INFO - Started process (PID=9182) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:38:14.329+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:38:14.330+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:38:14.329+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:38:14.397+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:38:14.427+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:38:14.427+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:38:14.472+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.147 seconds
+[2026-02-02T10:38:44.566+0530] {processor.py:161} INFO - Started process (PID=9204) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:38:44.569+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:38:44.570+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:38:44.570+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:38:44.617+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:38:44.646+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:38:44.646+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:38:44.694+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.131 seconds
+[2026-02-02T10:39:14.898+0530] {processor.py:161} INFO - Started process (PID=9219) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:39:14.899+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:39:14.901+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:39:14.900+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:39:15.002+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:39:15.059+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:39:15.059+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:39:15.156+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.264 seconds
+[2026-02-02T10:39:45.255+0530] {processor.py:161} INFO - Started process (PID=9234) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:39:45.256+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:39:45.258+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:39:45.257+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:39:45.359+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:39:45.411+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:39:45.411+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:39:45.510+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.261 seconds
+[2026-02-02T10:40:15.642+0530] {processor.py:161} INFO - Started process (PID=9249) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:40:15.644+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:40:15.645+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:40:15.645+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:40:15.745+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:40:15.798+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:40:15.797+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:40:15.889+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.254 seconds
+[2026-02-02T10:40:46.023+0530] {processor.py:161} INFO - Started process (PID=9282) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:40:46.026+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:40:46.028+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:40:46.027+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:40:46.136+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:40:46.183+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:40:46.183+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:40:46.269+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.253 seconds
+[2026-02-02T10:41:16.550+0530] {processor.py:161} INFO - Started process (PID=9297) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:41:16.551+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:41:16.552+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:41:16.552+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:41:16.648+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:41:16.834+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:41:16.834+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:41:16.909+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.365 seconds
+[2026-02-02T10:41:47.008+0530] {processor.py:161} INFO - Started process (PID=9312) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:41:47.011+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:41:47.013+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:41:47.012+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:41:47.115+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:41:47.320+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:41:47.320+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:41:47.407+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.405 seconds
+[2026-02-02T10:42:18.387+0530] {processor.py:161} INFO - Started process (PID=9327) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:42:18.390+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:42:18.391+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:42:18.390+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:42:18.496+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:42:18.551+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:42:18.550+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:42:18.633+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.253 seconds
+[2026-02-02T10:42:48.774+0530] {processor.py:161} INFO - Started process (PID=9342) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:42:48.775+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:42:48.776+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:42:48.776+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:42:48.886+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:42:48.938+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:42:48.938+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:42:49.008+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.239 seconds
+[2026-02-02T10:43:19.148+0530] {processor.py:161} INFO - Started process (PID=9357) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:43:19.149+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:43:19.151+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:43:19.150+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:43:19.239+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:43:19.295+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:43:19.294+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:43:19.369+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.227 seconds
+[2026-02-02T10:43:49.516+0530] {processor.py:161} INFO - Started process (PID=9372) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:43:49.519+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:43:49.521+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:43:49.520+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:43:49.626+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:43:49.684+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:43:49.684+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:43:49.763+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.253 seconds
+[2026-02-02T10:44:19.840+0530] {processor.py:161} INFO - Started process (PID=9387) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:44:19.842+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:44:19.844+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:44:19.843+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:44:19.958+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:44:20.020+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:44:20.020+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:44:20.239+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.406 seconds
+[2026-02-02T10:44:51.209+0530] {processor.py:161} INFO - Started process (PID=9402) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:44:51.211+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:44:51.213+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:44:51.212+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:44:51.311+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:44:51.366+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:44:51.365+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:44:51.550+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.347 seconds
+[2026-02-02T10:45:22.568+0530] {processor.py:161} INFO - Started process (PID=9417) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:45:22.569+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:45:22.571+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:45:22.570+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:45:22.672+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:45:22.718+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:45:22.718+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:45:22.790+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.228 seconds
+[2026-02-02T10:45:52.920+0530] {processor.py:161} INFO - Started process (PID=9432) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:45:52.922+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:45:52.923+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:45:52.923+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:45:53.022+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:45:53.076+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:45:53.076+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:45:53.155+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.241 seconds
+[2026-02-02T10:46:23.279+0530] {processor.py:161} INFO - Started process (PID=9447) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:46:23.280+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:46:23.280+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:46:23.280+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:46:23.328+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:46:23.357+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:46:23.357+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:46:23.418+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.142 seconds
+[2026-02-02T10:46:53.646+0530] {processor.py:161} INFO - Started process (PID=9462) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:46:53.649+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:46:53.651+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:46:53.650+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:46:53.751+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:46:53.806+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:46:53.806+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:46:53.952+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.312 seconds
+[2026-02-02T10:47:24.207+0530] {processor.py:161} INFO - Started process (PID=9477) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:47:24.210+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:47:24.211+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:47:24.211+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:47:24.307+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:47:24.511+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:47:24.511+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:47:24.591+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.389 seconds
+[2026-02-02T10:47:54.686+0530] {processor.py:161} INFO - Started process (PID=9492) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:47:54.688+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:47:54.689+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:47:54.689+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:47:54.773+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:47:54.953+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:47:54.952+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:47:55.016+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.335 seconds
+[2026-02-02T10:48:26.041+0530] {processor.py:161} INFO - Started process (PID=9507) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:48:26.044+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:48:26.046+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:48:26.045+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:48:26.141+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:48:26.192+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:48:26.191+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:48:26.268+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.234 seconds
+[2026-02-02T10:48:56.400+0530] {processor.py:161} INFO - Started process (PID=9522) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:48:56.401+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:48:56.403+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:48:56.402+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:48:56.510+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:48:56.567+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:48:56.566+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:48:56.654+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.260 seconds
+[2026-02-02T10:49:26.776+0530] {processor.py:161} INFO - Started process (PID=9537) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:49:26.777+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:49:26.779+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:49:26.778+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:49:26.879+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:49:26.927+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:49:26.927+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:49:27.001+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.233 seconds
+[2026-02-02T10:49:57.151+0530] {processor.py:161} INFO - Started process (PID=9552) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:49:57.152+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:49:57.154+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:49:57.153+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:49:57.255+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:49:57.310+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:49:57.310+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:49:57.388+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.244 seconds
+[2026-02-02T10:50:27.506+0530] {processor.py:161} INFO - Started process (PID=9567) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:50:27.509+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:50:27.511+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:50:27.510+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:50:27.611+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:50:27.665+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:50:27.664+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:50:27.922+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.422 seconds
+[2026-02-02T10:50:58.898+0530] {processor.py:161} INFO - Started process (PID=9582) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:50:58.899+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:50:58.901+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:50:58.900+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:50:59.003+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:50:59.057+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:50:59.057+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:50:59.136+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.244 seconds
+[2026-02-02T10:51:29.267+0530] {processor.py:161} INFO - Started process (PID=9597) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:51:29.270+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:51:29.272+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:51:29.271+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:51:29.360+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:51:29.405+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:51:29.404+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:51:29.468+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.208 seconds
+[2026-02-02T10:51:59.630+0530] {processor.py:161} INFO - Started process (PID=9612) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:51:59.631+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:51:59.633+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:51:59.632+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:51:59.734+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:51:59.786+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:51:59.786+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:51:59.865+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.241 seconds
+[2026-02-02T10:52:30.004+0530] {processor.py:161} INFO - Started process (PID=9627) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:52:30.005+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:52:30.006+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:52:30.006+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:52:30.083+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:52:30.137+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:52:30.137+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:52:30.276+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.276 seconds
+[2026-02-02T10:53:00.387+0530] {processor.py:161} INFO - Started process (PID=9642) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:53:00.388+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:53:00.390+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:53:00.389+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:53:00.495+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:53:00.551+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:53:00.551+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:53:00.633+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.253 seconds
+[2026-02-02T10:53:30.748+0530] {processor.py:161} INFO - Started process (PID=9657) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:53:30.749+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:53:30.751+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:53:30.750+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:53:30.834+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:53:30.872+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:53:30.872+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:53:30.941+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.200 seconds
+[2026-02-02T10:54:01.076+0530] {processor.py:161} INFO - Started process (PID=9672) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:54:01.077+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:54:01.079+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:54:01.078+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:54:01.167+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:54:01.219+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:54:01.218+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:54:01.299+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.231 seconds
+[2026-02-02T10:54:31.437+0530] {processor.py:161} INFO - Started process (PID=9687) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:54:31.439+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:54:31.440+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:54:31.440+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:54:31.525+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:54:31.568+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:54:31.568+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:54:31.637+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.206 seconds
+[2026-02-02T10:55:01.801+0530] {processor.py:161} INFO - Started process (PID=9702) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:55:01.802+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:55:01.804+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:55:01.803+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:55:01.909+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:55:01.965+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:55:01.965+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:55:02.044+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.250 seconds
+[2026-02-02T10:55:32.093+0530] {processor.py:161} INFO - Started process (PID=9717) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:55:32.094+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:55:32.096+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:55:32.095+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:55:32.187+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:55:32.243+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:55:32.242+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:55:32.424+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.339 seconds
+[2026-02-02T10:56:03.450+0530] {processor.py:161} INFO - Started process (PID=9732) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:56:03.451+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:56:03.452+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:56:03.452+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:56:03.537+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:56:03.583+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:56:03.583+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:56:03.701+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.257 seconds
+[2026-02-02T10:56:33.810+0530] {processor.py:161} INFO - Started process (PID=9747) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:56:33.811+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:56:33.813+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:56:33.812+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:56:33.921+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:56:33.976+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:56:33.976+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:56:34.042+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.239 seconds
+[2026-02-02T10:57:04.167+0530] {processor.py:161} INFO - Started process (PID=9762) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:57:04.170+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:57:04.171+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:57:04.171+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:57:04.264+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:57:04.319+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:57:04.319+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:57:04.400+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.240 seconds
+[2026-02-02T10:57:34.585+0530] {processor.py:161} INFO - Started process (PID=9777) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:57:34.587+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:57:34.589+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:57:34.588+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:57:34.681+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:57:34.736+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:57:34.736+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:57:34.862+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.281 seconds
+[2026-02-02T10:58:04.957+0530] {processor.py:161} INFO - Started process (PID=9792) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:58:04.960+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:58:04.962+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:58:04.961+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:58:05.058+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:58:05.106+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:58:05.106+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:58:05.179+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.227 seconds
+[2026-02-02T10:58:35.319+0530] {processor.py:161} INFO - Started process (PID=9807) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:58:35.320+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:58:35.322+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:58:35.321+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:58:35.422+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:58:35.476+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:58:35.476+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:58:35.553+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.241 seconds
+[2026-02-02T10:59:05.672+0530] {processor.py:161} INFO - Started process (PID=9829) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:59:05.675+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:59:05.677+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:59:05.676+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:59:05.779+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:59:05.829+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:59:05.829+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:59:05.911+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.247 seconds
+[2026-02-02T10:59:36.074+0530] {processor.py:161} INFO - Started process (PID=9844) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:59:36.076+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T10:59:36.077+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:59:36.076+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:59:36.184+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T10:59:36.238+0530] {logging_mixin.py:188} INFO - [2026-02-02T10:59:36.238+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T10:59:36.443+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.375 seconds
+[2026-02-02T11:00:07.432+0530] {processor.py:161} INFO - Started process (PID=9859) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:00:07.435+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T11:00:07.437+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:00:07.436+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:00:07.520+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:00:07.561+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:00:07.561+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:00:07.624+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.197 seconds
+[2026-02-02T11:00:37.810+0530] {processor.py:161} INFO - Started process (PID=9874) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:00:37.811+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T11:00:37.813+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:00:37.812+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:00:37.927+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:00:37.977+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:00:37.977+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:00:38.061+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.258 seconds
+[2026-02-02T11:01:08.112+0530] {processor.py:161} INFO - Started process (PID=9889) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:01:08.113+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T11:01:08.113+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:01:08.113+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:01:08.172+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:01:08.203+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:01:08.202+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:01:08.247+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.140 seconds
+[2026-02-02T11:01:38.412+0530] {processor.py:161} INFO - Started process (PID=9904) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:01:38.413+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T11:01:38.414+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:01:38.414+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:01:38.488+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:01:38.519+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:01:38.519+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:01:38.564+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.156 seconds
+[2026-02-02T11:02:08.835+0530] {processor.py:161} INFO - Started process (PID=9919) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:02:08.837+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T11:02:08.839+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:02:08.838+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:02:08.975+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:02:09.013+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:02:09.012+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:02:09.076+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.248 seconds
+[2026-02-02T11:02:39.234+0530] {processor.py:161} INFO - Started process (PID=9934) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:02:39.236+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T11:02:39.238+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:02:39.237+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:02:39.339+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:02:39.391+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:02:39.390+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:02:39.456+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.228 seconds
+[2026-02-02T11:03:09.570+0530] {processor.py:161} INFO - Started process (PID=9949) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:03:09.572+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T11:03:09.575+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:03:09.574+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:03:09.695+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:03:09.751+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:03:09.751+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:03:09.807+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.246 seconds
+[2026-02-02T11:03:39.892+0530] {processor.py:161} INFO - Started process (PID=9964) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:03:39.893+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T11:03:39.894+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:03:39.894+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:03:40.022+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:03:40.081+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:03:40.081+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:03:40.143+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.259 seconds
+[2026-02-02T11:04:10.284+0530] {processor.py:161} INFO - Started process (PID=9979) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:04:10.285+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T11:04:10.287+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:04:10.286+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:04:10.402+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:04:10.462+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:04:10.461+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:04:10.549+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.271 seconds
+[2026-02-02T11:04:40.674+0530] {processor.py:161} INFO - Started process (PID=9994) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:04:40.674+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T11:04:40.676+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:04:40.675+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:04:40.770+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:04:40.827+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:04:40.827+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:04:41.788+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 1.122 seconds
+[2026-02-02T11:05:11.964+0530] {processor.py:161} INFO - Started process (PID=10009) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:05:11.965+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T11:05:11.967+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:05:11.966+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:05:12.058+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:05:12.114+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:05:12.114+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:05:12.258+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.301 seconds
+[2026-02-02T11:05:42.345+0530] {processor.py:161} INFO - Started process (PID=10024) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:05:42.347+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T11:05:42.350+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:05:42.348+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:05:42.464+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:05:42.517+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:05:42.516+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:05:42.629+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.288 seconds
+[2026-02-02T11:06:12.760+0530] {processor.py:161} INFO - Started process (PID=10039) to work on /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:06:12.762+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_api_to_kafka.py for tasks to queue
+[2026-02-02T11:06:12.763+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:06:12.763+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:06:12.883+0530] {processor.py:840} INFO - DAG(s) 'tle_api_to_kafka_streaming' retrieved from /opt/airflow/dags/airflow_dag_api_to_kafka.py
+[2026-02-02T11:06:12.944+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:06:12.943+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:06:13.360+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_api_to_kafka.py took 0.606 seconds

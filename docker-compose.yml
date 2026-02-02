@@ -1,326 +1,460 @@
 version: '3.8'
 
 services:
+  # ==========================================
+  # ZOOKEEPER (Required for Kafka)
+  # ==========================================
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.4.0
-    hostname: zookeeper
+    image: confluentinc/cp-zookeeper:7.5.0
     container_name: zookeeper
+    hostname: zookeeper
     ports:
       - "2181:2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_MAX_CLIENT_CNXNS: 0
+      TZ: 'Asia/Kolkata'
+    networks:
+      - bigdata-net
     healthcheck:
-      test: ['CMD', 'bash', '-c', "echo 'ruok' | nc localhost 2181"]
+      test: echo ruok | nc localhost 2181 || exit 1
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - confluent
+    restart: unless-stopped
 
-  broker:
-    image: confluentinc/cp-server:7.4.0
-    hostname: broker
-    container_name: broker
+  # ==========================================
+  # KAFKA BROKER
+  # ==========================================
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    hostname: kafka
     depends_on:
       zookeeper:
         condition: service_healthy
     ports:
       - "9092:9092"
-      - "9101:9101"
+      - "9093:9093"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9093,EXTERNAL://localhost:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_JMX_PORT: 9101
-      KAFKA_JMX_HOSTNAME: localhost
-      KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081
-      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:29092
-      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
-      CONFLUENT_METRICS_ENABLE: 'false'
-      CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_LOG_RETENTION_HOURS: 168
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      TZ: 'Asia/Kolkata'
     networks:
-      - confluent
+      - bigdata-net
     healthcheck:
-      test: ["CMD", "bash", "-c", 'nc -z localhost 9092']
+      test: kafka-broker-api-versions --bootstrap-server localhost:9092 || exit 1
       interval: 10s
-      timeout: 5s
-      retries: 5
-
-  schema-registry:
-    image: confluentinc/cp-schema-registry:7.4.0
-    hostname: schema-registry
-    container_name: schema-registry
-    depends_on:
-      broker:
-        condition: service_healthy
-    ports:
-      - "8081:8081"
-    environment:
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
-      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
-    networks:
-      - confluent
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/"]
-      interval: 30s
       timeout: 10s
       retries: 5
-  
-  control-center:
-    image: confluentinc/cp-enterprise-control-center:7.4.0
-    hostname: control-center
-    container_name: control-center
+    restart: unless-stopped
+
+  # ==========================================
+  # KAFKA UI (Web Interface for Kafka)
+  # ==========================================
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    hostname: kafka-ui
     depends_on:
-      broker:
-        condition: service_healthy
-      schema-registry:
+      kafka:
         condition: service_healthy
     ports:
-      - "9021:9021"
+      - "8090:8080"
     environment:
-      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'broker:29092'
-      CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
-      CONTROL_CENTER_REPLICATION_FACTOR: 1
-      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
-      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
-      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
-      CONFLUENT_METRICS_ENABLE: 'false'
-      PORT: 9021
+      KAFKA_CLUSTERS_0_NAME: space-debris-cluster
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9093
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+      TZ: 'Asia/Kolkata'
     networks:
-      - confluent
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9021/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+      - bigdata-net
+    restart: unless-stopped
 
-  postgres:
-    image: postgres:14.0
-    container_name: postgres-airflow
+  # ==========================================
+  # HDFS NAMENODE
+  # ==========================================
+  namenode:
+    image: apache/hadoop:3.3.6
+    container_name: namenode
+    hostname: namenode
+    ports:
+      - "9870:9870"  # Web UI
+      - "9000:9000"  # HDFS RPC
     environment:
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=airflow
-      - POSTGRES_DB=airflow
+      ENSURE_NAMENODE_DIR: "/tmp/hadoop-root/dfs/name"
+      CLUSTER_NAME: "space-debris-cluster"
+      TZ: 'Asia/Kolkata'
+    command: ["hdfs", "namenode"]
     volumes:
-      - postgres-db-volume:/var/lib/postgresql/data
-    logging:
-      options:
-        max-size: 10m
-        max-file: "3"
+      - namenode-data:/hadoop/dfs/name
+      - ./config/hadoop:/opt/hadoop/etc/hadoop
+    networks:
+      - bigdata-net
+    healthcheck:
+      test: curl -f http://localhost:9870/ || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # ==========================================
+  # HDFS DATANODE
+  # ==========================================
+  datanode:
+    image: apache/hadoop:3.3.6
+    container_name: datanode
+    hostname: datanode
+    depends_on:
+      namenode:
+        condition: service_healthy
+    ports:
+      - "9864:9864"  # Web UI
+      - "9866:9866"  # Data transfer
+    environment:
+      NAMENODE_HOSTNAME: "namenode"
+      TZ: 'Asia/Kolkata'
+    command: ["hdfs", "datanode"]
+    volumes:
+      - datanode-data:/hadoop/dfs/data
+      - ./config/hadoop:/opt/hadoop/etc/hadoop
+    networks:
+      - bigdata-net
+    restart: unless-stopped
+
+  # ==========================================
+  # APACHE SPARK MASTER
+  # ==========================================
+  spark-master:
+    build:
+      context: ./config/docker
+      dockerfile: Dockerfile.spark
+    image: spark-sgp4:3.5.0
+    container_name: spark-master
+    hostname: spark-master
+    user: root
+    ports:
+      - "8080:8080"  # Web UI
+      - "7077:7077"  # Spark Master Port
+      - "4040:4040"  # Spark Application UI
+      - "6066:6066"  # REST API
+    environment:
+      - SPARK_MODE=master
+      - SPARK_MASTER_HOST=spark-master
+      - SPARK_MASTER_PORT=7077
+      - SPARK_MASTER_WEBUI_PORT=8080
+      - SPARK_REST_PORT=6066
+      - TZ=Asia/Kolkata
+    volumes:
+      - ./pipelines:/opt/spark-apps
+      - ./data:/opt/spark-data
+      - ./config/docker/spark_rest_trigger.py:/opt/spark_rest_trigger.py
+    command: |
+      bash -c "/opt/spark/sbin/start-master.sh && sleep 5 && python3 /opt/spark_rest_trigger.py & sleep infinity"
+    networks:
+      - bigdata-net
+    restart: unless-stopped
+
+  # ==========================================
+  # APACHE SPARK WORKER 1
+  # ==========================================
+  spark-worker-1:
+    build:
+      context: ./config/docker
+      dockerfile: Dockerfile.spark
+    image: spark-sgp4:3.5.0
+    container_name: spark-worker-1
+    hostname: spark-worker-1
+    user: root
+    depends_on:
+      - spark-master
+    ports:
+      - "8081:8081"  # Web UI
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=2G
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_WEBUI_PORT=8081
+      - TZ=Asia/Kolkata
+    volumes:
+      - ./pipelines:/opt/spark-apps
+      - ./data:/opt/spark-data
+    command: |
+      bash -c "sleep 5 && /opt/spark/sbin/start-worker.sh spark://spark-master:7077 && tail -f /opt/spark/logs/*"
+    networks:
+      - bigdata-net
+    restart: unless-stopped
+
+  # ==========================================
+  # TLE API (Flask Streaming API)
+  # ==========================================
+  tle-api:
+    image: python:3.11-slim
+    container_name: tle-api
+    hostname: tle-api
+    ports:
+      - "5000:5000"
+    working_dir: /app
+    volumes:
+      - ./:/app
+    environment:
+      FLASK_APP: api.py
+      FLASK_ENV: development
+      PYTHONUNBUFFERED: 1
+      TZ: 'Asia/Kolkata'
+    command: >
+      bash -c "apt-get update && apt-get install -y curl &&
+               pip install --no-cache-dir -r requirements-api.txt &&
+               python api.py"
+    networks:
+      - bigdata-net
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/stats"]
+      interval: 30s
+      timeout: 15s
+      retries: 10
+      start_period: 180s
+
+  # ==========================================  # POSTGRES (Airflow Metadata Database)
+  # ==========================================
+  postgres:
+    image: postgres:14-alpine
+    container_name: airflow-postgres
+    hostname: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+      TZ: 'Asia/Kolkata'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - bigdata-net
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "airflow"]
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - confluent
+    restart: unless-stopped
 
-  webserver:
-    image: apache/airflow:2.6.0-python3.9
-    container_name: airflow-webserver
-    entrypoint: ['/opt/airflow/script/entrypoint.sh', 'webserver']
+  # ==========================================
+  # AIRFLOW INIT (One-time setup)
+  # ==========================================
+  airflow-init:
+    image: apache/airflow:2.8.1-python3.11
+    container_name: airflow-init
     depends_on:
       postgres:
         condition: service_healthy
     environment:
-      - LOAD_EX=n
-      - EXECUTOR=Sequential
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
-      - AIRFLOW_WEBSERVER_SECRET_KEY=this_is_a_very_secured_key
-      - AIRFLOW__CORE__LOAD_EXAMPLES=False
-      - AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
-    logging:
-      options:
-        max-size: 10m
-        max-file: "3"
-    volumes:
-      - ./dags:/opt/airflow/dags
-      - ./script/entrypoint.sh:/opt/airflow/script/entrypoint.sh:ro
-      - ./requirements.txt:/opt/airflow/requirements.txt:ro
-      - airflow-logs:/opt/airflow/logs
-    ports:
-      - "8080:8080"
-    healthcheck:
-      test: ['CMD-SHELL', "curl --fail http://localhost:8080/health || exit 1"]
-      interval: 30s
-      timeout: 30s
-      retries: 5
-      start_period: 60s
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      AIRFLOW__CORE__FERNET_KEY: 'FB0o_zt4e3Ziq3LdUUO7F2Z95cvFFx16hU8jTeR1ASM='
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      _AIRFLOW_DB_MIGRATE: 'true'
+      _AIRFLOW_WWW_USER_CREATE: 'true'
+      _AIRFLOW_WWW_USER_USERNAME: admin
+      _AIRFLOW_WWW_USER_PASSWORD: admin
+      _PIP_ADDITIONAL_REQUIREMENTS: 'kafka-python==2.0.2 requests==2.31.0'
+      TZ: 'Asia/Kolkata'
     networks:
-      - confluent
+      - bigdata-net
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        airflow db migrate
+        airflow users create \
+          --username admin \
+          --password admin \
+          --firstname Admin \
+          --lastname User \
+          --role Admin \
+          --email admin@example.com || true
+    restart: "no"
 
-  scheduler:
-    image: apache/airflow:2.6.0-python3.9
-    container_name: airflow-scheduler
-    entrypoint: ['/opt/airflow/script/entrypoint.sh', 'scheduler']
+  # ==========================================
+  # AIRFLOW WEBSERVER
+  # ==========================================
+  airflow-webserver:
+    image: apache/airflow:2.8.1-python3.11
+    container_name: airflow-webserver
+    hostname: airflow-webserver
+    user: "50000:0"
     depends_on:
-      webserver:
+      postgres:
         condition: service_healthy
-    volumes:
-      - ./dags:/opt/airflow/dags
-      - ./script/entrypoint.sh:/opt/airflow/script/entrypoint.sh:ro
-      - ./requirements.txt:/opt/airflow/requirements.txt:ro
-      - airflow-logs:/opt/airflow/logs
-    environment:
-      - LOAD_EX=n
-      - EXECUTOR=Sequential
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
-      - AIRFLOW_WEBSERVER_SECRET_KEY=this_is_a_very_secured_key
-      - AIRFLOW__CORE__LOAD_EXAMPLES=False
-      - AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
-    networks:
-      - confluent
-
-  spark-master:
-    image: apache/spark:3.5.0-scala2.12-java11-python3-ubuntu
-    container_name: spark-master
-    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+      airflow-init:
+        condition: service_completed_successfully
+      tle-api:
+        condition: service_healthy
     ports:
-      - "9090:8080"
-      - "7077:7077"
-    depends_on:
-      - namenode
-      - datanode
+      - "8088:8080"
     environment:
-      - SPARK_MODE=master
-      - SPARK_RPC_AUTHENTICATION_ENABLED=no
-      - SPARK_RPC_ENCRYPTION_ENABLED=no
-      - HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop
-      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      AIRFLOW__CORE__FERNET_KEY: 'FB0o_zt4e3Ziq3LdUUO7F2Z95cvFFx16hU8jTeR1ASM='
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__CORE__DEFAULT_TIMEZONE: 'Asia/Kolkata'
+      AIRFLOW__WEBSERVER__DEFAULT_UI_TIMEZONE: 'Asia/Kolkata'
+      AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'true'
+      AIRFLOW__WEBSERVER__SECRET_KEY: 'airflow_secret_key_space_debris_2026'
+      _PIP_ADDITIONAL_REQUIREMENTS: 'kafka-python==2.0.2 requests==2.31.0 apache-airflow-providers-apache-spark==4.5.0'
+      TZ: 'Asia/Kolkata'
     volumes:
-      - ./src:/opt/spark/work-dir/src
-      - ./Output:/opt/spark/work-dir/output
-      - ./hadoop-config:/opt/hadoop/etc/hadoop:ro
+      - ./pipelines/ingestion:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./config/airflow:/opt/airflow/config
+      - ./pipelines:/opt/spark-apps:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - confluent
-    
-  spark-worker:
-    image: apache/spark:3.5.0-scala2.12-java11-python3-ubuntu
-    container_name: spark-worker
-    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
-    depends_on:
-      - spark-master
-      - namenode
-      - datanode
-    environment:
-      - SPARK_MODE=worker
-      - SPARK_WORKER_CORES=2
-      - SPARK_WORKER_MEMORY=2g
-      - SPARK_MASTER_URL=spark://spark-master:7077
-      - SPARK_RPC_AUTHENTICATION_ENABLED=no
-      - SPARK_RPC_ENCRYPTION_ENABLED=no
-      - HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop
-      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
-    volumes:
-      - ./src:/opt/spark/work-dir/src
-      - ./src/kafka:/opt/spark-apps
-      - ./hadoop-config:/opt/hadoop/etc/hadoop:ro
-    networks:
-      - confluent
-  
-  spark-notebook:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: custom-pyspark-notebook:spark-3.5.0
-    container_name: spark-notebook
-    environment:
-      - SPARK_MASTER=spark://spark-master:7077
-      - PYSPARK_PYTHON=/usr/bin/python3
-      - PYSPARK_DRIVER_PYTHON=/usr/bin/python3
-    ports:
-      - "8888:8888"
-    volumes:
-      - ./notebooks:/home/jovyan/work
+      - bigdata-net
     dns:
       - 8.8.8.8
       - 8.8.4.4
-    networks:
-      - confluent
-
-  cassandra_db:
-    image: cassandra:latest
-    container_name: cassandra
-    hostname: cassandra
-    ports:
-      - "9042:9042"
-    environment:
-      - MAX_HEAP_SIZE=512M
-      - HEAP_NEWSIZE=100M
-      - CASSANDRA_USERNAME=cassandra
-      - CASSANDRA_PASSWORD=cassandra
-    volumes:
-      - cassandra-data:/var/lib/cassandra
+    command: webserver
     healthcheck:
-      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
-      retries: 5
-    networks:
-      - confluent
+      retries: 3
+    restart: unless-stopped
 
-  namenode:
-    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
-    container_name: namenode
-    restart: always
-    ports:
-      - "9870:9870"  # HDFS Web UI
-      - "9820:9000"  # HDFS RPC (mapped to avoid conflict)
-    volumes:
-      - hadoop_namenode:/hadoop/dfs/name
-    environment:
-      - CLUSTER_NAME=space-debris-cluster
-      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
-      - CORE_CONF_hadoop_http_staticuser_user=root
-      - CORE_CONF_hadoop_proxyuser_hue_hosts=*
-      - CORE_CONF_hadoop_proxyuser_hue_groups=*
-      - HDFS_CONF_dfs_webhdfs_enabled=true
-      - HDFS_CONF_dfs_permissions_enabled=false
-      - HDFS_CONF_dfs_replication=1
-    networks:
-      - confluent
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9870/"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
-  datanode:
-    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
-    container_name: datanode
-    restart: always
+  # ==========================================
+  # AIRFLOW SCHEDULER
+  # ==========================================
+  airflow-scheduler:
+    image: apache/airflow:2.8.1-python3.11
+    container_name: airflow-scheduler
+    hostname: airflow-scheduler
+    user: "50000:960"  # airflow:docker group for socket access
+    group_add:
+      - "960"  # docker group ID from host
     depends_on:
-      - namenode
-    ports:
-      - "9864:9864"
-    volumes:
-      - hadoop_datanode:/hadoop/dfs/data
+      postgres:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+      tle-api:
+        condition: service_healthy
     environment:
-      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
-      - CORE_CONF_hadoop_http_staticuser_user=root
-      - CORE_CONF_hadoop_proxyuser_hue_hosts=*
-      - CORE_CONF_hadoop_proxyuser_hue_groups=*
-      - HDFS_CONF_dfs_webhdfs_enabled=true
-      - HDFS_CONF_dfs_permissions_enabled=false
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      AIRFLOW__CORE__FERNET_KEY: 'FB0o_zt4e3Ziq3LdUUO7F2Z95cvFFx16hU8jTeR1ASM='
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__CORE__DEFAULT_TIMEZONE: 'Asia/Kolkata'
+      _PIP_ADDITIONAL_REQUIREMENTS: 'kafka-python==2.0.2 requests==2.31.0 apache-airflow-providers-apache-spark==4.5.0'
+      TZ: 'Asia/Kolkata'
+    volumes:
+      - ./pipelines/ingestion:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./config/airflow:/opt/airflow/config
+      - ./pipelines:/opt/spark-apps:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - confluent
+      - bigdata-net
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    command: scheduler
+    restart: unless-stopped
 
-volumes:
-  postgres-db-volume:
-  cassandra-data:
-  airflow-logs:
-  hadoop_namenode:
-  hadoop_datanode:
+  # ==========================================
+  # DASHBOARD API (Collision Data Service)
+  # ==========================================
+  dashboard-api:
+    build:
+      context: ./config/docker
+      dockerfile: Dockerfile.spark
+    image: spark-sgp4:3.5.0
+    container_name: dashboard-api
+    hostname: dashboard-api
+    user: root
+    depends_on:
+      namenode:
+        condition: service_healthy
+      spark-master:
+        condition: service_healthy
+    ports:
+      - "5001:5001"
+    environment:
+      - PREDICTION_DAYS=${PREDICTION_DAYS:-7}
+      - COLLISION_THRESHOLD_KM=${COLLISION_THRESHOLD_KM:-10.0}
+      - TIME_WINDOW_DAYS=${TIME_WINDOW_DAYS:-7}
+      - SGP4_PROPAGATION_STEP_HOURS=${SGP4_PROPAGATION_STEP_HOURS:-6}
+      - HDFS_SGP4_VECTORS_PATH=${HDFS_SGP4_VECTORS_PATH:-hdfs://namenode:9000/space-debris/sgp4_vectors}
+      - HDFS_COLLISION_PREDICTIONS_PATH=${HDFS_COLLISION_PREDICTIONS_PATH:-hdfs://namenode:9000/space-debris/collision_predictions}
+      - KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS:-kafka:9093}
+      - KAFKA_COLLISION_TOPIC=${KAFKA_COLLISION_TOPIC:-space_debris_collisions}
+      - DASHBOARD_PORT=${DASHBOARD_PORT:-5001}
+      - HIGH_RISK_THRESHOLD_KM=${HIGH_RISK_THRESHOLD_KM:-5.0}
+      - MEDIUM_RISK_THRESHOLD_KM=${MEDIUM_RISK_THRESHOLD_KM:-10.0}
+      - LOW_RISK_THRESHOLD_KM=${LOW_RISK_THRESHOLD_KM:-50.0}
+      - TZ=${TIMEZONE:-Asia/Kolkata}
+    volumes:
+      - ./dashboard_api.py:/opt/spark-apps/dashboard_api.py
+      - ./requirements-dashboard.txt:/opt/spark-apps/requirements-dashboard.txt
+      - ./pipelines:/opt/spark-apps/pipelines:ro
+    networks:
+      - bigdata-net
+    command: >
+      bash -c "
+        pip3 install -r /opt/spark-apps/requirements-dashboard.txt &&
+        python3 /opt/spark-apps/dashboard_api.py
+      "
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ==========================================
+  # WEB DASHBOARD (Frontend)
+  # ==========================================
+  dashboard-web:
+    image: nginx:alpine
+    container_name: dashboard-web
+    hostname: dashboard-web
+    depends_on:
+      dashboard-api:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    volumes:
+      - ./dashboard:/usr/share/nginx/html:ro
+    networks:
+      - bigdata-net
+    restart: unless-stopped
 
 networks:
-  confluent:
+  bigdata-net:
+    driver: bridge
+    name: bigdata-net
+
+volumes:
+  namenode-data:
+    name: namenode-data
+  datanode-data:
+    name: datanode-data
+  postgres-data:
+    name: postgres-data
+

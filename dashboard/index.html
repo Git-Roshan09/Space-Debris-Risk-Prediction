@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Debris Collision Risk Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛰️ Space Debris Collision Risk Dashboard</h1>
+            <div class="header-info">
+                <span id="last-update">Last Updated: --</span>
+                <span id="status-indicator" class="status-ok">● Connected</span>
+            </div>
+        </header>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="card card-high-risk">
+                <h3>High Risk</h3>
+                <div class="card-value" id="high-risk-count">--</div>
+                <div class="card-label">Collisions &lt; 5 km</div>
+            </div>
+            <div class="card card-medium-risk">
+                <h3>Medium Risk</h3>
+                <div class="card-value" id="medium-risk-count">--</div>
+                <div class="card-label">Collisions &lt; 10 km</div>
+            </div>
+            <div class="card card-low-risk">
+                <h3>Low Risk</h3>
+                <div class="card-value" id="low-risk-count">--</div>
+                <div class="card-label">Collisions &lt; 50 km</div>
+            </div>
+            <div class="card card-total">
+                <h3>Total Tracked</h3>
+                <div class="card-value" id="total-count">--</div>
+                <div class="card-label">All Predictions</div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="dashboard-grid">
+            <!-- Collision Timeline Chart -->
+            <div class="panel panel-large">
+                <h2>Collision Timeline (Next 7 Days)</h2>
+                <canvas id="timelineChart"></canvas>
+            </div>
+
+            <!-- Risk Distribution Chart -->
+            <div class="panel">
+                <h2>Risk Distribution</h2>
+                <canvas id="riskChart"></canvas>
+            </div>
+
+            <!-- Distance Statistics -->
+            <div class="panel">
+                <h2>Distance Statistics</h2>
+                <div class="stats-container">
+                    <div class="stat-item">
+                        <div class="stat-label">Minimum</div>
+                        <div class="stat-value" id="min-distance">-- km</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Average</div>
+                        <div class="stat-value" id="avg-distance">-- km</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Maximum</div>
+                        <div class="stat-value" id="max-distance">-- km</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- High Risk Alerts Table -->
+            <div class="panel panel-full-width">
+                <h2>🚨 High Risk Collision Alerts</h2>
+                <div class="table-container">
+                    <table id="alerts-table">
+                        <thead>
+                            <tr>
+                                <th>Satellite 1</th>
+                                <th>Satellite 2</th>
+                                <th>Collision Time</th>
+                                <th>Distance (km)</th>
+                                <th>Risk Level</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alerts-body">
+                            <tr>
+                                <td colspan="5" class="loading">Loading data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Satellite Pairs -->
+            <div class="panel panel-full-width">
+                <h2>Frequently Colliding Satellite Pairs</h2>
+                <div class="table-container">
+                    <table id="pairs-table">
+                        <thead>
+                            <tr>
+                                <th>Satellite 1</th>
+                                <th>Satellite 2</th>
+                                <th>Collision Count</th>
+                                <th>Min Distance (km)</th>
+                                <th>Avg Distance (km)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pairs-body">
+                            <tr>
+                                <td colspan="5" class="loading">Loading data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Space Debris Risk Prediction System - Real-time Monitoring Dashboard</p>
+            <p>Data Source: SGP4 Propagation & HDFS | Update Interval: <span id="update-interval">30</span>s</p>
+        </footer>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

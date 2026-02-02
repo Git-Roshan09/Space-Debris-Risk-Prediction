@@ -1,0 +1,37 @@
+[2026-02-01T11:17:36.458+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: spark_sgp4_streaming.submit_spark_streaming_job manual__2026-02-01T05:47:34.378857+00:00 [queued]>
+[2026-02-01T11:17:36.470+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: spark_sgp4_streaming.submit_spark_streaming_job manual__2026-02-01T05:47:34.378857+00:00 [queued]>
+[2026-02-01T11:17:36.470+0530] {taskinstance.py:2170} INFO - Starting attempt 1 of 2
+[2026-02-01T11:17:36.496+0530] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): submit_spark_streaming_job> on 2026-02-01 05:47:34.378857+00:00
+[2026-02-01T11:17:36.507+0530] {standard_task_runner.py:60} INFO - Started process 401 to run task
+[2026-02-01T11:17:36.510+0530] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'spark_sgp4_streaming', 'submit_spark_streaming_job', 'manual__2026-02-01T05:47:34.378857+00:00', '--job-id', '39', '--raw', '--subdir', 'DAGS_FOLDER/***_dag_spark_streaming.py', '--cfg-path', '/tmp/tmpyf6f83ho']
+[2026-02-01T11:17:36.512+0530] {standard_task_runner.py:88} INFO - Job 39: Subtask submit_spark_streaming_job
+[2026-02-01T11:17:36.573+0530] {task_command.py:423} INFO - Running <TaskInstance: spark_sgp4_streaming.submit_spark_streaming_job manual__2026-02-01T05:47:34.378857+00:00 [running]> on host ***-scheduler
+[2026-02-01T11:17:36.688+0530] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='space-debris-team' AIRFLOW_CTX_DAG_ID='spark_sgp4_streaming' AIRFLOW_CTX_TASK_ID='submit_spark_streaming_job' AIRFLOW_CTX_EXECUTION_DATE='2026-02-01T05:47:34.378857+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-02-01T05:47:34.378857+00:00'
+[2026-02-01T11:17:36.689+0530] {airflow_dag_spark_streaming.py:96} INFO - Submitting Spark Streaming job...
+[2026-02-01T11:17:36.699+0530] {airflow_dag_spark_streaming.py:117} ERROR - spark-submit not found in PATH
+[2026-02-01T11:17:36.699+0530] {airflow_dag_spark_streaming.py:118} INFO - Attempting to use /opt/spark/bin/spark-submit
+[2026-02-01T11:17:36.700+0530] {airflow_dag_spark_streaming.py:121} INFO - Running command: /opt/spark/bin/spark-submit --master spark://spark-master:7077 --deploy-mode client --name SGP4-Vector-Computation --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0 --conf spark.executor.memory=2g --conf spark.executor.cores=2 --conf spark.driver.memory=1g /opt/spark-apps/processing/spark_sgp4_to_hdfs.py
+[2026-02-01T11:17:36.700+0530] {airflow_dag_spark_streaming.py:137} ERROR - spark-submit executable not found: [Errno 2] No such file or directory: '/opt/spark/bin/spark-submit'
+[2026-02-01T11:17:36.701+0530] {taskinstance.py:2698} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 433, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 199, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 216, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/airflow_dag_spark_streaming.py", line 124, in submit_spark_job
+    process = subprocess.Popen(
+              ^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/usr/local/lib/python3.11/subprocess.py", line 1953, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/opt/spark/bin/spark-submit'
+[2026-02-01T11:17:36.717+0530] {taskinstance.py:1138} INFO - Marking task as UP_FOR_RETRY. dag_id=spark_sgp4_streaming, task_id=submit_spark_streaming_job, execution_date=20260201T054734, start_date=20260201T054736, end_date=20260201T054736
+[2026-02-01T11:17:36.729+0530] {standard_task_runner.py:107} ERROR - Failed to execute job 39 for task submit_spark_streaming_job ([Errno 2] No such file or directory: '/opt/spark/bin/spark-submit'; 401)
+[2026-02-01T11:17:36.764+0530] {local_task_job_runner.py:234} INFO - Task exited with return code 1
+[2026-02-01T11:17:36.791+0530] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

@@ -1,0 +1,14 @@
+[2026-01-31T14:52:16.844+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: spark_sgp4_streaming.check_hdfs_namenode manual__2026-01-31T14:52:15+00:00 [queued]>
+[2026-01-31T14:52:16.854+0000] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: spark_sgp4_streaming.check_hdfs_namenode manual__2026-01-31T14:52:15+00:00 [queued]>
+[2026-01-31T14:52:16.854+0000] {taskinstance.py:2170} INFO - Starting attempt 1 of 2
+[2026-01-31T14:52:16.869+0000] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): check_hdfs_namenode> on 2026-01-31 14:52:15+00:00
+[2026-01-31T14:52:16.876+0000] {standard_task_runner.py:60} INFO - Started process 496 to run task
+[2026-01-31T14:52:16.880+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'spark_sgp4_streaming', 'check_hdfs_namenode', 'manual__2026-01-31T14:52:15+00:00', '--job-id', '12', '--raw', '--subdir', 'DAGS_FOLDER/***_dag_spark_streaming.py', '--cfg-path', '/tmp/tmpv5ldyjek']
+[2026-01-31T14:52:16.883+0000] {standard_task_runner.py:88} INFO - Job 12: Subtask check_hdfs_namenode
+[2026-01-31T14:52:16.953+0000] {task_command.py:423} INFO - Running <TaskInstance: spark_sgp4_streaming.check_hdfs_namenode manual__2026-01-31T14:52:15+00:00 [running]> on host ***-scheduler
+[2026-01-31T14:52:17.056+0000] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='space-debris-team' AIRFLOW_CTX_DAG_ID='spark_sgp4_streaming' AIRFLOW_CTX_TASK_ID='check_hdfs_namenode' AIRFLOW_CTX_EXECUTION_DATE='2026-01-31T14:52:15+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-01-31T14:52:15+00:00'
+[2026-01-31T14:52:17.068+0000] {airflow_dag_spark_streaming.py:57} INFO - ✓ HDFS NameNode is accessible
+[2026-01-31T14:52:17.069+0000] {python.py:201} INFO - Done. Returned value was: True
+[2026-01-31T14:52:17.105+0000] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=spark_sgp4_streaming, task_id=check_hdfs_namenode, execution_date=20260131T145215, start_date=20260131T145216, end_date=20260131T145217
+[2026-01-31T14:52:17.131+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-01-31T14:52:17.168+0000] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

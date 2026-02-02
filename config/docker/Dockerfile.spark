@@ -1,0 +1,21 @@
+FROM apache/spark:3.5.0
+
+USER root
+
+# Install Python pip and cache dependencies
+RUN apt-get update && \
+    apt-get install -y python3-pip && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Pre-install Python packages with caching
+RUN pip3 install --upgrade pip && \
+    pip3 install sgp4 pyspark==3.5.0
+
+# Verify installation
+RUN python3 -c "import sgp4; print('sgp4 installed successfully')" && \
+    python3 -c "import pyspark; print('pyspark installed successfully')"
+
+WORKDIR /opt/spark
+
+USER root

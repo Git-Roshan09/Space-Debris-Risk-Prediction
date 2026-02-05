@@ -1,92 +1,89 @@
 #!/bin/bash
-# Start all Docker services for Space Debris Risk Prediction
+# Quick start script for Space Debris Risk Prediction
+# Starts all services (assumes images are already built)
 
 set -e
 
-echo "🚀 Starting Space Debris Risk Prediction - Big Data Stack"
-echo "============================================================"
+# Change to project directory
+cd "$(dirname "$0")/.."
 
-# Check if docker-compose is installed
-if ! command -v docker-compose &> /dev/null; then
-    echo "❌ Error: docker-compose is not installed"
-    echo "   Please install docker-compose first"
+echo "=========================================="
+echo "Starting Space Debris System"
+echo "=========================================="
+echo ""
+
+# Check prerequisites
+if ! command -v docker &> /dev/null; then
+    echo "❌ Error: docker is not installed"
     exit 1
 fi
 
-# Check if Docker is running
 if ! docker info &> /dev/null; then
     echo "❌ Error: Docker is not running"
-    echo "   Please start Docker first"
     exit 1
 fi
 
+# Check if images are built
+if ! docker compose images 2>/dev/null | grep -q "spark-sgp4"; then
+    echo "⚠️  Warning: Images may not be built yet"
+    echo "   Run './scripts/build.sh' first if this is your first time"
+    echo ""
+    read -p "Continue anyway? (y/n) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        exit 1
+    fi
+fi
+
+echo "🚀 Starting all services..."
+docker compose up -d
+
 echo ""
-echo "📦 Starting Docker containers..."
-echo "   This may take a few minutes on first run..."
+echo "⏳ Waiting for services to initialize (60s)..."
+sleep 60
+
+# Enable Airflow DAG
+echo ""
+echo "📦 Enabling Airflow ingestion DAG..."
+for i in {1..10}; do
+    if docker exec airflow-scheduler airflow dags list 2>/dev/null | grep -q "tle_data_ingestion"; then
+        docker exec airflow-scheduler airflow dags unpause tle_data_ingestion 2>/dev/null || true
+        docker exec airflow-scheduler airflow dags trigger tle_data_ingestion 2>/dev/null || true
+        echo "   ✓ DAG enabled and triggered"
+        break
+    else
+        echo "   Waiting for DAG ($i/10)..."
+        sleep 5
+    fi
+done
+
+echo ""
+echo "=========================================="
+echo "✅ System Started!"
+echo "=========================================="
 echo ""
 
-# Start services
-docker-compose up -d
+# Show service status
+echo "Service Status:"
+docker compose ps --format "table {{.Name}}\t{{.Status}}" 2>/dev/null || docker compose ps
 
 echo ""
-echo "⏳ Waiting for services to initialize..."
-echo "   - Zookeeper and Kafka need ~20 seconds"
-echo "   - Airflow needs ~30 seconds for database migration"
-echo "   - HDFS and Spark need ~15 seconds"
+echo "=========================================="
+echo "📍 ACCESS POINTS"
+echo "=========================================="
 echo ""
-
-# Wait for core services
-sleep 25
-
-echo "✅ Docker services started!"
+echo "  • Airflow:    http://localhost:8088  (admin/admin)"
+echo "  • Spark UI:   http://localhost:8080"
+echo "  • HDFS UI:    http://localhost:9870"
+echo "  • Kafka UI:   http://localhost:8090"
+echo "  • Dashboard:  http://localhost:8082"
 echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📍 SERVICE ENDPOINTS"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "=========================================="
+echo "📋 USEFUL COMMANDS"
+echo "=========================================="
 echo ""
-echo "🔵 AIRFLOW"
-echo "   Web UI:        http://localhost:8088"
-echo "   Credentials:   admin / admin"
+echo "  Status:       ./scripts/status.sh"
+echo "  Stop:         ./scripts/stop.sh"
+echo "  Restart:      ./scripts/restart.sh [service]"
+echo "  View logs:    docker compose logs -f [service]"
 echo ""
-echo "🟠 KAFKA"
-echo "   Broker:        localhost:9092 (external)"
-echo "   Broker:        kafka:9093 (internal)"
-echo "   UI Dashboard:  http://localhost:8090"
-echo ""
-echo "🟢 APACHE SPARK"
-echo "   Master UI:     http://localhost:8080"
-echo "   Worker UI:     http://localhost:8081"
-echo "   Master URL:    spark://spark-master:7077"
-echo "   App UI:        http://localhost:4040 (when job running)"
-echo ""
-echo "🟡 HDFS"
-echo "   NameNode UI:   http://localhost:9870"
-echo "   DataNode UI:   http://localhost:9864"
-echo "   HDFS URI:      hdfs://namenode:9000"
-echo ""
-echo "🟣 SUPPORTING SERVICES"
-echo "   Zookeeper:     localhost:2181"
-echo "   PostgreSQL:    localhost:5432 (airflow/airflow)"
-echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo ""
-echo "📊 Service Status:"
-docker-compose ps
-echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo ""
-echo "💡 NEXT STEPS:"
-echo "   1. Check service status: ./scripts/status.sh"
-echo "   2. View logs: docker-compose logs -f [service-name]"
-echo "   3. Stop services: ./scripts/stop.sh"
-echo ""
-
-# Start Spark streaming job in background
-echo "🔥 Starting Spark Streaming Job..."
-nohup ./scripts/submit_spark_job.sh > logs/spark_streaming.log 2>&1 &
-SPARK_PID=$!
-echo "   Job started with PID: $SPARK_PID"
-echo "   Logs: tail -f logs/spark_streaming.log"
-echo ""
-
-echo "✨ All services are ready!"

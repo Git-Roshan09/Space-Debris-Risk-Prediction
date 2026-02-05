@@ -1,0 +1,73 @@
+[2026-02-04T12:52:32.325+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: tle_data_ingestion.ingest_api_to_kafka scheduled__2026-02-04T04:35:00+00:00 [queued]>
+[2026-02-04T12:52:32.348+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: tle_data_ingestion.ingest_api_to_kafka scheduled__2026-02-04T04:35:00+00:00 [queued]>
+[2026-02-04T12:52:32.348+0530] {taskinstance.py:2170} INFO - Starting attempt 3 of 3
+[2026-02-04T12:52:32.378+0530] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): ingest_api_to_kafka> on 2026-02-04 04:35:00+00:00
+[2026-02-04T12:52:32.391+0530] {standard_task_runner.py:60} INFO - Started process 8515 to run task
+[2026-02-04T12:52:32.396+0530] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'tle_data_ingestion', 'ingest_api_to_kafka', 'scheduled__2026-02-04T04:35:00+00:00', '--job-id', '230', '--raw', '--subdir', 'DAGS_FOLDER/dag_tle_ingestion_only.py', '--cfg-path', '/tmp/tmp2sd4w3oe']
+[2026-02-04T12:52:32.400+0530] {standard_task_runner.py:88} INFO - Job 230: Subtask ingest_api_to_kafka
+[2026-02-04T12:52:32.516+0530] {task_command.py:423} INFO - Running <TaskInstance: tle_data_ingestion.ingest_api_to_kafka scheduled__2026-02-04T04:35:00+00:00 [running]> on host ***-scheduler
+[2026-02-04T12:52:32.725+0530] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='space-debris-team' AIRFLOW_CTX_DAG_ID='tle_data_ingestion' AIRFLOW_CTX_TASK_ID='ingest_api_to_kafka' AIRFLOW_CTX_EXECUTION_DATE='2026-02-04T04:35:00+00:00' AIRFLOW_CTX_TRY_NUMBER='3' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-02-04T04:35:00+00:00'
+[2026-02-04T12:52:32.811+0530] {dag_tle_ingestion_only.py:102} INFO - ============================================================
+[2026-02-04T12:52:32.811+0530] {dag_tle_ingestion_only.py:103} INFO - Starting TLE API → Kafka Ingestion
+[2026-02-04T12:52:32.812+0530] {dag_tle_ingestion_only.py:104} INFO - ============================================================
+[2026-02-04T12:52:32.815+0530] {conn.py:380} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connecting> [IPv4 ('172.21.0.10', 9093)]>: connecting to kafka:9093 [('172.21.0.10', 9093) IPv4]
+[2026-02-04T12:52:32.815+0530] {conn.py:1205} INFO - Probing node bootstrap-0 broker version
+[2026-02-04T12:52:32.816+0530] {conn.py:410} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connecting> [IPv4 ('172.21.0.10', 9093)]>: Connection complete.
+[2026-02-04T12:52:32.918+0530] {conn.py:1267} INFO - Broker version identified as 2.5.0
+[2026-02-04T12:52:32.919+0530] {conn.py:1268} INFO - Set configuration api_version=(2, 5, 0) to skip auto check_version requests on startup
+[2026-02-04T12:52:32.924+0530] {dag_tle_ingestion_only.py:120} INFO - ✓ Connected to Kafka: ['kafka:9093']
+[2026-02-04T12:52:32.924+0530] {dag_tle_ingestion_only.py:138} INFO - Streaming from: http://tle-api:5000/stream
+[2026-02-04T12:52:32.925+0530] {dag_tle_ingestion_only.py:139} INFO - Parameters: {'acceleration': 100, 'mode': 'adaptive', 'max_delay': 5.0, 'limit': 1000}
+[2026-02-04T12:52:32.937+0530] {conn.py:380} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.10', 9093)]>: connecting to kafka:9093 [('172.21.0.10', 9093) IPv4]
+[2026-02-04T12:52:32.938+0530] {conn.py:410} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.10', 9093)]>: Connection complete.
+[2026-02-04T12:52:32.939+0530] {conn.py:919} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connected> [IPv4 ('172.21.0.10', 9093)]>: Closing connection. 
+[2026-02-04T13:00:10.894+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 100 records sent to Kafka
+[2026-02-04T13:08:21.932+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 200 records sent to Kafka
+[2026-02-04T13:15:50.412+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 300 records sent to Kafka
+[2026-02-04T13:24:06.063+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 400 records sent to Kafka
+[2026-02-04T13:32:21.839+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 500 records sent to Kafka
+[2026-02-04T18:07:04.181+0530] {client_async.py:952} INFO - Closing idle connection 1, last active 16097189 ms ago
+[2026-02-04T18:07:04.181+0530] {conn.py:919} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connected> [IPv4 ('172.21.0.10', 9093)]>: Closing connection. 
+[2026-02-04T18:07:04.233+0530] {conn.py:380} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.10', 9093)]>: connecting to kafka:9093 [('172.21.0.10', 9093) IPv4]
+[2026-02-04T18:07:04.234+0530] {conn.py:410} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.10', 9093)]>: Connection complete.
+[2026-02-04T18:09:01.843+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 600 records sent to Kafka
+[2026-02-04T18:14:52.898+0530] {local_task_job_runner.py:121} ERROR - Received SIGTERM. Terminating subprocesses
+[2026-02-04T18:14:52.944+0530] {process_utils.py:131} INFO - Sending 15 to group 8515. PIDs of all processes in the group: [8515]
+[2026-02-04T18:14:52.945+0530] {process_utils.py:86} INFO - Sending the signal 15 to group 8515
+[2026-02-04T18:14:52.971+0530] {taskinstance.py:2450} ERROR - Received SIGTERM. Terminating subprocesses.
+[2026-02-04T18:14:53.042+0530] {dag_tle_ingestion_only.py:219} ERROR - Streaming error: Task received SIGTERM signal
+[2026-02-04T18:14:53.219+0530] {taskinstance.py:2698} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 433, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 199, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 216, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/dag_tle_ingestion_only.py", line 149, in stream_api_to_kafka
+    for line in response.iter_lines():
+  File "/home/airflow/.local/lib/python3.11/site-packages/requests/models.py", line 865, in iter_lines
+    for chunk in self.iter_content(
+  File "/home/airflow/.local/lib/python3.11/site-packages/requests/models.py", line 816, in generate
+    yield from self.raw.stream(chunk_size, decode_content=True)
+  File "/home/airflow/.local/lib/python3.11/site-packages/urllib3/response.py", line 933, in stream
+    yield from self.read_chunked(amt, decode_content=decode_content)
+  File "/home/airflow/.local/lib/python3.11/site-packages/urllib3/response.py", line 1073, in read_chunked
+    self._update_chunk_length()
+  File "/home/airflow/.local/lib/python3.11/site-packages/urllib3/response.py", line 1001, in _update_chunk_length
+    line = self._fp.fp.readline()  # type: ignore[union-attr]
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/socket.py", line 706, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 2452, in signal_handler
+    raise AirflowException("Task received SIGTERM signal")
+airflow.exceptions.AirflowException: Task received SIGTERM signal
+[2026-02-04T18:14:53.248+0530] {taskinstance.py:1138} INFO - Marking task as FAILED. dag_id=tle_data_ingestion, task_id=ingest_api_to_kafka, execution_date=20260204T043500, start_date=20260204T072232, end_date=20260204T124453
+[2026-02-04T18:14:53.325+0530] {standard_task_runner.py:107} ERROR - Failed to execute job 230 for task ingest_api_to_kafka (Task received SIGTERM signal; 8515)
+[2026-02-04T18:14:53.428+0530] {process_utils.py:79} INFO - Process psutil.Process(pid=8515, status='terminated', exitcode=1, started='12:52:31') (8515) terminated with exit code 1
+[2026-02-04T18:14:53.433+0530] {local_task_job_runner.py:234} INFO - Task exited with return code 143
+[2026-02-04T18:14:53.536+0530] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

@@ -1,0 +1,44 @@
+[2026-02-04T21:41:54.259+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: tle_data_ingestion.ingest_api_to_kafka scheduled__2026-02-04T15:30:00+00:00 [queued]>
+[2026-02-04T21:41:54.267+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: tle_data_ingestion.ingest_api_to_kafka scheduled__2026-02-04T15:30:00+00:00 [queued]>
+[2026-02-04T21:41:54.267+0530] {taskinstance.py:2170} INFO - Starting attempt 2 of 3
+[2026-02-04T21:41:54.279+0530] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): ingest_api_to_kafka> on 2026-02-04 15:30:00+00:00
+[2026-02-04T21:41:54.286+0530] {standard_task_runner.py:60} INFO - Started process 200 to run task
+[2026-02-04T21:41:54.289+0530] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'tle_data_ingestion', 'ingest_api_to_kafka', 'scheduled__2026-02-04T15:30:00+00:00', '--job-id', '146', '--raw', '--subdir', 'DAGS_FOLDER/dag_tle_ingestion_only.py', '--cfg-path', '/tmp/tmpzqkcax1w']
+[2026-02-04T21:41:54.291+0530] {standard_task_runner.py:88} INFO - Job 146: Subtask ingest_api_to_kafka
+[2026-02-04T21:41:54.353+0530] {task_command.py:423} INFO - Running <TaskInstance: tle_data_ingestion.ingest_api_to_kafka scheduled__2026-02-04T15:30:00+00:00 [running]> on host ***-scheduler
+[2026-02-04T21:41:54.466+0530] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='space-debris-team' AIRFLOW_CTX_DAG_ID='tle_data_ingestion' AIRFLOW_CTX_TASK_ID='ingest_api_to_kafka' AIRFLOW_CTX_EXECUTION_DATE='2026-02-04T15:30:00+00:00' AIRFLOW_CTX_TRY_NUMBER='2' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-02-04T15:30:00+00:00'
+[2026-02-04T21:41:54.534+0530] {dag_tle_ingestion_only.py:102} INFO - ============================================================
+[2026-02-04T21:41:54.534+0530] {dag_tle_ingestion_only.py:103} INFO - Starting TLE API → Kafka Ingestion
+[2026-02-04T21:41:54.534+0530] {dag_tle_ingestion_only.py:104} INFO - ============================================================
+[2026-02-04T21:41:54.536+0530] {conn.py:380} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]>: connecting to kafka:9093 [('172.21.0.12', 9093) IPv4]
+[2026-02-04T21:41:54.536+0530] {conn.py:1205} INFO - Probing node bootstrap-0 broker version
+[2026-02-04T21:41:54.536+0530] {conn.py:418} ERROR - Connect attempt to <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]> returned error 111. Disconnecting.
+[2026-02-04T21:41:54.536+0530] {conn.py:919} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+[2026-02-04T21:41:54.585+0530] {conn.py:380} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]>: connecting to kafka:9093 [('172.21.0.12', 9093) IPv4]
+[2026-02-04T21:41:54.586+0530] {conn.py:418} ERROR - Connect attempt to <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]> returned error 111. Disconnecting.
+[2026-02-04T21:41:54.586+0530] {conn.py:919} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+[2026-02-04T21:41:54.586+0530] {dag_tle_ingestion_only.py:124} WARNING - Could not connect to ['kafka:9093']: NoBrokersAvailable
+[2026-02-04T21:42:10.592+0530] {conn.py:1527} WARNING - DNS lookup failed for broker:29092, exception was [Errno -3] Temporary failure in name resolution. Is your advertised.listeners (called advertised.host.name before Kafka 9) correct and resolvable?
+[2026-02-04T21:42:10.592+0530] {conn.py:315} ERROR - DNS lookup failed for broker:29092 (0)
+[2026-02-04T21:42:10.592+0530] {conn.py:1205} INFO - Probing node bootstrap-0 broker version
+[2026-02-04T21:42:26.597+0530] {conn.py:1527} WARNING - DNS lookup failed for broker:29092, exception was [Errno -3] Temporary failure in name resolution. Is your advertised.listeners (called advertised.host.name before Kafka 9) correct and resolvable?
+[2026-02-04T21:42:26.598+0530] {conn.py:315} ERROR - DNS lookup failed for broker:29092 (0)
+[2026-02-04T21:42:26.598+0530] {dag_tle_ingestion_only.py:124} WARNING - Could not connect to ['broker:29092']: NoBrokersAvailable
+[2026-02-04T21:42:26.599+0530] {taskinstance.py:2698} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 433, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 199, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 216, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/dag_tle_ingestion_only.py", line 127, in stream_api_to_kafka
+    raise RuntimeError("Could not connect to any Kafka server")
+RuntimeError: Could not connect to any Kafka server
+[2026-02-04T21:42:26.614+0530] {taskinstance.py:1138} INFO - Marking task as UP_FOR_RETRY. dag_id=tle_data_ingestion, task_id=ingest_api_to_kafka, execution_date=20260204T153000, start_date=20260204T161154, end_date=20260204T161226
+[2026-02-04T21:42:26.631+0530] {standard_task_runner.py:107} ERROR - Failed to execute job 146 for task ingest_api_to_kafka (Could not connect to any Kafka server; 200)
+[2026-02-04T21:42:26.654+0530] {local_task_job_runner.py:234} INFO - Task exited with return code 1
+[2026-02-04T21:42:26.676+0530] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

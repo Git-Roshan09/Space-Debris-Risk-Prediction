@@ -1,23 +1,18 @@
 """
-Spark Streaming Job: Collision Prediction System
-Reads SGP4 vectors from HDFS, predicts future positions, and detects potential collisions
+Spark Job: Collision Prediction System
+Reads SGP4 vectors from HDFS and detects potential collisions based on position proximity.
+Simplified version that works with already-computed position vectors.
 """
 
 from pyspark.sql import SparkSession, Window
 from pyspark.sql.functions import (
-    col, udf, explode, array, struct, lit, current_timestamp,
-    unix_timestamp, from_unixtime, expr, max as spark_max, 
-    min as spark_min, count, avg, when, sqrt, pow
+    col, lit, current_timestamp, sqrt, pow as spark_pow,
+    when, broadcast, max as spark_max, count
 )
-from pyspark.sql.types import (
-    StructType, StructField, StringType, DoubleType, 
-    TimestampType, IntegerType, ArrayType, BooleanType
-)
-from sgp4.api import Satrec, jday
+from pyspark.sql.types import DoubleType
 from datetime import datetime, timedelta, timezone
 import logging
 import os
-import math
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -25,17 +20,16 @@ logger = logging.getLogger(__name__)
 
 class CollisionPredictionEngine:
     """
-    Collision Prediction Pipeline: Read SGP4 vectors → Predict future positions → Detect collisions
+    Simplified Collision Detection Pipeline:
+    Read SGP4 vectors → Detect close approaches → Output collision alerts
     """
     
     def __init__(self):
         """Initialize Spark with configuration from environment."""
         
         # Load configuration from environment
-        self.prediction_days = int(os.getenv('PREDICTION_DAYS', '7'))
         self.collision_threshold_km = float(os.getenv('COLLISION_THRESHOLD_KM', '10.0'))
         self.time_window_days = int(os.getenv('TIME_WINDOW_DAYS', '7'))
-        self.propagation_step_hours = int(os.getenv('SGP4_PROPAGATION_STEP_HOURS', '6'))
         
         self.hdfs_input = os.getenv('HDFS_SGP4_VECTORS_PATH', 
                                      'hdfs://namenode:9000/space-debris/sgp4_vectors')
@@ -51,234 +45,166 @@ class CollisionPredictionEngine:
             .config("spark.sql.adaptive.enabled", "true") \
             .config("spark.sql.adaptive.coalescePartitions.enabled", "true") \
             .config("spark.hadoop.fs.defaultFS", "hdfs://namenode:9000") \
-            .config("spark.sql.streaming.checkpointLocation", 
-                   "hdfs://namenode:9000/tmp/checkpoint-collision") \
             .getOrCreate()
         
         self.spark.sparkContext.setLogLevel("WARN")
         
         logger.info("=" * 60)
         logger.info("=== Collision Prediction Engine Initialized ===")
-        logger.info(f"Prediction Days: {self.prediction_days}")
         logger.info(f"Collision Threshold: {self.collision_threshold_km} km")
         logger.info(f"Time Window: {self.time_window_days} days")
-        logger.info(f"Propagation Step: {self.propagation_step_hours} hours")
         logger.info(f"Input: {self.hdfs_input}")
         logger.info(f"Output: {self.hdfs_output}")
         logger.info("=" * 60)
     
-    @staticmethod
-    def propagate_sgp4(tle_line1, tle_line2, days_ahead, step_hours=6):
-        """
-        Propagate satellite position for next N days using SGP4.
-        
-        Args:
-            tle_line1: First line of TLE
-            tle_line2: Second line of TLE
-            days_ahead: Number of days to propagate
-            step_hours: Time step in hours between predictions
-            
-        Returns:
-            List of tuples: [(timestamp, pos_x, pos_y, pos_z, vel_x, vel_y, vel_z)]
-        """
-        try:
-            satellite = Satrec.twoline2rv(tle_line1, tle_line2)
-            predictions = []
-            
-            now = datetime.now(timezone.utc)
-            steps = int((days_ahead * 24) / step_hours)
-            
-            for i in range(steps):
-                future_time = now + timedelta(hours=i * step_hours)
-                jd, fr = jday(
-                    future_time.year, future_time.month, future_time.day,
-                    future_time.hour, future_time.minute, 
-                    future_time.second + future_time.microsecond / 1e6
-                )
-                
-                error_code, position, velocity = satellite.sgp4(jd, fr)
-                
-                if error_code == 0:
-                    predictions.append((
-                        future_time.isoformat(),
-                        float(position[0]),
-                        float(position[1]),
-                        float(position[2]),
-                        float(velocity[0]),
-                        float(velocity[1]),
-                        float(velocity[2])
-                    ))
-            
-            return predictions
-        except Exception as e:
-            logger.error(f"SGP4 propagation error: {e}")
-            return []
-    
-    @staticmethod
-    def calculate_distance(x1, y1, z1, x2, y2, z2):
-        """Calculate Euclidean distance between two 3D points in kilometers."""
-        return math.sqrt((x2 - x1)**2 + (y2 - y1)**2 + (z2 - z1)**2)
-    
     def read_latest_sgp4_data(self):
         """
         Read latest SGP4 vector data from HDFS within time window.
-        Uses time window to determine if SGP4 propagation is needed.
         """
         try:
             # Read parquet data from HDFS
             df = self.spark.read.parquet(self.hdfs_input)
             
-            # Filter data within time window
-            cutoff_time = datetime.now(timezone.utc) - timedelta(days=self.time_window_days)
-            cutoff_timestamp = cutoff_time.isoformat()
-            
-            df_recent = df.filter(col("timestamp") >= lit(cutoff_timestamp))
+            logger.info(f"Available columns: {df.columns}")
             
             # Get latest record for each satellite
-            window_spec = Window.partitionBy("satellite_id").orderBy(col("timestamp").desc())
-            df_latest = df_recent.withColumn("row_num", expr("row_number() over (partition by satellite_id order by timestamp desc)")) \
-                                 .filter(col("row_num") == 1) \
-                                 .drop("row_num")
+            window_spec = Window.partitionBy("satellite_id")
             
-            logger.info(f"Loaded {df_latest.count()} satellites with recent data")
+            # Use kafka_timestamp or epoch_time for ordering
+            if "kafka_timestamp" in df.columns:
+                timestamp_col = "kafka_timestamp"
+            elif "epoch_time" in df.columns:
+                timestamp_col = "epoch_time"
+            else:
+                timestamp_col = None
+            
+            if timestamp_col:
+                df_latest = df.withColumn("max_ts", spark_max(col(timestamp_col)).over(window_spec)) \
+                              .filter(col(timestamp_col) == col("max_ts")) \
+                              .drop("max_ts")
+            else:
+                df_latest = df.dropDuplicates(["satellite_id"])
+            
+            satellite_count = df_latest.select("satellite_id").distinct().count()
+            logger.info(f"Loaded {satellite_count} satellites with latest position data")
             return df_latest
             
         except Exception as e:
             logger.error(f"Error reading SGP4 data: {e}")
             raise
     
-    def predict_future_positions(self, df_sgp4):
+    def detect_collisions(self, df_positions):
         """
-        Generate future position predictions for all satellites.
-        Uses SGP4 propagation if data is older than time window.
+        Detect potential collisions by comparing satellite positions.
+        Uses Euclidean distance in 3D space.
         """
-        # Register UDF for propagation
-        propagate_udf = udf(
-            lambda tle1, tle2, days, step: self.propagate_sgp4(tle1, tle2, days, step),
-            ArrayType(StructType([
-                StructField("timestamp", StringType()),
-                StructField("pos_x", DoubleType()),
-                StructField("pos_y", DoubleType()),
-                StructField("pos_z", DoubleType()),
-                StructField("vel_x", DoubleType()),
-                StructField("vel_y", DoubleType()),
-                StructField("vel_z", DoubleType())
-            ]))
-        )
-        
-        # Propagate each satellite's position
-        df_predictions = df_sgp4.withColumn(
-            "future_positions",
-            propagate_udf(
-                col("tle_line1"),
-                col("tle_line2"),
-                lit(self.prediction_days),
-                lit(self.propagation_step_hours)
+        try:
+            # Select relevant columns for comparison
+            df_sat = df_positions.select(
+                col("satellite_id"),
+                col("position_x"),
+                col("position_y"),
+                col("position_z"),
+                col("altitude_km"),
+                col("velocity_magnitude_kms").alias("velocity")
+            ).cache()  # Cache for join performance
+            
+            satellite_count = df_sat.count()
+            logger.info(f"Comparing {satellite_count} satellites for potential collisions...")
+            
+            if satellite_count < 2:
+                logger.warning("Not enough satellites for collision detection")
+                return self.spark.createDataFrame([], schema="satellite_1 string, satellite_2 string")
+            
+            # Self-join to compare all pairs (avoid comparing satellite with itself)
+            # Use satellite_id < satellite_id to avoid duplicate pairs
+            df_pairs = df_sat.alias("sat1").crossJoin(
+                broadcast(df_sat.alias("sat2"))
+            ).filter(
+                col("sat1.satellite_id") < col("sat2.satellite_id")
             )
-        )
-        
-        # Explode predictions into separate rows
-        df_exploded = df_predictions.select(
-            col("satellite_id"),
-            col("tle_line1"),
-            col("tle_line2"),
-            explode("future_positions").alias("prediction")
-        ).select(
-            col("satellite_id"),
-            col("tle_line1"),
-            col("tle_line2"),
-            col("prediction.timestamp").alias("prediction_time"),
-            col("prediction.pos_x"),
-            col("prediction.pos_y"),
-            col("prediction.pos_z"),
-            col("prediction.vel_x"),
-            col("prediction.vel_y"),
-            col("prediction.vel_z")
-        )
-        
-        logger.info(f"Generated {df_exploded.count()} position predictions")
-        return df_exploded
-    
-    def detect_collisions(self, df_predictions):
-        """
-        Detect potential collisions by comparing all satellite pairs at each time step.
-        """
-        # Self-join to compare all pairs
-        df_pairs = df_predictions.alias("sat1").join(
-            df_predictions.alias("sat2"),
-            (col("sat1.prediction_time") == col("sat2.prediction_time")) &
-            (col("sat1.satellite_id") < col("sat2.satellite_id"))  # Avoid duplicate pairs
-        )
-        
-        # Calculate distance between each pair
-        distance_udf = udf(self.calculate_distance, DoubleType())
-        
-        df_distances = df_pairs.withColumn(
-            "distance_km",
-            distance_udf(
-                col("sat1.pos_x"), col("sat1.pos_y"), col("sat1.pos_z"),
-                col("sat2.pos_x"), col("sat2.pos_y"), col("sat2.pos_z")
+            
+            # Calculate 3D Euclidean distance
+            df_distances = df_pairs.withColumn(
+                "distance_km",
+                sqrt(
+                    spark_pow(col("sat2.position_x") - col("sat1.position_x"), 2) +
+                    spark_pow(col("sat2.position_y") - col("sat1.position_y"), 2) +
+                    spark_pow(col("sat2.position_z") - col("sat1.position_z"), 2)
+                )
             )
-        )
-        
-        # Filter collisions below threshold
-        df_collisions = df_distances.filter(
-            col("distance_km") <= self.collision_threshold_km
-        ).select(
-            col("sat1.satellite_id").alias("satellite_1"),
-            col("sat2.satellite_id").alias("satellite_2"),
-            col("sat1.prediction_time").alias("collision_time"),
-            col("distance_km"),
-            col("sat1.pos_x").alias("sat1_pos_x"),
-            col("sat1.pos_y").alias("sat1_pos_y"),
-            col("sat1.pos_z").alias("sat1_pos_z"),
-            col("sat2.pos_x").alias("sat2_pos_x"),
-            col("sat2.pos_y").alias("sat2_pos_y"),
-            col("sat2.pos_z").alias("sat2_pos_z"),
-            current_timestamp().alias("detection_timestamp")
-        )
-        
-        # Add risk classification
-        df_collisions = df_collisions.withColumn(
-            "risk_level",
-            when(col("distance_km") <= float(os.getenv('HIGH_RISK_THRESHOLD_KM', '5.0')), "HIGH")
-            .when(col("distance_km") <= float(os.getenv('MEDIUM_RISK_THRESHOLD_KM', '10.0')), "MEDIUM")
-            .otherwise("LOW")
-        )
-        
-        collision_count = df_collisions.count()
-        logger.info(f"Detected {collision_count} potential collisions")
-        
-        if collision_count > 0:
-            df_collisions.groupBy("risk_level").count().show()
-        
-        return df_collisions
+            
+            # Filter pairs below collision threshold
+            df_collisions = df_distances.filter(
+                col("distance_km") <= self.collision_threshold_km
+            ).select(
+                col("sat1.satellite_id").alias("satellite_1"),
+                col("sat2.satellite_id").alias("satellite_2"),
+                col("distance_km"),
+                col("sat1.position_x").alias("sat1_x"),
+                col("sat1.position_y").alias("sat1_y"),
+                col("sat1.position_z").alias("sat1_z"),
+                col("sat1.altitude_km").alias("sat1_altitude"),
+                col("sat2.position_x").alias("sat2_x"),
+                col("sat2.position_y").alias("sat2_y"),
+                col("sat2.position_z").alias("sat2_z"),
+                col("sat2.altitude_km").alias("sat2_altitude"),
+                current_timestamp().alias("detection_timestamp")
+            )
+            
+            # Add risk classification based on distance
+            df_collisions = df_collisions.withColumn(
+                "risk_level",
+                when(col("distance_km") <= 1.0, "CRITICAL")
+                .when(col("distance_km") <= 5.0, "HIGH")
+                .when(col("distance_km") <= 10.0, "MEDIUM")
+                .otherwise("LOW")
+            )
+            
+            collision_count = df_collisions.count()
+            logger.info(f"Detected {collision_count} potential collision pairs within {self.collision_threshold_km} km")
+            
+            # Log risk breakdown
+            if collision_count > 0:
+                risk_counts = df_collisions.groupBy("risk_level").agg(count("*").alias("count")).collect()
+                for row in risk_counts:
+                    logger.info(f"  {row['risk_level']}: {row['count']} pairs")
+            
+            df_sat.unpersist()  # Release cache
+            return df_collisions
+            
+        except Exception as e:
+            logger.error(f"Error detecting collisions: {e}")
+            raise
     
     def save_to_hdfs(self, df_collisions):
-        """Save collision predictions to HDFS in parquet format."""
+        """Save collision predictions to HDFS."""
         try:
-            df_collisions.write \
-                .mode("append") \
-                .partitionBy("risk_level") \
-                .parquet(self.hdfs_output)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            output_path = f"{self.hdfs_output}/batch_{timestamp}"
             
-            logger.info(f"✓ Saved collision predictions to {self.hdfs_output}")
+            df_collisions.write \
+                .mode("overwrite") \
+                .parquet(output_path)
+            
+            logger.info(f"✓ Saved collision predictions to: {output_path}")
         except Exception as e:
             logger.error(f"Error saving to HDFS: {e}")
             raise
     
     def publish_to_kafka(self, df_collisions):
-        """Publish high-risk collisions to Kafka for real-time alerting."""
+        """Publish high-risk collision alerts to Kafka."""
         try:
-            # Filter only high and medium risk
+            # Filter only high risk and above
             df_alerts = df_collisions.filter(
-                col("risk_level").isin(["HIGH", "MEDIUM"])
+                col("risk_level").isin(["CRITICAL", "HIGH", "MEDIUM"])
             )
             
-            if df_alerts.count() > 0:
-                # Convert to JSON
+            alert_count = df_alerts.count()
+            if alert_count > 0:
+                # Convert to JSON for Kafka
                 df_kafka = df_alerts.selectExpr(
-                    "satellite_1 as key",
+                    "CAST(satellite_1 AS STRING) as key",
                     "to_json(struct(*)) as value"
                 )
                 
@@ -289,7 +215,10 @@ class CollisionPredictionEngine:
                     .option("topic", self.kafka_topic) \
                     .save()
                 
-                logger.info(f"✓ Published {df_alerts.count()} alerts to Kafka topic: {self.kafka_topic}")
+                logger.info(f"✓ Published {alert_count} alerts to Kafka topic: {self.kafka_topic}")
+            else:
+                logger.info("No high-risk alerts to publish")
+                
         except Exception as e:
             logger.error(f"Error publishing to Kafka: {e}")
     
@@ -298,20 +227,15 @@ class CollisionPredictionEngine:
         try:
             logger.info("Starting collision prediction pipeline...")
             
-            # Step 1: Read latest SGP4 data
-            df_sgp4 = self.read_latest_sgp4_data()
+            # Step 1: Read latest SGP4 position data
+            df_positions = self.read_latest_sgp4_data()
             
-            # Step 2: Predict future positions
-            df_predictions = self.predict_future_positions(df_sgp4)
+            # Step 2: Detect collisions based on position proximity
+            df_collisions = self.detect_collisions(df_positions)
             
-            # Step 3: Detect collisions
-            df_collisions = self.detect_collisions(df_predictions)
-            
-            # Step 4: Save to HDFS
+            # Step 3: Save and publish results
             if df_collisions.count() > 0:
                 self.save_to_hdfs(df_collisions)
-                
-                # Step 5: Publish high-risk alerts to Kafka
                 self.publish_to_kafka(df_collisions)
             else:
                 logger.info("No collisions detected within threshold")

@@ -404,3 +404,87 @@
 [2026-02-02T11:06:03.582+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:06:03.581+0530] {dag.py:3036} INFO - Sync 1 DAGs
 [2026-02-02T11:06:03.640+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:06:03.639+0530] {dag.py:3823} INFO - Setting next_dagrun for collision_prediction_pipeline to 2026-02-01 18:30:00+00:00, run_after=2026-02-02 00:30:00+00:00
 [2026-02-02T11:06:03.677+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_collision_prediction.py took 0.209 seconds
+[2026-02-02T11:06:33.875+0530] {processor.py:161} INFO - Started process (PID=10044) to work on /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:06:33.877+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_collision_prediction.py for tasks to queue
+[2026-02-02T11:06:33.878+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:06:33.878+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:06:33.911+0530] {processor.py:840} INFO - DAG(s) 'collision_prediction_pipeline' retrieved from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:06:33.981+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:06:33.980+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:06:34.038+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:06:34.038+0530] {dag.py:3823} INFO - Setting next_dagrun for collision_prediction_pipeline to 2026-02-01 18:30:00+00:00, run_after=2026-02-02 00:30:00+00:00
+[2026-02-02T11:06:34.072+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_collision_prediction.py took 0.203 seconds
+[2026-02-02T11:07:04.269+0530] {processor.py:161} INFO - Started process (PID=10059) to work on /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:07:04.270+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_collision_prediction.py for tasks to queue
+[2026-02-02T11:07:04.272+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:07:04.271+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:07:04.311+0530] {processor.py:840} INFO - DAG(s) 'collision_prediction_pipeline' retrieved from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:07:04.380+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:07:04.379+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:07:04.436+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:07:04.436+0530] {dag.py:3823} INFO - Setting next_dagrun for collision_prediction_pipeline to 2026-02-01 18:30:00+00:00, run_after=2026-02-02 00:30:00+00:00
+[2026-02-02T11:07:04.472+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_collision_prediction.py took 0.208 seconds
+[2026-02-02T11:07:34.705+0530] {processor.py:161} INFO - Started process (PID=10074) to work on /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:07:34.707+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_collision_prediction.py for tasks to queue
+[2026-02-02T11:07:34.709+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:07:34.708+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:07:34.737+0530] {processor.py:840} INFO - DAG(s) 'collision_prediction_pipeline' retrieved from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:07:34.796+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:07:34.795+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:07:34.840+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:07:34.840+0530] {dag.py:3823} INFO - Setting next_dagrun for collision_prediction_pipeline to 2026-02-01 18:30:00+00:00, run_after=2026-02-02 00:30:00+00:00
+[2026-02-02T11:07:34.873+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_collision_prediction.py took 0.173 seconds
+[2026-02-02T11:08:05.070+0530] {processor.py:161} INFO - Started process (PID=10089) to work on /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:08:05.074+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_collision_prediction.py for tasks to queue
+[2026-02-02T11:08:05.076+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:08:05.075+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:08:05.107+0530] {processor.py:840} INFO - DAG(s) 'collision_prediction_pipeline' retrieved from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:08:05.172+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:08:05.171+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:08:05.224+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:08:05.223+0530] {dag.py:3823} INFO - Setting next_dagrun for collision_prediction_pipeline to 2026-02-01 18:30:00+00:00, run_after=2026-02-02 00:30:00+00:00
+[2026-02-02T11:08:05.258+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_collision_prediction.py took 0.193 seconds
+[2026-02-02T11:08:35.465+0530] {processor.py:161} INFO - Started process (PID=10104) to work on /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:08:35.466+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_collision_prediction.py for tasks to queue
+[2026-02-02T11:08:35.468+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:08:35.467+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:08:35.502+0530] {processor.py:840} INFO - DAG(s) 'collision_prediction_pipeline' retrieved from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:08:35.574+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:08:35.573+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:08:35.631+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:08:35.630+0530] {dag.py:3823} INFO - Setting next_dagrun for collision_prediction_pipeline to 2026-02-01 18:30:00+00:00, run_after=2026-02-02 00:30:00+00:00
+[2026-02-02T11:08:35.663+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_collision_prediction.py took 0.205 seconds
+[2026-02-02T11:09:05.864+0530] {processor.py:161} INFO - Started process (PID=10119) to work on /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:09:05.865+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_collision_prediction.py for tasks to queue
+[2026-02-02T11:09:05.867+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:09:05.866+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:09:05.902+0530] {processor.py:840} INFO - DAG(s) 'collision_prediction_pipeline' retrieved from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:09:05.966+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:09:05.966+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:09:06.023+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:09:06.022+0530] {dag.py:3823} INFO - Setting next_dagrun for collision_prediction_pipeline to 2026-02-01 18:30:00+00:00, run_after=2026-02-02 00:30:00+00:00
+[2026-02-02T11:09:06.400+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_collision_prediction.py took 0.544 seconds
+[2026-02-02T11:09:36.601+0530] {processor.py:161} INFO - Started process (PID=10134) to work on /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:09:36.605+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_collision_prediction.py for tasks to queue
+[2026-02-02T11:09:36.607+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:09:36.606+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:09:36.638+0530] {processor.py:840} INFO - DAG(s) 'collision_prediction_pipeline' retrieved from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:09:36.705+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:09:36.704+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:09:36.754+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:09:36.754+0530] {dag.py:3823} INFO - Setting next_dagrun for collision_prediction_pipeline to 2026-02-01 18:30:00+00:00, run_after=2026-02-02 00:30:00+00:00
+[2026-02-02T11:09:36.789+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_collision_prediction.py took 0.195 seconds
+[2026-02-02T11:10:06.983+0530] {processor.py:161} INFO - Started process (PID=10149) to work on /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:10:06.984+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_collision_prediction.py for tasks to queue
+[2026-02-02T11:10:06.986+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:10:06.985+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:10:07.021+0530] {processor.py:840} INFO - DAG(s) 'collision_prediction_pipeline' retrieved from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:10:07.572+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:10:07.571+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:10:07.613+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:10:07.612+0530] {dag.py:3823} INFO - Setting next_dagrun for collision_prediction_pipeline to 2026-02-01 18:30:00+00:00, run_after=2026-02-02 00:30:00+00:00
+[2026-02-02T11:10:07.648+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_collision_prediction.py took 0.670 seconds
+[2026-02-02T11:10:37.821+0530] {processor.py:161} INFO - Started process (PID=10164) to work on /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:10:37.825+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_collision_prediction.py for tasks to queue
+[2026-02-02T11:10:37.826+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:10:37.825+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:10:37.841+0530] {processor.py:840} INFO - DAG(s) 'collision_prediction_pipeline' retrieved from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:10:38.151+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:10:38.150+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:10:38.179+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:10:38.179+0530] {dag.py:3823} INFO - Setting next_dagrun for collision_prediction_pipeline to 2026-02-01 18:30:00+00:00, run_after=2026-02-02 00:30:00+00:00
+[2026-02-02T11:10:38.197+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_collision_prediction.py took 0.379 seconds
+[2026-02-02T11:11:08.375+0530] {processor.py:161} INFO - Started process (PID=10179) to work on /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:11:08.377+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_collision_prediction.py for tasks to queue
+[2026-02-02T11:11:08.379+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:11:08.378+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:11:08.412+0530] {processor.py:840} INFO - DAG(s) 'collision_prediction_pipeline' retrieved from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:11:08.474+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:11:08.473+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:11:08.527+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:11:08.526+0530] {dag.py:3823} INFO - Setting next_dagrun for collision_prediction_pipeline to 2026-02-01 18:30:00+00:00, run_after=2026-02-02 00:30:00+00:00
+[2026-02-02T11:11:08.563+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_collision_prediction.py took 0.195 seconds
+[2026-02-02T11:11:38.653+0530] {processor.py:161} INFO - Started process (PID=10194) to work on /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:11:38.654+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_collision_prediction.py for tasks to queue
+[2026-02-02T11:11:38.656+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:11:38.655+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:11:38.690+0530] {processor.py:840} INFO - DAG(s) 'collision_prediction_pipeline' retrieved from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:11:38.758+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:11:38.758+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:11:38.810+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:11:38.809+0530] {dag.py:3823} INFO - Setting next_dagrun for collision_prediction_pipeline to 2026-02-01 18:30:00+00:00, run_after=2026-02-02 00:30:00+00:00
+[2026-02-02T11:11:38.845+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_collision_prediction.py took 0.200 seconds
+[2026-02-02T11:12:09.043+0530] {processor.py:161} INFO - Started process (PID=10209) to work on /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:12:09.046+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_collision_prediction.py for tasks to queue
+[2026-02-02T11:12:09.048+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:12:09.047+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:12:09.080+0530] {processor.py:840} INFO - DAG(s) 'collision_prediction_pipeline' retrieved from /opt/airflow/dags/airflow_dag_collision_prediction.py
+[2026-02-02T11:12:09.144+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:12:09.143+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:12:09.199+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:12:09.199+0530] {dag.py:3823} INFO - Setting next_dagrun for collision_prediction_pipeline to 2026-02-01 18:30:00+00:00, run_after=2026-02-02 00:30:00+00:00
+[2026-02-02T11:12:09.560+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_collision_prediction.py took 0.524 seconds

@@ -1,4 +1,17 @@
-version: '3.8'
+# Space Debris Risk Prediction - Unified Docker Compose
+# Single file containing all services
+#
+# Architecture:
+#   - Kafka + Zookeeper: Message broker
+#   - HDFS (NameNode + DataNode): Distributed storage
+#   - Spark (Master + Workers): Processing engine
+#   - Spark Job 1: SGP4 Streaming (Kafka → HDFS)
+#   - Spark Job 2: Collision Prediction (HDFS → HDFS/Kafka)
+#   - Airflow: Data ingestion orchestration (API → Kafka)
+#   - TLE API: Source data API
+#   - Dashboard: Web UI + API
+#
+# Usage: docker-compose up -d
 
 services:
   # ==========================================
@@ -60,7 +73,7 @@ services:
     restart: unless-stopped
 
   # ==========================================
-  # KAFKA UI (Web Interface for Kafka)
+  # KAFKA UI (Web Interface)
   # ==========================================
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -88,8 +101,8 @@ services:
     container_name: namenode
     hostname: namenode
     ports:
-      - "9870:9870"  # Web UI
-      - "9000:9000"  # HDFS RPC
+      - "9870:9870"
+      - "9000:9000"
     environment:
       ENSURE_NAMENODE_DIR: "/tmp/hadoop-root/dfs/name"
       CLUSTER_NAME: "space-debris-cluster"
@@ -118,8 +131,8 @@ services:
       namenode:
         condition: service_healthy
     ports:
-      - "9864:9864"  # Web UI
-      - "9866:9866"  # Data transfer
+      - "9864:9864"
+      - "9866:9866"
     environment:
       NAMENODE_HOSTNAME: "namenode"
       TZ: 'Asia/Kolkata'
@@ -132,7 +145,7 @@ services:
     restart: unless-stopped
 
   # ==========================================
-  # APACHE SPARK MASTER
+  # SPARK MASTER
   # ==========================================
   spark-master:
     build:
@@ -143,10 +156,10 @@ services:
     hostname: spark-master
     user: root
     ports:
-      - "8080:8080"  # Web UI
-      - "7077:7077"  # Spark Master Port
-      - "4040:4040"  # Spark Application UI
-      - "6066:6066"  # REST API
+      - "8080:8080"
+      - "7077:7077"
+      - "4040:4040"
+      - "6066:6066"
     environment:
       - SPARK_MODE=master
       - SPARK_MASTER_HOST=spark-master
@@ -165,7 +178,7 @@ services:
     restart: unless-stopped
 
   # ==========================================
-  # APACHE SPARK WORKER 1
+  # SPARK WORKER 1
   # ==========================================
   spark-worker-1:
     build:
@@ -178,7 +191,7 @@ services:
     depends_on:
       - spark-master
     ports:
-      - "8081:8081"  # Web UI
+      - "8081:8081"
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077
@@ -193,6 +206,112 @@ services:
       bash -c "sleep 5 && /opt/spark/sbin/start-worker.sh spark://spark-master:7077 && tail -f /opt/spark/logs/*"
     networks:
       - bigdata-net
+    restart: unless-stopped
+
+  # ==========================================
+  # SPARK WORKER 2
+  # ==========================================
+  spark-worker-2:
+    build:
+      context: ./config/docker
+      dockerfile: Dockerfile.spark
+    image: spark-sgp4:3.5.0
+    container_name: spark-worker-2
+    hostname: spark-worker-2
+    user: root
+    depends_on:
+      - spark-master
+    ports:
+      - "8083:8083"
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=2G
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_WEBUI_PORT=8083
+      - TZ=Asia/Kolkata
+    volumes:
+      - ./pipelines:/opt/spark-apps
+      - ./data:/opt/spark-data
+    command: |
+      bash -c "sleep 5 && /opt/spark/sbin/start-worker.sh spark://spark-master:7077 && tail -f /opt/spark/logs/*"
+    networks:
+      - bigdata-net
+    restart: unless-stopped
+
+  # ==========================================
+  # SPARK JOB 1: SGP4 STREAMING
+  # ==========================================
+  # Consumes TLE from Kafka, computes SGP4 vectors, writes to HDFS
+  spark-sgp4-streaming:
+    build:
+      context: ./config/docker
+      dockerfile: Dockerfile.spark
+    image: spark-sgp4:3.5.0
+    container_name: spark-sgp4-streaming
+    hostname: spark-sgp4-streaming
+    user: root
+    depends_on:
+      - spark-master
+      - kafka
+      - namenode
+    environment:
+      - SPARK_MODE=client
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - KAFKA_SERVERS=kafka:9093
+      - KAFKA_TOPIC=space_debris_tle
+      - HDFS_OUTPUT=hdfs://namenode:9000/space-debris/sgp4_vectors
+      - CHECKPOINT_PATH=hdfs://namenode:9000/tmp/spark-checkpoint-sgp4
+      - TZ=Asia/Kolkata
+    volumes:
+      - ./pipelines:/opt/spark-apps
+      - ./data:/opt/spark-data
+      - ./scripts:/opt/scripts
+    networks:
+      - bigdata-net
+    command: ["/bin/bash", "/opt/scripts/spark_sgp4_streaming.sh"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "spark"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ==========================================
+  # SPARK JOB 2: COLLISION PREDICTION
+  # ==========================================
+  # Reads SGP4 vectors from HDFS, predicts collisions, writes to HDFS/Kafka
+  spark-collision-prediction:
+    build:
+      context: ./config/docker
+      dockerfile: Dockerfile.spark
+    image: spark-sgp4:3.5.0
+    container_name: spark-collision-prediction
+    hostname: spark-collision-prediction
+    user: root
+    depends_on:
+      - spark-master
+      - namenode
+      - kafka
+    environment:
+      - SPARK_MODE=client
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - PREDICTION_DAYS=7
+      - COLLISION_THRESHOLD_KM=10.0
+      - TIME_WINDOW_DAYS=7
+      - SGP4_PROPAGATION_STEP_HOURS=6
+      - HDFS_SGP4_VECTORS_PATH=hdfs://namenode:9000/space-debris/sgp4_vectors
+      - HDFS_COLLISION_PREDICTIONS_PATH=hdfs://namenode:9000/space-debris/collision_predictions
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9093
+      - KAFKA_COLLISION_TOPIC=space_debris_collisions
+      - TZ=Asia/Kolkata
+    volumes:
+      - ./pipelines:/opt/spark-apps
+      - ./data:/opt/spark-data
+      - ./scripts:/opt/scripts
+    networks:
+      - bigdata-net
+    command: ["/bin/bash", "/opt/scripts/spark_collision_prediction.sh"]
     restart: unless-stopped
 
   # ==========================================
@@ -223,13 +342,14 @@ services:
       - 8.8.4.4
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/stats"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 30s
       timeout: 15s
       retries: 10
-      start_period: 180s
+      start_period: 40s
 
-  # ==========================================  # POSTGRES (Airflow Metadata Database)
+  # ==========================================
+  # POSTGRES (Airflow Metadata)
   # ==========================================
   postgres:
     image: postgres:14-alpine
@@ -344,9 +464,9 @@ services:
     image: apache/airflow:2.8.1-python3.11
     container_name: airflow-scheduler
     hostname: airflow-scheduler
-    user: "50000:960"  # airflow:docker group for socket access
+    user: "50000:960"
     group_add:
-      - "960"  # docker group ID from host
+      - "960"
     depends_on:
       postgres:
         condition: service_healthy
@@ -389,26 +509,24 @@ services:
     hostname: dashboard-api
     user: root
     depends_on:
-      namenode:
-        condition: service_healthy
-      spark-master:
-        condition: service_healthy
+      - namenode
+      - spark-master
     ports:
       - "5001:5001"
     environment:
-      - PREDICTION_DAYS=${PREDICTION_DAYS:-7}
-      - COLLISION_THRESHOLD_KM=${COLLISION_THRESHOLD_KM:-10.0}
-      - TIME_WINDOW_DAYS=${TIME_WINDOW_DAYS:-7}
-      - SGP4_PROPAGATION_STEP_HOURS=${SGP4_PROPAGATION_STEP_HOURS:-6}
-      - HDFS_SGP4_VECTORS_PATH=${HDFS_SGP4_VECTORS_PATH:-hdfs://namenode:9000/space-debris/sgp4_vectors}
-      - HDFS_COLLISION_PREDICTIONS_PATH=${HDFS_COLLISION_PREDICTIONS_PATH:-hdfs://namenode:9000/space-debris/collision_predictions}
-      - KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS:-kafka:9093}
-      - KAFKA_COLLISION_TOPIC=${KAFKA_COLLISION_TOPIC:-space_debris_collisions}
-      - DASHBOARD_PORT=${DASHBOARD_PORT:-5001}
-      - HIGH_RISK_THRESHOLD_KM=${HIGH_RISK_THRESHOLD_KM:-5.0}
-      - MEDIUM_RISK_THRESHOLD_KM=${MEDIUM_RISK_THRESHOLD_KM:-10.0}
-      - LOW_RISK_THRESHOLD_KM=${LOW_RISK_THRESHOLD_KM:-50.0}
-      - TZ=${TIMEZONE:-Asia/Kolkata}
+      - PREDICTION_DAYS=7
+      - COLLISION_THRESHOLD_KM=10.0
+      - TIME_WINDOW_DAYS=7
+      - SGP4_PROPAGATION_STEP_HOURS=6
+      - HDFS_SGP4_VECTORS_PATH=hdfs://namenode:9000/space-debris/sgp4_vectors
+      - HDFS_COLLISION_PREDICTIONS_PATH=hdfs://namenode:9000/space-debris/collision_predictions
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9093
+      - KAFKA_COLLISION_TOPIC=space_debris_collisions
+      - DASHBOARD_PORT=5001
+      - HIGH_RISK_THRESHOLD_KM=5.0
+      - MEDIUM_RISK_THRESHOLD_KM=10.0
+      - LOW_RISK_THRESHOLD_KM=50.0
+      - TZ=Asia/Kolkata
     volumes:
       - ./dashboard_api.py:/opt/spark-apps/dashboard_api.py
       - ./requirements-dashboard.txt:/opt/spark-apps/requirements-dashboard.txt
@@ -435,10 +553,9 @@ services:
     container_name: dashboard-web
     hostname: dashboard-web
     depends_on:
-      dashboard-api:
-        condition: service_healthy
+      - dashboard-api
     ports:
-      - "8080:80"
+      - "8082:80"
     volumes:
       - ./dashboard:/usr/share/nginx/html:ro
     networks:

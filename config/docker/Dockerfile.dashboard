@@ -1,0 +1,33 @@
+FROM python:3.11-slim
+
+USER root
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        curl \
+        openjdk-17-jre-headless \
+    && apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set JAVA_HOME for PySpark
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+
+# Install Python packages
+RUN pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir \
+        Flask==3.0.3 \
+        flask-cors==4.0.0 \
+        pyspark==3.5.0 \
+        requests==2.31.0 \
+        kafka-python==2.0.2
+
+WORKDIR /app
+
+# Verify installations
+RUN python3 -c "import flask; print(f'Flask {flask.__version__} installed')" && \
+    python3 -c "import pyspark; print(f'PySpark {pyspark.__version__} installed')"
+
+EXPOSE 5001
+
+CMD ["python3", "dashboard_api.py"]

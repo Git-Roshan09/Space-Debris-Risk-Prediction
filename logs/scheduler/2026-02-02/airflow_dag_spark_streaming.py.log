@@ -404,3 +404,87 @@
 [2026-02-02T11:06:03.585+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:06:03.584+0530] {dag.py:3036} INFO - Sync 1 DAGs
 [2026-02-02T11:06:03.613+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:06:03.613+0530] {dag.py:3823} INFO - Setting next_dagrun for spark_sgp4_streaming to None, run_after=None
 [2026-02-02T11:06:03.649+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_spark_streaming.py took 0.165 seconds
+[2026-02-02T11:06:33.893+0530] {processor.py:161} INFO - Started process (PID=10047) to work on /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:06:33.895+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_spark_streaming.py for tasks to queue
+[2026-02-02T11:06:33.896+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:06:33.895+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:06:33.927+0530] {processor.py:840} INFO - DAG(s) 'spark_sgp4_streaming' retrieved from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:06:33.996+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:06:33.996+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:06:34.025+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:06:34.025+0530] {dag.py:3823} INFO - Setting next_dagrun for spark_sgp4_streaming to None, run_after=None
+[2026-02-02T11:06:34.059+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_spark_streaming.py took 0.173 seconds
+[2026-02-02T11:07:04.287+0530] {processor.py:161} INFO - Started process (PID=10062) to work on /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:07:04.289+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_spark_streaming.py for tasks to queue
+[2026-02-02T11:07:04.290+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:07:04.289+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:07:04.319+0530] {processor.py:840} INFO - DAG(s) 'spark_sgp4_streaming' retrieved from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:07:04.382+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:07:04.382+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:07:04.411+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:07:04.410+0530] {dag.py:3823} INFO - Setting next_dagrun for spark_sgp4_streaming to None, run_after=None
+[2026-02-02T11:07:04.447+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_spark_streaming.py took 0.167 seconds
+[2026-02-02T11:07:34.722+0530] {processor.py:161} INFO - Started process (PID=10077) to work on /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:07:34.723+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_spark_streaming.py for tasks to queue
+[2026-02-02T11:07:34.725+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:07:34.724+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:07:34.753+0530] {processor.py:840} INFO - DAG(s) 'spark_sgp4_streaming' retrieved from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:07:34.803+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:07:34.802+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:07:34.824+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:07:34.824+0530] {dag.py:3823} INFO - Setting next_dagrun for spark_sgp4_streaming to None, run_after=None
+[2026-02-02T11:07:34.854+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_spark_streaming.py took 0.139 seconds
+[2026-02-02T11:08:05.086+0530] {processor.py:161} INFO - Started process (PID=10092) to work on /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:08:05.088+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_spark_streaming.py for tasks to queue
+[2026-02-02T11:08:05.090+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:08:05.089+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:08:05.118+0530] {processor.py:840} INFO - DAG(s) 'spark_sgp4_streaming' retrieved from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:08:05.179+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:08:05.179+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:08:05.206+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:08:05.206+0530] {dag.py:3823} INFO - Setting next_dagrun for spark_sgp4_streaming to None, run_after=None
+[2026-02-02T11:08:05.243+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_spark_streaming.py took 0.163 seconds
+[2026-02-02T11:08:35.483+0530] {processor.py:161} INFO - Started process (PID=10107) to work on /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:08:35.484+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_spark_streaming.py for tasks to queue
+[2026-02-02T11:08:35.486+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:08:35.485+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:08:35.512+0530] {processor.py:840} INFO - DAG(s) 'spark_sgp4_streaming' retrieved from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:08:35.574+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:08:35.574+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:08:35.602+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:08:35.602+0530] {dag.py:3823} INFO - Setting next_dagrun for spark_sgp4_streaming to None, run_after=None
+[2026-02-02T11:08:35.640+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_spark_streaming.py took 0.164 seconds
+[2026-02-02T11:09:05.881+0530] {processor.py:161} INFO - Started process (PID=10122) to work on /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:09:05.882+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_spark_streaming.py for tasks to queue
+[2026-02-02T11:09:05.884+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:09:05.883+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:09:05.910+0530] {processor.py:840} INFO - DAG(s) 'spark_sgp4_streaming' retrieved from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:09:05.965+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:09:05.965+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:09:05.993+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:09:05.993+0530] {dag.py:3823} INFO - Setting next_dagrun for spark_sgp4_streaming to None, run_after=None
+[2026-02-02T11:09:06.031+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_spark_streaming.py took 0.157 seconds
+[2026-02-02T11:09:36.618+0530] {processor.py:161} INFO - Started process (PID=10137) to work on /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:09:36.619+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_spark_streaming.py for tasks to queue
+[2026-02-02T11:09:36.621+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:09:36.620+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:09:36.647+0530] {processor.py:840} INFO - DAG(s) 'spark_sgp4_streaming' retrieved from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:09:36.709+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:09:36.709+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:09:36.737+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:09:36.737+0530] {dag.py:3823} INFO - Setting next_dagrun for spark_sgp4_streaming to None, run_after=None
+[2026-02-02T11:09:36.773+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_spark_streaming.py took 0.163 seconds
+[2026-02-02T11:10:07.001+0530] {processor.py:161} INFO - Started process (PID=10152) to work on /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:10:07.002+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_spark_streaming.py for tasks to queue
+[2026-02-02T11:10:07.004+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:10:07.003+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:10:07.030+0530] {processor.py:840} INFO - DAG(s) 'spark_sgp4_streaming' retrieved from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:10:07.577+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:10:07.577+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:10:07.597+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:10:07.597+0530] {dag.py:3823} INFO - Setting next_dagrun for spark_sgp4_streaming to None, run_after=None
+[2026-02-02T11:10:07.626+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_spark_streaming.py took 0.632 seconds
+[2026-02-02T11:10:37.831+0530] {processor.py:161} INFO - Started process (PID=10167) to work on /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:10:37.832+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_spark_streaming.py for tasks to queue
+[2026-02-02T11:10:37.833+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:10:37.832+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:10:37.846+0530] {processor.py:840} INFO - DAG(s) 'spark_sgp4_streaming' retrieved from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:10:38.158+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:10:38.158+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:10:38.170+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:10:38.170+0530] {dag.py:3823} INFO - Setting next_dagrun for spark_sgp4_streaming to None, run_after=None
+[2026-02-02T11:10:38.193+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_spark_streaming.py took 0.366 seconds
+[2026-02-02T11:11:08.388+0530] {processor.py:161} INFO - Started process (PID=10182) to work on /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:11:08.390+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_spark_streaming.py for tasks to queue
+[2026-02-02T11:11:08.392+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:11:08.391+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:11:08.418+0530] {processor.py:840} INFO - DAG(s) 'spark_sgp4_streaming' retrieved from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:11:08.481+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:11:08.481+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:11:08.509+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:11:08.509+0530] {dag.py:3823} INFO - Setting next_dagrun for spark_sgp4_streaming to None, run_after=None
+[2026-02-02T11:11:08.547+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_spark_streaming.py took 0.165 seconds
+[2026-02-02T11:11:38.671+0530] {processor.py:161} INFO - Started process (PID=10197) to work on /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:11:38.672+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_spark_streaming.py for tasks to queue
+[2026-02-02T11:11:38.674+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:11:38.673+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:11:38.701+0530] {processor.py:840} INFO - DAG(s) 'spark_sgp4_streaming' retrieved from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:11:38.763+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:11:38.763+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:11:38.790+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:11:38.790+0530] {dag.py:3823} INFO - Setting next_dagrun for spark_sgp4_streaming to None, run_after=None
+[2026-02-02T11:11:38.828+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_spark_streaming.py took 0.165 seconds
+[2026-02-02T11:12:09.059+0530] {processor.py:161} INFO - Started process (PID=10212) to work on /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:12:09.061+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/airflow_dag_spark_streaming.py for tasks to queue
+[2026-02-02T11:12:09.062+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:12:09.062+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:12:09.088+0530] {processor.py:840} INFO - DAG(s) 'spark_sgp4_streaming' retrieved from /opt/airflow/dags/airflow_dag_spark_streaming.py
+[2026-02-02T11:12:09.146+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:12:09.146+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-02T11:12:09.174+0530] {logging_mixin.py:188} INFO - [2026-02-02T11:12:09.174+0530] {dag.py:3823} INFO - Setting next_dagrun for spark_sgp4_streaming to None, run_after=None
+[2026-02-02T11:12:09.212+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/airflow_dag_spark_streaming.py took 0.160 seconds

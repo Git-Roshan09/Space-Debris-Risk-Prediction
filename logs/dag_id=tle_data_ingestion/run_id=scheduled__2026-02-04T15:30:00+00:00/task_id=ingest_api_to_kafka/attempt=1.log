@@ -1,0 +1,323 @@
+[2026-02-04T21:05:06.467+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: tle_data_ingestion.ingest_api_to_kafka scheduled__2026-02-04T15:30:00+00:00 [queued]>
+[2026-02-04T21:05:06.478+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: tle_data_ingestion.ingest_api_to_kafka scheduled__2026-02-04T15:30:00+00:00 [queued]>
+[2026-02-04T21:05:06.478+0530] {taskinstance.py:2170} INFO - Starting attempt 1 of 3
+[2026-02-04T21:05:06.494+0530] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): ingest_api_to_kafka> on 2026-02-04 15:30:00+00:00
+[2026-02-04T21:05:06.501+0530] {standard_task_runner.py:60} INFO - Started process 635 to run task
+[2026-02-04T21:05:06.504+0530] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'tle_data_ingestion', 'ingest_api_to_kafka', 'scheduled__2026-02-04T15:30:00+00:00', '--job-id', '122', '--raw', '--subdir', 'DAGS_FOLDER/dag_tle_ingestion_only.py', '--cfg-path', '/tmp/tmpr1zmcm6w']
+[2026-02-04T21:05:06.506+0530] {standard_task_runner.py:88} INFO - Job 122: Subtask ingest_api_to_kafka
+[2026-02-04T21:05:06.580+0530] {task_command.py:423} INFO - Running <TaskInstance: tle_data_ingestion.ingest_api_to_kafka scheduled__2026-02-04T15:30:00+00:00 [running]> on host ***-scheduler
+[2026-02-04T21:05:06.699+0530] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='space-debris-team' AIRFLOW_CTX_DAG_ID='tle_data_ingestion' AIRFLOW_CTX_TASK_ID='ingest_api_to_kafka' AIRFLOW_CTX_EXECUTION_DATE='2026-02-04T15:30:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-02-04T15:30:00+00:00'
+[2026-02-04T21:05:06.769+0530] {dag_tle_ingestion_only.py:102} INFO - ============================================================
+[2026-02-04T21:05:06.769+0530] {dag_tle_ingestion_only.py:103} INFO - Starting TLE API → Kafka Ingestion
+[2026-02-04T21:05:06.769+0530] {dag_tle_ingestion_only.py:104} INFO - ============================================================
+[2026-02-04T21:05:06.771+0530] {conn.py:380} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]>: connecting to kafka:9093 [('172.21.0.12', 9093) IPv4]
+[2026-02-04T21:05:06.771+0530] {conn.py:1205} INFO - Probing node bootstrap-0 broker version
+[2026-02-04T21:05:06.772+0530] {conn.py:410} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]>: Connection complete.
+[2026-02-04T21:05:06.874+0530] {conn.py:1267} INFO - Broker version identified as 2.5.0
+[2026-02-04T21:05:06.874+0530] {conn.py:1268} INFO - Set configuration api_version=(2, 5, 0) to skip auto check_version requests on startup
+[2026-02-04T21:05:06.876+0530] {dag_tle_ingestion_only.py:120} INFO - ✓ Connected to Kafka: ['kafka:9093']
+[2026-02-04T21:05:06.877+0530] {dag_tle_ingestion_only.py:138} INFO - Streaming from: http://tle-api:5000/stream
+[2026-02-04T21:05:06.877+0530] {dag_tle_ingestion_only.py:139} INFO - Parameters: {'acceleration': 100, 'mode': 'adaptive', 'max_delay': 5.0, 'limit': 1000}
+[2026-02-04T21:05:06.884+0530] {conn.py:380} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]>: connecting to kafka:9093 [('172.21.0.12', 9093) IPv4]
+[2026-02-04T21:05:06.884+0530] {conn.py:410} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]>: Connection complete.
+[2026-02-04T21:05:06.884+0530] {conn.py:919} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connected> [IPv4 ('172.21.0.12', 9093)]>: Closing connection. 
+[2026-02-04T21:12:44.696+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 100 records sent to Kafka
+[2026-02-04T21:20:55.565+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 200 records sent to Kafka
+[2026-02-04T21:28:23.882+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 300 records sent to Kafka
+[2026-02-04T21:36:39.393+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 400 records sent to Kafka
+[2026-02-04T21:41:26.897+0530] {local_task_job_runner.py:121} ERROR - Received SIGTERM. Terminating subprocesses
+[2026-02-04T21:41:26.911+0530] {process_utils.py:131} INFO - Sending 15 to group 635. PIDs of all processes in the group: [635]
+[2026-02-04T21:41:26.912+0530] {process_utils.py:86} INFO - Sending the signal 15 to group 635
+[2026-02-04T21:41:26.914+0530] {taskinstance.py:2450} ERROR - Received SIGTERM. Terminating subprocesses.
+[2026-02-04T21:41:26.924+0530] {dag_tle_ingestion_only.py:219} ERROR - Streaming error: Task received SIGTERM signal
+[2026-02-04T21:41:27.042+0530] {conn.py:919} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connected> [IPv4 ('172.21.0.12', 9093)]>: Closing connection. KafkaConnectionError: Socket EVENT_READ without in-flight-requests
+[2026-02-04T21:41:27.044+0530] {client_async.py:331} WARNING - Node 1 connection failed -- refreshing metadata
+[2026-02-04T21:41:27.099+0530] {conn.py:380} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]>: connecting to kafka:9093 [('172.21.0.12', 9093) IPv4]
+[2026-02-04T21:41:27.100+0530] {conn.py:418} ERROR - Connect attempt to <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]> returned error 111. Disconnecting.
+[2026-02-04T21:41:27.100+0530] {conn.py:919} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+[2026-02-04T21:41:27.100+0530] {client_async.py:331} WARNING - Node 1 connection failed -- refreshing metadata
+[2026-02-04T21:41:27.271+0530] {conn.py:380} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]>: connecting to kafka:9093 [('172.21.0.12', 9093) IPv4]
+[2026-02-04T21:41:27.275+0530] {conn.py:418} ERROR - Connect attempt to <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]> returned error 111. Disconnecting.
+[2026-02-04T21:41:27.276+0530] {conn.py:919} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+[2026-02-04T21:41:27.278+0530] {client_async.py:331} WARNING - Node 1 connection failed -- refreshing metadata
+[2026-02-04T21:41:27.530+0530] {conn.py:380} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]>: connecting to kafka:9093 [('172.21.0.12', 9093) IPv4]
+[2026-02-04T21:41:27.531+0530] {conn.py:418} ERROR - Connect attempt to <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]> returned error 111. Disconnecting.
+[2026-02-04T21:41:27.531+0530] {conn.py:919} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+[2026-02-04T21:41:27.531+0530] {client_async.py:331} WARNING - Node 1 connection failed -- refreshing metadata
+[2026-02-04T21:41:27.987+0530] {conn.py:380} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]>: connecting to kafka:9093 [('172.21.0.12', 9093) IPv4]
+[2026-02-04T21:41:27.988+0530] {conn.py:418} ERROR - Connect attempt to <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]> returned error 111. Disconnecting.
+[2026-02-04T21:41:27.988+0530] {conn.py:919} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.12', 9093)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+[2026-02-04T21:41:27.989+0530] {client_async.py:331} WARNING - Node 1 connection failed -- refreshing metadata
+[2026-02-04T21:41:28.014+0530] {standard_task_runner.py:107} ERROR - Failed to execute job 122 for task ingest_api_to_kafka ((psycopg2.OperationalError) connection to server at "postgres" (172.21.0.6), port 5432 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8); 635)
+[2026-02-04T21:41:28.046+0530] {process_utils.py:79} INFO - Process psutil.Process(pid=635, status='terminated', exitcode=1, started='21:05:05') (635) terminated with exit code 1
+[2026-02-04T21:41:28.048+0530] {local_task_job_runner.py:234} INFO - Task exited with return code 143
+[2026-02-04T21:41:28.054+0530] {taskinstance.py:3286} INFO - Skipping mini scheduling run due to exception: None
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3371, in _wrap_pool_connect
+    return fn()
+           ^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 327, in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 894, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 493, in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 256, in _do_get
+    return self._create_connection()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 273, in _create_connection
+    return _ConnectionRecord(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 388, in __init__
+    self.__connect()
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 690, in __connect
+    with util.safe_reraise():
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 70, in __exit__
+    compat.raise_(
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/util/compat.py", line 211, in raise_
+    raise exception
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 686, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/create.py", line 574, in connect
+    return dialect.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 598, in connect
+    return self.dbapi.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.OperationalError: connection to server at "postgres" (172.21.0.6), port 5432 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 3241, in _schedule_downstream_tasks
+    ).one()
+      ^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2870, in one
+    return self._iter().one()
+           ^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2916, in _iter
+    result = self.session.execute(
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1716, in execute
+    conn = self._connection_for_bind(bind)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1555, in _connection_for_bind
+    return self._transaction._connection_for_bind(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 750, in _connection_for_bind
+    conn = bind.connect()
+           ^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/future/engine.py", line 412, in connect
+    return super(Engine, self).connect()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3325, in connect
+    return self._connection_cls(self, close_with_result=close_with_result)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 96, in __init__
+    else engine.raw_connection()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3404, in raw_connection
+    return self._wrap_pool_connect(self.pool.connect, _connection)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3374, in _wrap_pool_connect
+    Connection._handle_dbapi_exception_noconnection(
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2208, in _handle_dbapi_exception_noconnection
+    util.raise_(
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/util/compat.py", line 211, in raise_
+    raise exception
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3371, in _wrap_pool_connect
+    return fn()
+           ^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 327, in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 894, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 493, in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 256, in _do_get
+    return self._create_connection()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 273, in _create_connection
+    return _ConnectionRecord(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 388, in __init__
+    self.__connect()
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 690, in __connect
+    with util.safe_reraise():
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 70, in __exit__
+    compat.raise_(
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/util/compat.py", line 211, in raise_
+    raise exception
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 686, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/create.py", line 574, in connect
+    return dialect.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 598, in connect
+    return self.dbapi.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) connection to server at "postgres" (172.21.0.6), port 5432 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-02-04T21:41:28.100+0530] {job.py:213} ERROR - Job heartbeat got an exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3371, in _wrap_pool_connect
+    return fn()
+           ^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 327, in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 894, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 493, in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 256, in _do_get
+    return self._create_connection()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 273, in _create_connection
+    return _ConnectionRecord(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 388, in __init__
+    self.__connect()
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 690, in __connect
+    with util.safe_reraise():
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 70, in __exit__
+    compat.raise_(
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/util/compat.py", line 211, in raise_
+    raise exception
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 686, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/create.py", line 574, in connect
+    return dialect.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 598, in connect
+    return self.dbapi.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.OperationalError: connection to server at "postgres" (172.21.0.6), port 5432 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/jobs/job.py", line 187, in heartbeat
+    self._merge_from(Job._fetch_from_db(self, session))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/api_internal/internal_api_call.py", line 114, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/utils/session.py", line 76, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/jobs/job.py", line 308, in _fetch_from_db
+    session.merge(job)
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 3056, in merge
+    return self._merge(
+           ^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 3136, in _merge
+    merged = self.get(
+             ^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2853, in get
+    return self._get_impl(
+           ^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2975, in _get_impl
+    return db_load_fn(
+           ^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/loading.py", line 530, in load_on_pk_identity
+    session.execute(
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1716, in execute
+    conn = self._connection_for_bind(bind)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1555, in _connection_for_bind
+    return self._transaction._connection_for_bind(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 750, in _connection_for_bind
+    conn = bind.connect()
+           ^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/future/engine.py", line 412, in connect
+    return super(Engine, self).connect()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3325, in connect
+    return self._connection_cls(self, close_with_result=close_with_result)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 96, in __init__
+    else engine.raw_connection()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3404, in raw_connection
+    return self._wrap_pool_connect(self.pool.connect, _connection)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3374, in _wrap_pool_connect
+    Connection._handle_dbapi_exception_noconnection(
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2208, in _handle_dbapi_exception_noconnection
+    util.raise_(
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/util/compat.py", line 211, in raise_
+    raise exception
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3371, in _wrap_pool_connect
+    return fn()
+           ^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 327, in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 894, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 493, in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 256, in _do_get
+    return self._create_connection()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 273, in _create_connection
+    return _ConnectionRecord(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 388, in __init__
+    self.__connect()
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 690, in __connect
+    with util.safe_reraise():
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 70, in __exit__
+    compat.raise_(
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/util/compat.py", line 211, in raise_
+    raise exception
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 686, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/create.py", line 574, in connect
+    return dialect.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 598, in connect
+    return self.dbapi.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) connection to server at "postgres" (172.21.0.6), port 5432 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+[2026-02-04T21:41:28.126+0530] {job.py:216} ERROR - Job heartbeat failed with error. Scheduler may go into unhealthy state

@@ -39,7 +39,8 @@ class DashboardDataProvider:
     def get_collision_alerts(self, limit=100):
         """Get recent collision predictions."""
         try:
-            df = self.spark.read.parquet(HDFS_COLLISION_PATH)
+            # Read from all batch subdirectories
+            df = self.spark.read.parquet(f"{HDFS_COLLISION_PATH}/batch_*")
             
             # Get most recent collisions
             df_recent = df.orderBy(desc("detection_timestamp")) \
@@ -53,7 +54,8 @@ class DashboardDataProvider:
     def get_collision_stats(self):
         """Get statistical summary of collision predictions."""
         try:
-            df = self.spark.read.parquet(HDFS_COLLISION_PATH)
+            # Read from all batch subdirectories
+            df = self.spark.read.parquet(f"{HDFS_COLLISION_PATH}/batch_*")
             
             # Overall statistics
             total_collisions = df.count()
@@ -71,8 +73,8 @@ class DashboardDataProvider:
             
             # Time range
             time_range = df.select(
-                spark_min("collision_time").alias("earliest"),
-                spark_max("collision_time").alias("latest")
+                spark_min("detection_timestamp").alias("earliest"),
+                spark_max("detection_timestamp").alias("latest")
             ).first()
             
             return {
@@ -95,7 +97,8 @@ class DashboardDataProvider:
     def get_high_risk_collisions(self):
         """Get only high-risk collision alerts."""
         try:
-            df = self.spark.read.parquet(HDFS_COLLISION_PATH)
+            # Read from all batch subdirectories
+            df = self.spark.read.parquet(f"{HDFS_COLLISION_PATH}/batch_*")
             df_high_risk = df.filter(col("risk_level") == "HIGH") \
                             .orderBy(desc("detection_timestamp")) \
                             .limit(50)
@@ -108,7 +111,8 @@ class DashboardDataProvider:
     def get_satellite_tracking(self, satellite_id=None):
         """Get tracking data for satellites."""
         try:
-            df = self.spark.read.parquet(HDFS_SGP4_PATH)
+            # Read from all batch subdirectories
+            df = self.spark.read.parquet(f"{HDFS_SGP4_PATH}/batch_*")
             
             if satellite_id:
                 df = df.filter(col("satellite_id") == satellite_id)
@@ -123,16 +127,17 @@ class DashboardDataProvider:
     def get_collision_timeline(self, days=7):
         """Get collision predictions grouped by time."""
         try:
-            df = self.spark.read.parquet(HDFS_COLLISION_PATH)
+            # Read from all batch subdirectories
+            df = self.spark.read.parquet(f"{HDFS_COLLISION_PATH}/batch_*")
             
             # Filter recent predictions
             cutoff = (datetime.now() - timedelta(days=days)).isoformat()
-            df_recent = df.filter(col("collision_time") >= cutoff)
+            df_recent = df.filter(col("detection_timestamp") >= cutoff)
             
             # Group by hour
-            timeline = df_recent.groupBy("collision_time", "risk_level") \
+            timeline = df_recent.groupBy("detection_timestamp", "risk_level") \
                                .agg(count("*").alias("collision_count")) \
-                               .orderBy("collision_time") \
+                               .orderBy("detection_timestamp") \
                                .collect()
             
             return [row.asDict() for row in timeline]
@@ -143,7 +148,8 @@ class DashboardDataProvider:
     def get_satellite_pairs(self):
         """Get most frequently colliding satellite pairs."""
         try:
-            df = self.spark.read.parquet(HDFS_COLLISION_PATH)
+            # Read from all batch subdirectories
+            df = self.spark.read.parquet(f"{HDFS_COLLISION_PATH}/batch_*")
             
             pairs = df.groupBy("satellite_1", "satellite_2") \
                      .agg(

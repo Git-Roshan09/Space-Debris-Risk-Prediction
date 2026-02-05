@@ -1,0 +1,26 @@
+[2026-02-03T14:00:58.421+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: collision_prediction_pipeline.submit_collision_prediction scheduled__2026-02-03T00:30:00+00:00 [queued]>
+[2026-02-03T14:00:58.430+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: collision_prediction_pipeline.submit_collision_prediction scheduled__2026-02-03T00:30:00+00:00 [queued]>
+[2026-02-03T14:00:58.431+0530] {taskinstance.py:2170} INFO - Starting attempt 2 of 3
+[2026-02-03T14:00:58.448+0530] {taskinstance.py:2191} INFO - Executing <Task(BashOperator): submit_collision_prediction> on 2026-02-03 00:30:00+00:00
+[2026-02-03T14:00:58.454+0530] {standard_task_runner.py:60} INFO - Started process 1503 to run task
+[2026-02-03T14:00:58.458+0530] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'collision_prediction_pipeline', 'submit_collision_prediction', 'scheduled__2026-02-03T00:30:00+00:00', '--job-id', '13', '--raw', '--subdir', 'DAGS_FOLDER/***_dag_collision_prediction.py', '--cfg-path', '/tmp/tmp50ud5ct0']
+[2026-02-03T14:00:58.460+0530] {standard_task_runner.py:88} INFO - Job 13: Subtask submit_collision_prediction
+[2026-02-03T14:00:58.522+0530] {task_command.py:423} INFO - Running <TaskInstance: collision_prediction_pipeline.submit_collision_prediction scheduled__2026-02-03T00:30:00+00:00 [running]> on host ***-scheduler
+[2026-02-03T14:00:58.622+0530] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='space-debris-team' AIRFLOW_CTX_DAG_ID='collision_prediction_pipeline' AIRFLOW_CTX_TASK_ID='submit_collision_prediction' AIRFLOW_CTX_EXECUTION_DATE='2026-02-03T00:30:00+00:00' AIRFLOW_CTX_TRY_NUMBER='2' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-02-03T00:30:00+00:00'
+[2026-02-03T14:00:58.623+0530] {subprocess.py:63} INFO - Tmp dir root location: /tmp
+[2026-02-03T14:00:58.624+0530] {subprocess.py:75} INFO - Running command: ['/usr/bin/bash', '-c', '\n        docker exec spark-master spark-submit             --master spark://spark-master:7077             --deploy-mode client             --driver-memory 2g             --executor-memory 2g             --executor-cores 2             --conf spark.sql.adaptive.enabled=true             --conf spark.hadoop.fs.defaultFS=hdfs://namenode:9000             --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0             --py-files /opt/spark-apps/pipelines/processing/spark_collision_prediction.py             /opt/spark-apps/pipelines/processing/spark_collision_prediction.py\n        ']
+[2026-02-03T14:00:58.639+0530] {subprocess.py:86} INFO - Output:
+[2026-02-03T14:00:58.655+0530] {subprocess.py:93} INFO - Error response from daemon: client version 1.43 is too old. Minimum supported API version is 1.44, please upgrade your client to a newer version
+[2026-02-03T14:00:58.656+0530] {subprocess.py:97} INFO - Command exited with return code 1
+[2026-02-03T14:00:58.673+0530] {taskinstance.py:2698} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 433, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/bash.py", line 212, in execute
+    raise AirflowException(
+airflow.exceptions.AirflowException: Bash command failed. The command returned a non-zero exit code 1.
+[2026-02-03T14:00:58.677+0530] {taskinstance.py:1138} INFO - Marking task as UP_FOR_RETRY. dag_id=collision_prediction_pipeline, task_id=submit_collision_prediction, execution_date=20260203T003000, start_date=20260203T083058, end_date=20260203T083058
+[2026-02-03T14:00:58.691+0530] {standard_task_runner.py:107} ERROR - Failed to execute job 13 for task submit_collision_prediction (Bash command failed. The command returned a non-zero exit code 1.; 1503)
+[2026-02-03T14:00:58.710+0530] {local_task_job_runner.py:234} INFO - Task exited with return code 1
+[2026-02-03T14:00:58.741+0530] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

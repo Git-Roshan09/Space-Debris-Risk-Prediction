@@ -1,0 +1,115 @@
+[2026-02-04T12:05:24.123+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: tle_data_ingestion.ingest_api_to_kafka scheduled__2026-02-04T06:25:00+00:00 [queued]>
+[2026-02-04T12:05:24.135+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: tle_data_ingestion.ingest_api_to_kafka scheduled__2026-02-04T06:25:00+00:00 [queued]>
+[2026-02-04T12:05:24.136+0530] {taskinstance.py:2170} INFO - Starting attempt 1 of 3
+[2026-02-04T12:05:24.149+0530] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): ingest_api_to_kafka> on 2026-02-04 06:25:00+00:00
+[2026-02-04T12:05:24.154+0530] {standard_task_runner.py:60} INFO - Started process 8355 to run task
+[2026-02-04T12:05:24.157+0530] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'tle_data_ingestion', 'ingest_api_to_kafka', 'scheduled__2026-02-04T06:25:00+00:00', '--job-id', '196', '--raw', '--subdir', 'DAGS_FOLDER/dag_tle_ingestion_only.py', '--cfg-path', '/tmp/tmps3wrnd71']
+[2026-02-04T12:05:24.159+0530] {standard_task_runner.py:88} INFO - Job 196: Subtask ingest_api_to_kafka
+[2026-02-04T12:05:24.216+0530] {task_command.py:423} INFO - Running <TaskInstance: tle_data_ingestion.ingest_api_to_kafka scheduled__2026-02-04T06:25:00+00:00 [running]> on host ***-scheduler
+[2026-02-04T12:05:24.319+0530] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='space-debris-team' AIRFLOW_CTX_DAG_ID='tle_data_ingestion' AIRFLOW_CTX_TASK_ID='ingest_api_to_kafka' AIRFLOW_CTX_EXECUTION_DATE='2026-02-04T06:25:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-02-04T06:25:00+00:00'
+[2026-02-04T12:05:24.397+0530] {dag_tle_ingestion_only.py:102} INFO - ============================================================
+[2026-02-04T12:05:24.397+0530] {dag_tle_ingestion_only.py:103} INFO - Starting TLE API → Kafka Ingestion
+[2026-02-04T12:05:24.397+0530] {dag_tle_ingestion_only.py:104} INFO - ============================================================
+[2026-02-04T12:05:24.399+0530] {conn.py:380} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connecting> [IPv4 ('172.21.0.10', 9093)]>: connecting to kafka:9093 [('172.21.0.10', 9093) IPv4]
+[2026-02-04T12:05:24.400+0530] {conn.py:1205} INFO - Probing node bootstrap-0 broker version
+[2026-02-04T12:05:24.400+0530] {conn.py:410} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connecting> [IPv4 ('172.21.0.10', 9093)]>: Connection complete.
+[2026-02-04T12:05:24.503+0530] {conn.py:1267} INFO - Broker version identified as 2.5.0
+[2026-02-04T12:05:24.503+0530] {conn.py:1268} INFO - Set configuration api_version=(2, 5, 0) to skip auto check_version requests on startup
+[2026-02-04T12:05:24.506+0530] {dag_tle_ingestion_only.py:120} INFO - ✓ Connected to Kafka: ['kafka:9093']
+[2026-02-04T12:05:24.507+0530] {dag_tle_ingestion_only.py:138} INFO - Streaming from: http://tle-api:5000/stream
+[2026-02-04T12:05:24.507+0530] {dag_tle_ingestion_only.py:139} INFO - Parameters: {'acceleration': 100, 'mode': 'adaptive', 'max_delay': 5.0, 'limit': 1000}
+[2026-02-04T12:05:24.594+0530] {dag_tle_ingestion_only.py:216} ERROR - API connection error: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+[2026-02-04T12:05:24.595+0530] {taskinstance.py:2698} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/urllib3/connectionpool.py", line 791, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/urllib3/connectionpool.py", line 537, in _make_request
+    response = conn.getresponse()
+               ^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/urllib3/connection.py", line 461, in getresponse
+    httplib_response = super().getresponse()
+                       ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/http/client.py", line 1390, in getresponse
+    response.begin()
+  File "/usr/local/lib/python3.11/http/client.py", line 325, in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/http/client.py", line 286, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/socket.py", line 706, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [Errno 104] Connection reset by peer
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/requests/adapters.py", line 486, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/urllib3/connectionpool.py", line 845, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/urllib3/util/retry.py", line 470, in increment
+    raise reraise(type(error), error, _stacktrace)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/urllib3/util/util.py", line 38, in reraise
+    raise value.with_traceback(tb)
+  File "/home/airflow/.local/lib/python3.11/site-packages/urllib3/connectionpool.py", line 791, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/urllib3/connectionpool.py", line 537, in _make_request
+    response = conn.getresponse()
+               ^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/urllib3/connection.py", line 461, in getresponse
+    httplib_response = super().getresponse()
+                       ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/http/client.py", line 1390, in getresponse
+    response.begin()
+  File "/usr/local/lib/python3.11/http/client.py", line 325, in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/http/client.py", line 286, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/socket.py", line 706, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.ProtocolError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 433, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 199, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 216, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/dag_tle_ingestion_only.py", line 146, in stream_api_to_kafka
+    response = requests.get(stream_url, params=params, stream=True, timeout=3600)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/requests/api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/requests/adapters.py", line 501, in send
+    raise ConnectionError(err, request=request)
+requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+[2026-02-04T12:05:24.621+0530] {taskinstance.py:1138} INFO - Marking task as UP_FOR_RETRY. dag_id=tle_data_ingestion, task_id=ingest_api_to_kafka, execution_date=20260204T062500, start_date=20260204T063524, end_date=20260204T063524
+[2026-02-04T12:05:24.637+0530] {standard_task_runner.py:107} ERROR - Failed to execute job 196 for task ingest_api_to_kafka (('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer')); 8355)
+[2026-02-04T12:05:24.690+0530] {local_task_job_runner.py:234} INFO - Task exited with return code 1
+[2026-02-04T12:05:24.725+0530] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

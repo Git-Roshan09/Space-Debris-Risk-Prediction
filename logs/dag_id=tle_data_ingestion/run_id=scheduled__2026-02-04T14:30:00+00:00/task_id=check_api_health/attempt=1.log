@@ -1,0 +1,14 @@
+[2026-02-04T20:08:35.018+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: tle_data_ingestion.check_api_health scheduled__2026-02-04T14:30:00+00:00 [queued]>
+[2026-02-04T20:08:35.032+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: tle_data_ingestion.check_api_health scheduled__2026-02-04T14:30:00+00:00 [queued]>
+[2026-02-04T20:08:35.032+0530] {taskinstance.py:2170} INFO - Starting attempt 1 of 3
+[2026-02-04T20:08:35.190+0530] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): check_api_health> on 2026-02-04 14:30:00+00:00
+[2026-02-04T20:08:35.200+0530] {standard_task_runner.py:60} INFO - Started process 747 to run task
+[2026-02-04T20:08:35.204+0530] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'tle_data_ingestion', 'check_api_health', 'scheduled__2026-02-04T14:30:00+00:00', '--job-id', '38', '--raw', '--subdir', 'DAGS_FOLDER/dag_tle_ingestion_only.py', '--cfg-path', '/tmp/tmp2w5vd3y_']
+[2026-02-04T20:08:35.207+0530] {standard_task_runner.py:88} INFO - Job 38: Subtask check_api_health
+[2026-02-04T20:08:35.306+0530] {task_command.py:423} INFO - Running <TaskInstance: tle_data_ingestion.check_api_health scheduled__2026-02-04T14:30:00+00:00 [running]> on host ***-scheduler
+[2026-02-04T20:08:35.487+0530] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='space-debris-team' AIRFLOW_CTX_DAG_ID='tle_data_ingestion' AIRFLOW_CTX_TASK_ID='check_api_health' AIRFLOW_CTX_EXECUTION_DATE='2026-02-04T14:30:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-02-04T14:30:00+00:00'
+[2026-02-04T20:09:05.534+0530] {dag_tle_ingestion_only.py:71} ERROR - ✗ TLE API health check failed: HTTPConnectionPool(host='tle-api', port=5000): Read timed out. (read timeout=30)
+[2026-02-04T20:09:05.535+0530] {python.py:201} INFO - Done. Returned value was: False
+[2026-02-04T20:09:05.581+0530] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=tle_data_ingestion, task_id=check_api_health, execution_date=20260204T143000, start_date=20260204T143835, end_date=20260204T143905
+[2026-02-04T20:09:05.724+0530] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-02-04T20:09:05.765+0530] {taskinstance.py:3280} INFO - 1 downstream tasks scheduled from follow-on schedule check

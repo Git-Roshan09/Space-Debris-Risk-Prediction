@@ -1,0 +1,47 @@
+[2026-02-03T22:20:05.158+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: tle_data_ingestion.ingest_api_to_kafka scheduled__2026-02-03T16:45:00+00:00 [queued]>
+[2026-02-03T22:20:05.172+0530] {taskinstance.py:1956} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: tle_data_ingestion.ingest_api_to_kafka scheduled__2026-02-03T16:45:00+00:00 [queued]>
+[2026-02-03T22:20:05.173+0530] {taskinstance.py:2170} INFO - Starting attempt 1 of 3
+[2026-02-03T22:20:05.196+0530] {taskinstance.py:2191} INFO - Executing <Task(PythonOperator): ingest_api_to_kafka> on 2026-02-03 16:45:00+00:00
+[2026-02-03T22:20:05.206+0530] {standard_task_runner.py:60} INFO - Started process 5412 to run task
+[2026-02-03T22:20:05.211+0530] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'tle_data_ingestion', 'ingest_api_to_kafka', 'scheduled__2026-02-03T16:45:00+00:00', '--job-id', '62', '--raw', '--subdir', 'DAGS_FOLDER/dag_tle_ingestion_only.py', '--cfg-path', '/tmp/tmpjmwsfjx8']
+[2026-02-03T22:20:05.214+0530] {standard_task_runner.py:88} INFO - Job 62: Subtask ingest_api_to_kafka
+[2026-02-03T22:20:05.286+0530] {task_command.py:423} INFO - Running <TaskInstance: tle_data_ingestion.ingest_api_to_kafka scheduled__2026-02-03T16:45:00+00:00 [running]> on host ***-scheduler
+[2026-02-03T22:20:05.388+0530] {taskinstance.py:2480} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='space-debris-team' AIRFLOW_CTX_DAG_ID='tle_data_ingestion' AIRFLOW_CTX_TASK_ID='ingest_api_to_kafka' AIRFLOW_CTX_EXECUTION_DATE='2026-02-03T16:45:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-02-03T16:45:00+00:00'
+[2026-02-03T22:20:05.455+0530] {dag_tle_ingestion_only.py:102} INFO - ============================================================
+[2026-02-03T22:20:05.456+0530] {dag_tle_ingestion_only.py:103} INFO - Starting TLE API → Kafka Ingestion
+[2026-02-03T22:20:05.456+0530] {dag_tle_ingestion_only.py:104} INFO - ============================================================
+[2026-02-03T22:20:05.459+0530] {conn.py:380} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connecting> [IPv4 ('172.21.0.10', 9093)]>: connecting to kafka:9093 [('172.21.0.10', 9093) IPv4]
+[2026-02-03T22:20:05.459+0530] {conn.py:1205} INFO - Probing node bootstrap-0 broker version
+[2026-02-03T22:20:05.460+0530] {conn.py:410} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connecting> [IPv4 ('172.21.0.10', 9093)]>: Connection complete.
+[2026-02-03T22:20:05.562+0530] {conn.py:1267} INFO - Broker version identified as 2.5.0
+[2026-02-03T22:20:05.563+0530] {conn.py:1268} INFO - Set configuration api_version=(2, 5, 0) to skip auto check_version requests on startup
+[2026-02-03T22:20:05.567+0530] {dag_tle_ingestion_only.py:120} INFO - ✓ Connected to Kafka: ['kafka:9093']
+[2026-02-03T22:20:05.568+0530] {dag_tle_ingestion_only.py:138} INFO - Streaming from: http://tle-api:5000/stream
+[2026-02-03T22:20:05.568+0530] {dag_tle_ingestion_only.py:139} INFO - Parameters: {'acceleration': 100, 'mode': 'adaptive', 'max_delay': 5.0, 'limit': 1000}
+[2026-02-03T22:20:05.580+0530] {conn.py:380} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.10', 9093)]>: connecting to kafka:9093 [('172.21.0.10', 9093) IPv4]
+[2026-02-03T22:20:05.581+0530] {conn.py:410} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.10', 9093)]>: Connection complete.
+[2026-02-03T22:20:05.581+0530] {conn.py:919} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connected> [IPv4 ('172.21.0.10', 9093)]>: Closing connection. 
+[2026-02-03T22:27:43.526+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 100 records sent to Kafka
+[2026-02-03T22:35:54.545+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 200 records sent to Kafka
+[2026-02-03T22:43:23.094+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 300 records sent to Kafka
+[2026-02-03T22:51:47.097+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 400 records sent to Kafka
+[2026-02-03T23:00:02.789+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 500 records sent to Kafka
+[2026-02-03T23:08:23.004+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 600 records sent to Kafka
+[2026-02-03T23:16:34.894+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 700 records sent to Kafka
+[2026-02-03T23:24:55.060+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 800 records sent to Kafka
+[2026-02-03T23:33:15.252+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 900 records sent to Kafka
+[2026-02-03T23:40:49.746+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 1000 records sent to Kafka
+[2026-02-03T23:40:49.749+0530] {dag_tle_ingestion_only.py:156} INFO - Stream summary: {'type': 'summary', 'total_records': 1000, 'real_time_span_seconds': 58924361.95372809, 'stream_time_seconds': 4833.88146494, 'effective_acceleration': 12189.86489037945}
+[2026-02-03T23:40:49.751+0530] {kafka.py:483} INFO - Closing the Kafka producer with 9223372036.0 secs timeout.
+[2026-02-03T23:40:49.757+0530] {conn.py:919} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connected> [IPv4 ('172.21.0.10', 9093)]>: Closing connection. 
+[2026-02-03T23:40:49.760+0530] {dag_tle_ingestion_only.py:207} INFO - ============================================================
+[2026-02-03T23:40:49.760+0530] {dag_tle_ingestion_only.py:208} INFO - ✓ Ingestion complete!
+[2026-02-03T23:40:49.760+0530] {dag_tle_ingestion_only.py:209} INFO -   Records sent: 1000
+[2026-02-03T23:40:49.760+0530] {dag_tle_ingestion_only.py:210} INFO -   Errors: 0
+[2026-02-03T23:40:49.761+0530] {dag_tle_ingestion_only.py:211} INFO -   Duration: 4844.19s
+[2026-02-03T23:40:49.761+0530] {dag_tle_ingestion_only.py:212} INFO -   Rate: 0.21 msg/s
+[2026-02-03T23:40:49.761+0530] {dag_tle_ingestion_only.py:213} INFO - ============================================================
+[2026-02-03T23:40:49.764+0530] {python.py:201} INFO - Done. Returned value was: None
+[2026-02-03T23:40:49.824+0530] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=tle_data_ingestion, task_id=ingest_api_to_kafka, execution_date=20260203T164500, start_date=20260203T165005, end_date=20260203T181049
+[2026-02-03T23:40:49.894+0530] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2026-02-03T23:40:49.939+0530] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check

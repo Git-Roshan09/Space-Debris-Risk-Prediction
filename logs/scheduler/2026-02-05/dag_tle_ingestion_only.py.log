@@ -1,0 +1,452 @@
+[2026-02-05T09:06:57.448+0530] {processor.py:161} INFO - Started process (PID=214) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:06:57.449+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:06:57.449+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:06:57.449+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:06:57.467+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:06:57.675+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:06:57.674+0530] {override.py:1769} INFO - Created Permission View: can read on DAG:tle_data_ingestion
+[2026-02-05T09:06:57.683+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:06:57.682+0530] {override.py:1769} INFO - Created Permission View: can edit on DAG:tle_data_ingestion
+[2026-02-05T09:06:57.687+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:06:57.687+0530] {override.py:1769} INFO - Created Permission View: can delete on DAG:tle_data_ingestion
+[2026-02-05T09:06:57.688+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:06:57.688+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:06:57.698+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:06:57.698+0530] {dag.py:3058} INFO - Creating ORM DAG for tle_data_ingestion
+[2026-02-05T09:06:57.711+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:06:57.711+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:30:00+00:00, run_after=2026-02-05 03:35:00+00:00
+[2026-02-05T09:06:57.729+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.283 seconds
+[2026-02-05T09:07:27.891+0530] {processor.py:161} INFO - Started process (PID=220) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:07:27.892+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:07:27.893+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:07:27.893+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:07:27.925+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:07:27.981+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:07:27.980+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:07:28.033+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:07:28.033+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:30:00+00:00, run_after=2026-02-05 03:35:00+00:00
+[2026-02-05T09:07:28.082+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.197 seconds
+[2026-02-05T09:07:58.242+0530] {processor.py:161} INFO - Started process (PID=225) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:07:58.243+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:07:58.244+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:07:58.244+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:07:58.266+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:07:58.301+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:07:58.301+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:07:58.339+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:07:58.339+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:30:00+00:00, run_after=2026-02-05 03:35:00+00:00
+[2026-02-05T09:07:58.365+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.127 seconds
+[2026-02-05T09:08:28.532+0530] {processor.py:161} INFO - Started process (PID=230) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:08:28.533+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:08:28.535+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:08:28.534+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:08:28.568+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:08:28.624+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:08:28.624+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:08:28.676+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:08:28.675+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:30:00+00:00, run_after=2026-02-05 03:35:00+00:00
+[2026-02-05T09:08:28.712+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.186 seconds
+[2026-02-05T09:08:58.881+0530] {processor.py:161} INFO - Started process (PID=235) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:08:58.883+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:08:58.884+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:08:58.883+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:08:58.918+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:08:58.977+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:08:58.977+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:08:59.029+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:08:59.028+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:30:00+00:00, run_after=2026-02-05 03:35:00+00:00
+[2026-02-05T09:08:59.065+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.189 seconds
+[2026-02-05T09:09:29.214+0530] {processor.py:161} INFO - Started process (PID=240) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:09:29.227+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:09:29.229+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:09:29.228+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:09:29.248+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:09:29.279+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:09:29.279+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:09:29.304+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:09:29.304+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:30:00+00:00, run_after=2026-02-05 03:35:00+00:00
+[2026-02-05T09:09:29.321+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.109 seconds
+[2026-02-05T09:09:59.376+0530] {processor.py:161} INFO - Started process (PID=245) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:09:59.378+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:09:59.379+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:09:59.379+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:09:59.411+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:09:59.466+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:09:59.466+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:09:59.520+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:09:59.520+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:30:00+00:00, run_after=2026-02-05 03:35:00+00:00
+[2026-02-05T09:09:59.556+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.185 seconds
+[2026-02-05T09:10:29.621+0530] {processor.py:161} INFO - Started process (PID=250) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:10:29.623+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:10:29.625+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:10:29.624+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:10:29.652+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:10:29.700+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:10:29.700+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:10:29.743+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:10:29.743+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:35:00+00:00, run_after=2026-02-05 03:40:00+00:00
+[2026-02-05T09:10:29.775+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.159 seconds
+[2026-02-05T09:10:59.844+0530] {processor.py:161} INFO - Started process (PID=255) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:10:59.845+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:10:59.847+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:10:59.846+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:10:59.879+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:10:59.930+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:10:59.929+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:10:59.980+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:10:59.980+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:35:00+00:00, run_after=2026-02-05 03:40:00+00:00
+[2026-02-05T09:11:00.011+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.172 seconds
+[2026-02-05T09:11:30.056+0530] {processor.py:161} INFO - Started process (PID=260) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:11:30.057+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:11:30.059+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:11:30.058+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:11:30.100+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:11:30.143+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:11:30.142+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:11:30.183+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:11:30.183+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:35:00+00:00, run_after=2026-02-05 03:40:00+00:00
+[2026-02-05T09:11:30.217+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.168 seconds
+[2026-02-05T09:12:00.299+0530] {processor.py:161} INFO - Started process (PID=272) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:12:00.300+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:12:00.302+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:12:00.301+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:12:00.327+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:12:00.374+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:12:00.374+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:12:00.412+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:12:00.412+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:40:00+00:00, run_after=2026-02-05 03:45:00+00:00
+[2026-02-05T09:12:00.438+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.143 seconds
+[2026-02-05T09:12:30.478+0530] {processor.py:161} INFO - Started process (PID=277) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:12:30.479+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:12:30.480+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:12:30.479+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:12:30.511+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:12:30.549+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:12:30.549+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:12:30.582+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:12:30.582+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:40:00+00:00, run_after=2026-02-05 03:45:00+00:00
+[2026-02-05T09:12:30.604+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.132 seconds
+[2026-02-05T09:13:00.698+0530] {processor.py:161} INFO - Started process (PID=282) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:13:00.699+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:13:00.700+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:13:00.699+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:13:00.735+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:13:00.778+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:13:00.778+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:13:00.819+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:13:00.818+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:40:00+00:00, run_after=2026-02-05 03:45:00+00:00
+[2026-02-05T09:13:00.844+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.151 seconds
+[2026-02-05T09:13:31.010+0530] {processor.py:161} INFO - Started process (PID=287) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:13:31.012+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:13:31.016+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:13:31.014+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:13:31.071+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:13:31.149+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:13:31.148+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:13:31.244+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:13:31.243+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:40:00+00:00, run_after=2026-02-05 03:45:00+00:00
+[2026-02-05T09:13:31.300+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.297 seconds
+[2026-02-05T09:14:01.480+0530] {processor.py:161} INFO - Started process (PID=292) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:14:01.484+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:14:01.486+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:14:01.485+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:14:01.561+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:14:01.643+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:14:01.642+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:14:01.709+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:14:01.708+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:40:00+00:00, run_after=2026-02-05 03:45:00+00:00
+[2026-02-05T09:14:01.750+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.283 seconds
+[2026-02-05T09:14:31.912+0530] {processor.py:161} INFO - Started process (PID=297) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:14:31.915+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:14:31.916+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:14:31.916+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:14:31.953+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:14:32.009+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:14:32.009+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:14:32.063+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:14:32.063+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:40:00+00:00, run_after=2026-02-05 03:45:00+00:00
+[2026-02-05T09:14:32.098+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.193 seconds
+[2026-02-05T09:15:02.254+0530] {processor.py:161} INFO - Started process (PID=305) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:15:02.256+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:15:02.257+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:15:02.256+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:15:02.295+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:15:02.351+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:15:02.351+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:15:02.406+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:15:02.406+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:45:00+00:00, run_after=2026-02-05 03:50:00+00:00
+[2026-02-05T09:15:02.443+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.195 seconds
+[2026-02-05T09:15:32.605+0530] {processor.py:161} INFO - Started process (PID=314) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:15:32.608+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:15:32.610+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:15:32.609+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:15:32.655+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:15:32.712+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:15:32.711+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:15:32.774+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:15:32.774+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:45:00+00:00, run_after=2026-02-05 03:50:00+00:00
+[2026-02-05T09:15:32.810+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.213 seconds
+[2026-02-05T09:16:02.972+0530] {processor.py:161} INFO - Started process (PID=319) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:16:02.975+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:16:02.978+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:16:02.977+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:16:03.025+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:16:03.088+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:16:03.088+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:16:03.150+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:16:03.150+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:45:00+00:00, run_after=2026-02-05 03:50:00+00:00
+[2026-02-05T09:16:03.187+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.222 seconds
+[2026-02-05T09:16:33.355+0530] {processor.py:161} INFO - Started process (PID=324) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:16:33.357+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:16:33.359+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:16:33.358+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:16:33.433+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:16:33.517+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:16:33.516+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:16:33.589+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:16:33.589+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:45:00+00:00, run_after=2026-02-05 03:50:00+00:00
+[2026-02-05T09:16:33.635+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.293 seconds
+[2026-02-05T09:17:03.789+0530] {processor.py:161} INFO - Started process (PID=329) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:17:03.790+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:17:03.791+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:17:03.790+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:17:03.811+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:17:03.845+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:17:03.845+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:17:03.877+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:17:03.877+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:45:00+00:00, run_after=2026-02-05 03:50:00+00:00
+[2026-02-05T09:17:03.903+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.118 seconds
+[2026-02-05T09:17:34.044+0530] {processor.py:161} INFO - Started process (PID=334) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:17:34.044+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:17:34.045+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:17:34.045+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:17:34.064+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:17:34.095+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:17:34.094+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:17:34.124+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:17:34.124+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:45:00+00:00, run_after=2026-02-05 03:50:00+00:00
+[2026-02-05T09:17:34.145+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.105 seconds
+[2026-02-05T09:18:04.178+0530] {processor.py:161} INFO - Started process (PID=339) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:18:04.179+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:18:04.180+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:18:04.179+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:18:04.202+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:18:04.233+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:18:04.233+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:18:04.261+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:18:04.261+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:45:00+00:00, run_after=2026-02-05 03:50:00+00:00
+[2026-02-05T09:18:04.282+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.107 seconds
+[2026-02-05T09:18:34.417+0530] {processor.py:161} INFO - Started process (PID=344) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:18:34.418+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:18:34.419+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:18:34.419+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:18:34.443+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:18:34.483+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:18:34.482+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:18:34.518+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:18:34.518+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:45:00+00:00, run_after=2026-02-05 03:50:00+00:00
+[2026-02-05T09:18:34.541+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.128 seconds
+[2026-02-05T09:19:04.686+0530] {processor.py:161} INFO - Started process (PID=349) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:19:04.700+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:19:04.702+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:19:04.701+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:19:04.742+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:19:04.796+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:19:04.796+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:19:04.853+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:19:04.852+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:45:00+00:00, run_after=2026-02-05 03:50:00+00:00
+[2026-02-05T09:19:04.883+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.203 seconds
+[2026-02-05T09:19:35.032+0530] {processor.py:161} INFO - Started process (PID=354) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:19:35.034+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:19:35.036+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:19:35.035+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:19:35.062+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:19:35.105+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:19:35.104+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:19:35.140+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:19:35.140+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:45:00+00:00, run_after=2026-02-05 03:50:00+00:00
+[2026-02-05T09:19:35.169+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.141 seconds
+[2026-02-05T09:20:05.315+0530] {processor.py:161} INFO - Started process (PID=363) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:20:05.317+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:20:05.318+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:20:05.317+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:20:05.351+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:20:05.404+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:20:05.403+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:20:05.453+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:20:05.452+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:50:00+00:00, run_after=2026-02-05 03:55:00+00:00
+[2026-02-05T09:20:05.484+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.175 seconds
+[2026-02-05T09:20:35.647+0530] {processor.py:161} INFO - Started process (PID=371) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:20:35.649+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:20:35.652+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:20:35.651+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:20:35.715+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:20:35.781+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:20:35.781+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:20:35.835+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:20:35.834+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:50:00+00:00, run_after=2026-02-05 03:55:00+00:00
+[2026-02-05T09:20:35.868+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.232 seconds
+[2026-02-05T09:21:06.022+0530] {processor.py:161} INFO - Started process (PID=376) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:21:06.023+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:21:06.025+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:21:06.024+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:21:06.067+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:21:06.131+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:21:06.130+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:21:06.191+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:21:06.191+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:50:00+00:00, run_after=2026-02-05 03:55:00+00:00
+[2026-02-05T09:21:06.238+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.223 seconds
+[2026-02-05T09:21:36.390+0530] {processor.py:161} INFO - Started process (PID=381) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:21:36.398+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:21:36.400+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:21:36.399+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:21:36.442+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:21:36.511+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:21:36.511+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:21:36.569+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:21:36.569+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:50:00+00:00, run_after=2026-02-05 03:55:00+00:00
+[2026-02-05T09:21:36.602+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.219 seconds
+[2026-02-05T09:22:06.749+0530] {processor.py:161} INFO - Started process (PID=386) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:22:06.749+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:22:06.750+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:22:06.750+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:22:06.772+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:22:06.804+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:22:06.803+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:22:06.837+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:22:06.837+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:50:00+00:00, run_after=2026-02-05 03:55:00+00:00
+[2026-02-05T09:22:06.863+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.117 seconds
+[2026-02-05T09:22:37.003+0530] {processor.py:161} INFO - Started process (PID=391) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:22:37.040+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:22:37.041+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:22:37.040+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:22:37.068+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:22:37.107+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:22:37.107+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:22:37.145+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:22:37.145+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:50:00+00:00, run_after=2026-02-05 03:55:00+00:00
+[2026-02-05T09:22:37.171+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.172 seconds
+[2026-02-05T09:23:07.316+0530] {processor.py:161} INFO - Started process (PID=396) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:23:07.317+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:23:07.319+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:23:07.318+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:23:07.346+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:23:07.384+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:23:07.384+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:23:07.423+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:23:07.423+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:50:00+00:00, run_after=2026-02-05 03:55:00+00:00
+[2026-02-05T09:23:07.450+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.139 seconds
+[2026-02-05T09:23:37.593+0530] {processor.py:161} INFO - Started process (PID=401) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:23:37.594+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:23:37.596+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:23:37.595+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:23:37.633+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:23:37.689+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:23:37.688+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:23:37.741+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:23:37.741+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:50:00+00:00, run_after=2026-02-05 03:55:00+00:00
+[2026-02-05T09:23:37.764+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.177 seconds
+[2026-02-05T09:24:07.908+0530] {processor.py:161} INFO - Started process (PID=406) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:24:07.923+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:24:07.925+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:24:07.924+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:24:07.962+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:24:08.017+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:24:08.017+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:24:08.067+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:24:08.067+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:50:00+00:00, run_after=2026-02-05 03:55:00+00:00
+[2026-02-05T09:24:08.160+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.258 seconds
+[2026-02-05T09:24:38.306+0530] {processor.py:161} INFO - Started process (PID=411) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:24:38.360+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:24:38.362+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:24:38.361+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:24:38.385+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:24:38.420+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:24:38.420+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:24:38.456+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:24:38.455+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:50:00+00:00, run_after=2026-02-05 03:55:00+00:00
+[2026-02-05T09:24:38.477+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.175 seconds
+[2026-02-05T09:25:08.617+0530] {processor.py:161} INFO - Started process (PID=420) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:25:08.631+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:25:08.632+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:25:08.632+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:25:08.657+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:25:08.690+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:25:08.690+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:25:08.723+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:25:08.723+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:55:00+00:00, run_after=2026-02-05 04:00:00+00:00
+[2026-02-05T09:25:08.751+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.137 seconds
+[2026-02-05T09:25:38.928+0530] {processor.py:161} INFO - Started process (PID=428) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:25:38.958+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:25:38.961+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:25:38.960+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:25:39.028+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:25:39.103+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:25:39.102+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:25:39.160+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:25:39.160+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:55:00+00:00, run_after=2026-02-05 04:00:00+00:00
+[2026-02-05T09:25:39.199+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.283 seconds
+[2026-02-05T09:26:09.348+0530] {processor.py:161} INFO - Started process (PID=433) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:26:09.349+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:26:09.351+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:26:09.350+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:26:09.406+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:26:09.471+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:26:09.470+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:26:09.526+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:26:09.526+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:55:00+00:00, run_after=2026-02-05 04:00:00+00:00
+[2026-02-05T09:26:09.564+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.223 seconds
+[2026-02-05T09:26:39.703+0530] {processor.py:161} INFO - Started process (PID=438) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:26:39.783+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:26:39.784+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:26:39.783+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:26:39.809+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:26:39.841+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:26:39.841+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:26:39.871+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:26:39.871+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:55:00+00:00, run_after=2026-02-05 04:00:00+00:00
+[2026-02-05T09:26:39.892+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.194 seconds
+[2026-02-05T09:27:10.042+0530] {processor.py:161} INFO - Started process (PID=443) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:27:10.044+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:27:10.046+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:27:10.045+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:27:10.067+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:27:10.103+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:27:10.102+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:27:10.137+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:27:10.137+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:55:00+00:00, run_after=2026-02-05 04:00:00+00:00
+[2026-02-05T09:27:10.166+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.128 seconds
+[2026-02-05T09:27:40.285+0530] {processor.py:161} INFO - Started process (PID=448) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:27:40.286+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:27:40.287+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:27:40.286+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:27:40.320+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:27:40.357+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:27:40.357+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:27:40.390+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:27:40.390+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:55:00+00:00, run_after=2026-02-05 04:00:00+00:00
+[2026-02-05T09:27:40.410+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.129 seconds
+[2026-02-05T09:28:10.530+0530] {processor.py:161} INFO - Started process (PID=453) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:28:10.531+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:28:10.533+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:28:10.532+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:28:10.571+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:28:10.617+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:28:10.616+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:28:10.652+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:28:10.652+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:55:00+00:00, run_after=2026-02-05 04:00:00+00:00
+[2026-02-05T09:28:10.673+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.150 seconds
+[2026-02-05T09:28:40.840+0530] {processor.py:161} INFO - Started process (PID=458) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:28:40.841+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:28:40.843+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:28:40.842+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:28:40.899+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:28:40.950+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:28:40.950+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:28:40.992+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:28:40.992+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:55:00+00:00, run_after=2026-02-05 04:00:00+00:00
+[2026-02-05T09:28:41.026+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.194 seconds
+[2026-02-05T09:29:11.151+0530] {processor.py:161} INFO - Started process (PID=463) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:29:11.152+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:29:11.153+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:29:11.153+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:29:11.174+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:29:11.205+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:29:11.205+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:29:11.235+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:29:11.235+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:55:00+00:00, run_after=2026-02-05 04:00:00+00:00
+[2026-02-05T09:29:11.254+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.107 seconds
+[2026-02-05T09:29:41.455+0530] {processor.py:161} INFO - Started process (PID=468) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:29:41.457+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:29:41.458+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:29:41.458+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:29:41.497+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:29:41.545+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:29:41.544+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:29:41.579+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:29:41.579+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 03:55:00+00:00, run_after=2026-02-05 04:00:00+00:00
+[2026-02-05T09:29:41.603+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.159 seconds
+[2026-02-05T09:30:11.733+0530] {processor.py:161} INFO - Started process (PID=477) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:30:11.734+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:30:11.736+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:30:11.735+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:30:11.788+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:30:11.841+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:30:11.841+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:30:11.888+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:30:11.887+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 04:00:00+00:00, run_after=2026-02-05 04:05:00+00:00
+[2026-02-05T09:30:11.915+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.191 seconds
+[2026-02-05T09:30:42.037+0530] {processor.py:161} INFO - Started process (PID=485) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:30:42.038+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:30:42.039+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:30:42.039+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:30:42.065+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:30:42.103+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:30:42.103+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:30:42.138+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:30:42.138+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 04:00:00+00:00, run_after=2026-02-05 04:05:00+00:00
+[2026-02-05T09:30:42.161+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.129 seconds
+[2026-02-05T09:31:12.292+0530] {processor.py:161} INFO - Started process (PID=490) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:31:12.293+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:31:12.296+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:31:12.295+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:31:12.357+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:31:12.423+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:31:12.423+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:31:12.474+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:31:12.474+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 04:00:00+00:00, run_after=2026-02-05 04:05:00+00:00
+[2026-02-05T09:31:12.509+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.228 seconds
+[2026-02-05T09:31:42.637+0530] {processor.py:161} INFO - Started process (PID=495) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:31:42.638+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:31:42.639+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:31:42.638+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:31:42.660+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:31:42.704+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:31:42.704+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:31:42.732+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:31:42.731+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 04:00:00+00:00, run_after=2026-02-05 04:05:00+00:00
+[2026-02-05T09:31:42.750+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.116 seconds
+[2026-02-05T09:32:12.899+0530] {processor.py:161} INFO - Started process (PID=500) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:32:12.900+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:32:12.902+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:32:12.901+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:32:12.933+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:32:12.972+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:32:12.971+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:32:13.015+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:32:13.015+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 04:00:00+00:00, run_after=2026-02-05 04:05:00+00:00
+[2026-02-05T09:32:13.045+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.151 seconds
+[2026-02-05T09:32:43.189+0530] {processor.py:161} INFO - Started process (PID=505) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:32:43.191+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:32:43.193+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:32:43.192+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:32:43.249+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:32:43.313+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:32:43.312+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:32:43.366+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:32:43.365+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 04:00:00+00:00, run_after=2026-02-05 04:05:00+00:00
+[2026-02-05T09:32:43.398+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.218 seconds
+[2026-02-05T09:33:13.521+0530] {processor.py:161} INFO - Started process (PID=510) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:33:13.526+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:33:13.527+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:33:13.527+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:33:13.547+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:33:13.579+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:33:13.579+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:33:13.603+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:33:13.603+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 04:00:00+00:00, run_after=2026-02-05 04:05:00+00:00
+[2026-02-05T09:33:13.621+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.103 seconds
+[2026-02-05T09:33:43.743+0530] {processor.py:161} INFO - Started process (PID=515) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:33:43.744+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:33:43.745+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:33:43.744+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:33:43.767+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:33:43.804+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:33:43.804+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:33:43.841+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:33:43.840+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 04:00:00+00:00, run_after=2026-02-05 04:05:00+00:00
+[2026-02-05T09:33:43.864+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.125 seconds
+[2026-02-05T09:34:14.002+0530] {processor.py:161} INFO - Started process (PID=520) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:34:14.003+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:34:14.005+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:34:14.004+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:34:14.046+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:34:14.087+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:34:14.087+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:34:14.127+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:34:14.127+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 04:00:00+00:00, run_after=2026-02-05 04:05:00+00:00
+[2026-02-05T09:34:14.151+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.154 seconds
+[2026-02-05T09:34:44.268+0530] {processor.py:161} INFO - Started process (PID=525) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:34:44.269+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:34:44.270+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:34:44.269+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:34:44.291+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:34:44.326+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:34:44.325+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:34:44.354+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:34:44.354+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 04:00:00+00:00, run_after=2026-02-05 04:05:00+00:00
+[2026-02-05T09:34:44.375+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.110 seconds
+[2026-02-05T09:35:14.515+0530] {processor.py:161} INFO - Started process (PID=537) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:35:14.517+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:35:14.518+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:35:14.518+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:35:14.555+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:35:14.602+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:35:14.602+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:35:14.639+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:35:14.638+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 04:05:00+00:00, run_after=2026-02-05 04:10:00+00:00
+[2026-02-05T09:35:14.663+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.156 seconds
+[2026-02-05T09:35:44.803+0530] {processor.py:161} INFO - Started process (PID=542) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:35:44.804+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:35:44.806+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:35:44.806+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:35:44.849+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:35:44.909+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:35:44.909+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:35:44.966+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:35:44.966+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 04:05:00+00:00, run_after=2026-02-05 04:10:00+00:00
+[2026-02-05T09:35:45.004+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.208 seconds
+[2026-02-05T09:36:15.129+0530] {processor.py:161} INFO - Started process (PID=547) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:36:15.130+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:36:15.130+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:36:15.130+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:36:15.154+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:36:15.197+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:36:15.196+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:36:15.231+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:36:15.230+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 04:05:00+00:00, run_after=2026-02-05 04:10:00+00:00
+[2026-02-05T09:36:15.252+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.126 seconds
+[2026-02-05T09:36:45.380+0530] {processor.py:161} INFO - Started process (PID=552) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:36:45.381+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:36:45.382+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:36:45.381+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:36:45.403+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:36:45.434+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:36:45.434+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:36:45.466+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:36:45.466+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 04:05:00+00:00, run_after=2026-02-05 04:10:00+00:00
+[2026-02-05T09:36:45.488+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.112 seconds
+[2026-02-05T09:37:15.618+0530] {processor.py:161} INFO - Started process (PID=557) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:37:15.619+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:37:15.622+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:37:15.621+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:37:15.676+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:37:15.733+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:37:15.733+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:37:15.794+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:37:15.794+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 04:05:00+00:00, run_after=2026-02-05 04:10:00+00:00
+[2026-02-05T09:37:15.834+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.223 seconds
+[2026-02-05T09:37:45.987+0530] {processor.py:161} INFO - Started process (PID=562) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:37:45.988+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:37:45.990+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:37:45.989+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:37:46.030+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:37:46.075+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:37:46.074+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:37:46.111+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:37:46.111+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 04:05:00+00:00, run_after=2026-02-05 04:10:00+00:00
+[2026-02-05T09:37:46.139+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.161 seconds
+[2026-02-05T09:38:16.271+0530] {processor.py:161} INFO - Started process (PID=567) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:38:16.272+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:38:16.273+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:38:16.273+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:38:16.311+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:38:16.358+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:38:16.358+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:38:16.402+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:38:16.402+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 04:05:00+00:00, run_after=2026-02-05 04:10:00+00:00
+[2026-02-05T09:38:16.432+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.168 seconds
+[2026-02-05T09:38:46.561+0530] {processor.py:161} INFO - Started process (PID=572) to work on /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:38:46.562+0530] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_tle_ingestion_only.py for tasks to queue
+[2026-02-05T09:38:46.563+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:38:46.562+0530] {dagbag.py:538} INFO - Filling up the DagBag from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:38:46.588+0530] {processor.py:840} INFO - DAG(s) 'tle_data_ingestion' retrieved from /opt/airflow/dags/dag_tle_ingestion_only.py
+[2026-02-05T09:38:46.621+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:38:46.620+0530] {dag.py:3036} INFO - Sync 1 DAGs
+[2026-02-05T09:38:46.652+0530] {logging_mixin.py:188} INFO - [2026-02-05T09:38:46.652+0530] {dag.py:3823} INFO - Setting next_dagrun for tle_data_ingestion to 2026-02-05 04:05:00+00:00, run_after=2026-02-05 04:10:00+00:00
+[2026-02-05T09:38:46.677+0530] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_tle_ingestion_only.py took 0.120 seconds

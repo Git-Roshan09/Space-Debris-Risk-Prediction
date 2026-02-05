@@ -1,0 +1,200 @@
+# Docker Compose Override - Separated Architecture
+# Spark jobs run standalone (not via Airflow)
+#
+# Architecture:
+#   - Airflow: ONLY handles API → Kafka data ingestion
+#   - Spark Job 1 (spark-sgp4-streaming): Kafka TLE → SGP4 computation → HDFS (STREAMING)
+#   - Spark Job 2 (spark-collision): HDFS SGP4 data → Collision prediction → HDFS/Kafka (BATCH)
+#
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.standalone.yml up -d
+
+version: '3.8'
+
+services:
+  # ==========================================
+  # SPARK JOB 1: SGP4 PREPROCESSING (Streaming)
+  # ==========================================
+  # Continuously consumes TLE from Kafka, computes SGP4 vectors,
+  # and writes to HDFS for time-series storage
+  spark-sgp4-streaming:
+    build:
+      context: ./config/docker
+      dockerfile: Dockerfile.spark
+    image: spark-sgp4:3.5.0
+    container_name: spark-sgp4-streaming
+    hostname: spark-sgp4-streaming
+    user: root
+    depends_on:
+      - spark-master
+      - kafka
+      - namenode
+    environment:
+      - SPARK_MODE=client
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - KAFKA_SERVERS=kafka:9093
+      - KAFKA_TOPIC=space_debris_tle
+      - HDFS_OUTPUT=hdfs://namenode:9000/space-debris/sgp4_vectors
+      - CHECKPOINT_PATH=hdfs://namenode:9000/tmp/spark-checkpoint-sgp4
+      - TZ=Asia/Kolkata
+    volumes:
+      - ./pipelines:/opt/spark-apps
+      - ./data:/opt/spark-data
+      - ./scripts:/opt/scripts
+    networks:
+      - bigdata-net
+    command: ["/bin/bash", "/opt/scripts/spark_sgp4_streaming.sh"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "spark"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ==========================================
+  # SPARK JOB 2: COLLISION PREDICTION (Batch)
+  # ==========================================
+  # Periodically reads SGP4 vectors from HDFS, predicts future positions,
+  # detects collisions, and writes results to HDFS + Kafka alerts
+  spark-collision-prediction:
+    build:
+      context: ./config/docker
+      dockerfile: Dockerfile.spark
+    image: spark-sgp4:3.5.0
+    container_name: spark-collision-prediction
+    hostname: spark-collision-prediction
+    user: root
+    depends_on:
+      - spark-master
+      - namenode
+      - kafka
+    environment:
+      - SPARK_MODE=client
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      # Collision prediction parameters
+      - PREDICTION_DAYS=7
+      - COLLISION_THRESHOLD_KM=10.0
+      - TIME_WINDOW_DAYS=7
+      - SGP4_PROPAGATION_STEP_HOURS=6
+      # HDFS paths
+      - HDFS_SGP4_VECTORS_PATH=hdfs://namenode:9000/space-debris/sgp4_vectors
+      - HDFS_COLLISION_PREDICTIONS_PATH=hdfs://namenode:9000/space-debris/collision_predictions
+      # Kafka for alerts
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9093
+      - KAFKA_COLLISION_TOPIC=space_debris_collisions
+      - TZ=Asia/Kolkata
+    volumes:
+      - ./pipelines:/opt/spark-apps
+      - ./data:/opt/spark-data
+      - ./scripts:/opt/scripts
+    networks:
+      - bigdata-net
+    # Runs as a periodic batch job (every 10 seconds for DEMO)
+    command: ["/bin/bash", "/opt/scripts/spark_collision_prediction.sh"]
+    restart: unless-stopped
+
+  # ==========================================
+  # TLE DEMO API (Flask Streaming API)
+  # ==========================================
+  # Your maintained component - serves TLE data
+  tle-api:
+    image: python:3.11-slim
+    container_name: tle-api
+    hostname: tle-api
+    ports:
+      - "5000:5000"
+    working_dir: /app
+    volumes:
+      - ./:/app
+    environment:
+      FLASK_APP: api.py
+      FLASK_ENV: development
+      PYTHONUNBUFFERED: 1
+      TZ: 'Asia/Kolkata'
+    command: >
+      bash -c "apt-get update && apt-get install -y curl &&
+               pip install --no-cache-dir -r requirements-api.txt &&
+               python api.py"
+    networks:
+      - bigdata-net
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 10
+      start_period: 120s
+
+  # ==========================================
+  # DASHBOARD API (Collision Data Service)
+  # ==========================================
+  # Your maintained component - serves collision data to frontend
+  dashboard-api:
+    build:
+      context: ./config/docker
+      dockerfile: Dockerfile.spark
+    image: spark-sgp4:3.5.0
+    container_name: dashboard-api
+    hostname: dashboard-api
+    user: root
+    depends_on:
+      - namenode
+      - spark-master
+    ports:
+      - "5001:5001"
+    environment:
+      - PREDICTION_DAYS=7
+      - COLLISION_THRESHOLD_KM=10.0
+      - TIME_WINDOW_DAYS=7
+      - SGP4_PROPAGATION_STEP_HOURS=6
+      - HDFS_SGP4_VECTORS_PATH=hdfs://namenode:9000/space-debris/sgp4_vectors
+      - HDFS_COLLISION_PREDICTIONS_PATH=hdfs://namenode:9000/space-debris/collision_predictions
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9093
+      - KAFKA_COLLISION_TOPIC=space_debris_collisions
+      - DASHBOARD_PORT=5001
+      - HIGH_RISK_THRESHOLD_KM=5.0
+      - MEDIUM_RISK_THRESHOLD_KM=10.0
+      - LOW_RISK_THRESHOLD_KM=50.0
+      - TZ=Asia/Kolkata
+    volumes:
+      - ./dashboard_api.py:/opt/spark-apps/dashboard_api.py
+      - ./requirements-dashboard.txt:/opt/spark-apps/requirements-dashboard.txt
+      - ./pipelines:/opt/spark-apps/pipelines:ro
+    networks:
+      - bigdata-net
+    command: >
+      bash -c "
+        pip3 install -r /opt/spark-apps/requirements-dashboard.txt &&
+        python3 /opt/spark-apps/dashboard_api.py
+      "
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ==========================================
+  # WEB DASHBOARD (Frontend)
+  # ==========================================
+  # Your maintained component - web UI
+  dashboard-web:
+    image: nginx:alpine
+    container_name: dashboard-web
+    hostname: dashboard-web
+    depends_on:
+      - dashboard-api
+    ports:
+      - "8082:80"
+    volumes:
+      - ./dashboard:/usr/share/nginx/html:ro
+    networks:
+      - bigdata-net
+    restart: unless-stopped
+
+networks:
+  bigdata-net:
+    external: true
+    name: bigdata-net

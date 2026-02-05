@@ -22,3 +22,46 @@
 [2026-02-02T10:47:58.509+0530] {airflow_dag_api_to_kafka.py:161} INFO - Streamed 100 records to Kafka
 [2026-02-02T10:56:09.489+0530] {airflow_dag_api_to_kafka.py:161} INFO - Streamed 200 records to Kafka
 [2026-02-02T11:03:37.997+0530] {airflow_dag_api_to_kafka.py:161} INFO - Streamed 300 records to Kafka
+[2026-02-02T11:11:52.896+0530] {airflow_dag_api_to_kafka.py:161} INFO - Streamed 400 records to Kafka
+[2026-02-02T11:12:37.646+0530] {local_task_job_runner.py:121} ERROR - Received SIGTERM. Terminating subprocesses
+[2026-02-02T11:12:37.657+0530] {process_utils.py:131} INFO - Sending 15 to group 9263. PIDs of all processes in the group: [9263]
+[2026-02-02T11:12:37.658+0530] {process_utils.py:86} INFO - Sending the signal 15 to group 9263
+[2026-02-02T11:12:37.660+0530] {taskinstance.py:2450} ERROR - Received SIGTERM. Terminating subprocesses.
+[2026-02-02T11:12:37.664+0530] {airflow_dag_api_to_kafka.py:187} ERROR - Streaming error: Task received SIGTERM signal
+[2026-02-02T11:12:37.836+0530] {taskinstance.py:2698} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 433, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 199, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/python.py", line 216, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/airflow_dag_api_to_kafka.py", line 120, in stream_api_to_kafka
+    for line in response.iter_lines():
+  File "/home/airflow/.local/lib/python3.11/site-packages/requests/models.py", line 865, in iter_lines
+    for chunk in self.iter_content(
+  File "/home/airflow/.local/lib/python3.11/site-packages/requests/models.py", line 816, in generate
+    yield from self.raw.stream(chunk_size, decode_content=True)
+  File "/home/airflow/.local/lib/python3.11/site-packages/urllib3/response.py", line 933, in stream
+    yield from self.read_chunked(amt, decode_content=decode_content)
+  File "/home/airflow/.local/lib/python3.11/site-packages/urllib3/response.py", line 1073, in read_chunked
+    self._update_chunk_length()
+  File "/home/airflow/.local/lib/python3.11/site-packages/urllib3/response.py", line 1001, in _update_chunk_length
+    line = self._fp.fp.readline()  # type: ignore[union-attr]
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/socket.py", line 706, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 2452, in signal_handler
+    raise AirflowException("Task received SIGTERM signal")
+airflow.exceptions.AirflowException: Task received SIGTERM signal
+[2026-02-02T11:12:37.919+0530] {taskinstance.py:1138} INFO - Marking task as UP_FOR_RETRY. dag_id=tle_api_to_kafka_streaming, task_id=stream_api_to_kafka, execution_date=20260201T165600, start_date=20260202T051020, end_date=20260202T054237
+[2026-02-02T11:12:38.254+0530] {standard_task_runner.py:107} ERROR - Failed to execute job 386 for task stream_api_to_kafka (Task received SIGTERM signal; 9263)
+[2026-02-02T11:12:38.342+0530] {process_utils.py:79} INFO - Process psutil.Process(pid=9263, status='terminated', exitcode=1, started='10:40:19') (9263) terminated with exit code 1
+[2026-02-02T11:12:38.350+0530] {local_task_job_runner.py:234} INFO - Task exited with return code 143
+[2026-02-02T11:12:38.497+0530] {taskinstance.py:3280} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2026-02-02T11:12:40.190+0530] {local_task_job_runner.py:121} ERROR - Received SIGTERM. Terminating subprocesses
+[2026-02-02T11:12:40.190+0530] {local_task_job_runner.py:234} INFO - Task exited with return code 143

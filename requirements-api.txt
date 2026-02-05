@@ -1,3 +1,6 @@
-Flask>=3.0.0
-kafka-python>=2.0.2
-requests>=2.31.0
+# TLE API Requirements
+# Python 3.11+ required
+
+Flask==3.0.3
+kafka-python==2.0.2
+requests==2.31.0

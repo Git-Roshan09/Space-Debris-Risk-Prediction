@@ -2,3 +2,4 @@
 data/processed/TLE_History
 data/processed/TLE_History_Satellites
 .venv
+logs/

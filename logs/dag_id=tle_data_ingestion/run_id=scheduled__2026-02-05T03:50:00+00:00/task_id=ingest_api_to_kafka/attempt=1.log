@@ -22,3 +22,4 @@
 [2026-02-05T09:25:12.853+0530] {conn.py:410} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: Connection complete.
 [2026-02-05T09:25:12.854+0530] {conn.py:919} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connected> [IPv4 ('172.21.0.4', 9093)]>: Closing connection. 
 [2026-02-05T09:32:50.714+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 100 records sent to Kafka
+[2026-02-05T09:41:01.672+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 200 records sent to Kafka

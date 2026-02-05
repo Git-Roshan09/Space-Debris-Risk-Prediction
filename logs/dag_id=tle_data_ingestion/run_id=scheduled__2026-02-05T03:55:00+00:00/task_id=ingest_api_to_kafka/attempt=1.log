@@ -22,3 +22,61 @@
 [2026-02-05T09:30:13.784+0530] {conn.py:410} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: Connection complete.
 [2026-02-05T09:30:13.784+0530] {conn.py:919} INFO - <BrokerConnection node_id=bootstrap-0 host=kafka:9093 <connected> [IPv4 ('172.21.0.4', 9093)]>: Closing connection. 
 [2026-02-05T09:37:51.647+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 100 records sent to Kafka
+[2026-02-05T09:46:02.644+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 200 records sent to Kafka
+[2026-02-05T09:53:31.020+0530] {dag_tle_ingestion_only.py:190} INFO - Progress: 300 records sent to Kafka
+[2026-02-05T09:59:59.727+0530] {local_task_job_runner.py:121} ERROR - Received SIGTERM. Terminating subprocesses
+[2026-02-05T09:59:59.800+0530] {process_utils.py:131} INFO - Sending 15 to group 483. PIDs of all processes in the group: [483]
+[2026-02-05T09:59:59.801+0530] {process_utils.py:86} INFO - Sending the signal 15 to group 483
+[2026-02-05T09:59:59.806+0530] {taskinstance.py:2450} ERROR - Received SIGTERM. Terminating subprocesses.
+[2026-02-05T09:59:59.836+0530] {dag_tle_ingestion_only.py:219} ERROR - Streaming error: Task received SIGTERM signal
+[2026-02-05T10:00:00.006+0530] {conn.py:919} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connected> [IPv4 ('172.21.0.4', 9093)]>: Closing connection. KafkaConnectionError: Socket EVENT_READ without in-flight-requests
+[2026-02-05T10:00:00.008+0530] {client_async.py:331} WARNING - Node 1 connection failed -- refreshing metadata
+[2026-02-05T10:00:00.064+0530] {conn.py:380} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: connecting to kafka:9093 [('172.21.0.4', 9093) IPv4]
+[2026-02-05T10:00:00.065+0530] {conn.py:418} ERROR - Connect attempt to <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]> returned error 111. Disconnecting.
+[2026-02-05T10:00:00.065+0530] {conn.py:919} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+[2026-02-05T10:00:00.065+0530] {client_async.py:331} WARNING - Node 1 connection failed -- refreshing metadata
+[2026-02-05T10:00:00.217+0530] {conn.py:380} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: connecting to kafka:9093 [('172.21.0.4', 9093) IPv4]
+[2026-02-05T10:00:00.217+0530] {conn.py:418} ERROR - Connect attempt to <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]> returned error 111. Disconnecting.
+[2026-02-05T10:00:00.218+0530] {conn.py:919} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+[2026-02-05T10:00:00.218+0530] {client_async.py:331} WARNING - Node 1 connection failed -- refreshing metadata
+[2026-02-05T10:00:00.520+0530] {conn.py:380} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: connecting to kafka:9093 [('172.21.0.4', 9093) IPv4]
+[2026-02-05T10:00:00.521+0530] {conn.py:418} ERROR - Connect attempt to <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]> returned error 111. Disconnecting.
+[2026-02-05T10:00:00.521+0530] {conn.py:919} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+[2026-02-05T10:00:00.521+0530] {client_async.py:331} WARNING - Node 1 connection failed -- refreshing metadata
+[2026-02-05T10:00:00.974+0530] {conn.py:380} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: connecting to kafka:9093 [('172.21.0.4', 9093) IPv4]
+[2026-02-05T10:00:00.974+0530] {conn.py:418} ERROR - Connect attempt to <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]> returned error 111. Disconnecting.
+[2026-02-05T10:00:00.975+0530] {conn.py:919} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+[2026-02-05T10:00:00.975+0530] {client_async.py:331} WARNING - Node 1 connection failed -- refreshing metadata
+[2026-02-05T10:00:01.679+0530] {conn.py:380} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: connecting to kafka:9093 [('172.21.0.4', 9093) IPv4]
+[2026-02-05T10:00:01.680+0530] {conn.py:418} ERROR - Connect attempt to <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]> returned error 111. Disconnecting.
+[2026-02-05T10:00:01.680+0530] {conn.py:919} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+[2026-02-05T10:00:01.680+0530] {client_async.py:331} WARNING - Node 1 connection failed -- refreshing metadata
+[2026-02-05T10:00:02.685+0530] {conn.py:380} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: connecting to kafka:9093 [('172.21.0.4', 9093) IPv4]
+[2026-02-05T10:00:02.686+0530] {conn.py:418} ERROR - Connect attempt to <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]> returned error 111. Disconnecting.
+[2026-02-05T10:00:02.686+0530] {conn.py:919} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+[2026-02-05T10:00:02.686+0530] {client_async.py:331} WARNING - Node 1 connection failed -- refreshing metadata
+[2026-02-05T10:00:03.843+0530] {conn.py:380} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: connecting to kafka:9093 [('172.21.0.4', 9093) IPv4]
+[2026-02-05T10:00:03.844+0530] {conn.py:418} ERROR - Connect attempt to <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]> returned error 111. Disconnecting.
+[2026-02-05T10:00:03.844+0530] {conn.py:919} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+[2026-02-05T10:00:03.844+0530] {client_async.py:331} WARNING - Node 1 connection failed -- refreshing metadata
+[2026-02-05T10:00:04.901+0530] {conn.py:380} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: connecting to kafka:9093 [('172.21.0.4', 9093) IPv4]
+[2026-02-05T10:00:04.902+0530] {conn.py:418} ERROR - Connect attempt to <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]> returned error 111. Disconnecting.
+[2026-02-05T10:00:04.902+0530] {conn.py:919} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+[2026-02-05T10:00:04.902+0530] {client_async.py:331} WARNING - Node 1 connection failed -- refreshing metadata
+[2026-02-05T10:00:05.961+0530] {conn.py:380} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: connecting to kafka:9093 [('172.21.0.4', 9093) IPv4]
+[2026-02-05T10:00:05.961+0530] {conn.py:418} ERROR - Connect attempt to <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]> returned error 111. Disconnecting.
+[2026-02-05T10:00:05.961+0530] {conn.py:919} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+[2026-02-05T10:00:05.962+0530] {client_async.py:331} WARNING - Node 1 connection failed -- refreshing metadata
+[2026-02-05T10:00:07.025+0530] {conn.py:380} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: connecting to kafka:9093 [('172.21.0.4', 9093) IPv4]
+[2026-02-05T10:00:07.026+0530] {conn.py:418} ERROR - Connect attempt to <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]> returned error 111. Disconnecting.
+[2026-02-05T10:00:07.026+0530] {conn.py:919} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+[2026-02-05T10:00:07.027+0530] {client_async.py:331} WARNING - Node 1 connection failed -- refreshing metadata
+[2026-02-05T10:00:08.090+0530] {conn.py:380} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: connecting to kafka:9093 [('172.21.0.4', 9093) IPv4]
+[2026-02-05T10:00:08.091+0530] {conn.py:418} ERROR - Connect attempt to <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]> returned error 111. Disconnecting.
+[2026-02-05T10:00:08.091+0530] {conn.py:919} INFO - <BrokerConnection node_id=1 host=kafka:9093 <connecting> [IPv4 ('172.21.0.4', 9093)]>: Closing connection. KafkaConnectionError: 111 ECONNREFUSED
+[2026-02-05T10:00:08.091+0530] {client_async.py:331} WARNING - Node 1 connection failed -- refreshing metadata
+[2026-02-05T10:00:08.832+0530] {standard_task_runner.py:107} ERROR - Failed to execute job 16 for task ingest_api_to_kafka ((psycopg2.OperationalError) could not translate host name "postgres" to address: Temporary failure in name resolution
+
+(Background on this error at: https://sqlalche.me/e/14/e3q8); 483)
+[2026-02-05T10:00:08.880+0530] {process_utils.py:79} INFO - Process psutil.Process(pid=483, status='terminated', exitcode=1, started='09:30:13') (483) terminated with exit code 1
+[2026-02-05T10:00:08.882+0530] {local_task_job_runner.py:234} INFO - Task exited with return code 143

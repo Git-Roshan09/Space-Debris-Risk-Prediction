@@ -116,6 +116,34 @@ function updateDistanceStats(stats) {
         distStats.max_km ? distStats.max_km.toFixed(2) + ' km' : '-- km';
 }
 
+function parseTimestamp(value) {
+    if (value === null || value === undefined) {
+        return null;
+    }
+
+    if (typeof value === 'number') {
+        const ms = value < 1e12 ? value * 1000 : value;
+        const date = new Date(ms);
+        return isNaN(date.getTime()) ? null : date;
+    }
+
+    if (typeof value === 'string') {
+        const direct = new Date(value);
+        if (!isNaN(direct.getTime())) {
+            return direct;
+        }
+
+        const numeric = Number(value);
+        if (!Number.isNaN(numeric)) {
+            const ms = numeric < 1e12 ? numeric * 1000 : numeric;
+            const date = new Date(ms);
+            return isNaN(date.getTime()) ? null : date;
+        }
+    }
+
+    return null;
+}
+
 // Update Timeline Chart
 function updateTimelineChart(timeline) {
     const ctx = document.getElementById('timelineChart').getContext('2d');
@@ -123,7 +151,11 @@ function updateTimelineChart(timeline) {
     // Group data by time and risk level
     const timeMap = {};
     timeline.forEach(item => {
-        const time = new Date(item.collision_time).toISOString().slice(0, 13) + ':00:00';
+        const collisionDate = parseTimestamp(item.collision_time);
+        if (!collisionDate) {
+            return;
+        }
+        const time = collisionDate.toISOString().slice(0, 13) + ':00:00';
         if (!timeMap[time]) {
             timeMap[time] = { HIGH: 0, MEDIUM: 0, LOW: 0 };
         }
@@ -251,15 +283,17 @@ function updateAlertsTable(alerts) {
     }
     
     tbody.innerHTML = alerts.slice(0, 20).map(alert => {
-        const collisionTime = new Date(alert.collision_time);
-        const riskClass = alert.risk_level.toLowerCase();
+        const collisionDate = parseTimestamp(alert.collision_time);
+        const collisionTimeText = collisionDate ? collisionDate.toLocaleString() : 'Unknown';
+        const riskClass = (alert.risk_level || 'LOW').toLowerCase();
+        const distanceText = Number.isFinite(alert.distance_km) ? alert.distance_km.toFixed(3) : '--';
         
         return `
             <tr>
                 <td>${alert.satellite_1}</td>
                 <td>${alert.satellite_2}</td>
-                <td>${collisionTime.toLocaleString()}</td>
-                <td>${alert.distance_km.toFixed(3)}</td>
+                <td>${collisionTimeText}</td>
+                <td>${distanceText}</td>
                 <td><span class="risk-badge risk-${riskClass}">${alert.risk_level}</span></td>
             </tr>
         `;
@@ -275,15 +309,20 @@ function updatePairsTable(pairs) {
         return;
     }
     
-    tbody.innerHTML = pairs.slice(0, 15).map(pair => `
+    tbody.innerHTML = pairs.slice(0, 15).map(pair => {
+        const minDistanceText = Number.isFinite(pair.min_distance) ? pair.min_distance.toFixed(3) : '--';
+        const avgDistanceText = Number.isFinite(pair.avg_distance) ? pair.avg_distance.toFixed(3) : '--';
+
+        return `
         <tr>
             <td>${pair.satellite_1}</td>
             <td>${pair.satellite_2}</td>
             <td>${pair.collision_count}</td>
-            <td>${pair.min_distance.toFixed(3)}</td>
-            <td>${pair.avg_distance.toFixed(3)}</td>
+            <td>${minDistanceText}</td>
+            <td>${avgDistanceText}</td>
         </tr>
-    `).join('');
+    `;
+    }).join('');
 }
 
 // Error handling for fetch

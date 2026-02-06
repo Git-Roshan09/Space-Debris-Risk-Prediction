@@ -27,8 +27,9 @@ while true; do
     --driver-memory 1g \
     --executor-memory 1g \
     --total-executor-cores 2 \
-    --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0 \
+    --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.postgresql:postgresql:42.7.1 \
     --conf spark.hadoop.fs.defaultFS=hdfs://namenode:9000 \
+    --conf spark.jars.ivy=/tmp/.ivy2 \
     /opt/spark-apps/processing/spark_collision_prediction.py
   
   echo ">>> Collision prediction completed at $(date)"

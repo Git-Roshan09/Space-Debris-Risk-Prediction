@@ -31,16 +31,19 @@
     │  • Collision Detection │
     └────────┬───────────────┘
              ↓
-    ┌────────────────────────┐
-    │        HDFS            │
-    │  • SGP4 Vectors        │
-    │  • Collision Predictions│
-    └────────┬───────────────┘
-             ↓
+    ┌────────────────────────────────────────┐
+    │           Data Storage Layer           │
+    │  ┌──────────┐      ┌──────────────┐   │
+    │  │   HDFS   │      │  PostgreSQL  │   │
+    │  │ (Archive)│      │ (Dashboard)  │   │
+    │  └────┬─────┘      └──────┬───────┘   │
+    └───────┼───────────────────┼───────────┘
+            └─────────┬─────────┘
+                      ↓
     ┌────────────────────────┐
     │   Dashboard System     │
     │  • Flask API (5001)    │
-    │  • Web UI (8080)       │
+    │  • Web UI (8082)       │
     └────────────────────────┘
 ```
 
@@ -80,11 +83,15 @@ tail -f logs/spark_streaming.log
 
 | Service | Port | Description |
 |---------|------|-------------|
+| Dashboard Web UI | 8082 | Real-time collision dashboard |
+| Dashboard API | 5001 | REST API for dashboard data |
 | Airflow UI | 8088 | Workflow orchestration & monitoring |
 | Kafka Broker | 9092 | Message streaming |
+| Kafka UI | 8090 | Kafka monitoring |
 | Spark Master | 8080 | Spark cluster UI |
 | Spark App | 4040 | Running job monitoring |
-| HDFS NameNode | 9870 | Distributed storage |
+| HDFS NameNode | 9870 | Distributed storage UI |
+| PostgreSQL | 5433 | Dashboard database |
 | Zookeeper | 2181 | Coordination service |
 
 ## 📁 Project Structure
@@ -150,18 +157,47 @@ tail -f logs/spark_streaming.log
 - Propagates positions for next N days (configurable)
 - Detects potential collisions via pairwise distance calculation
 - Classifies risks: HIGH (<5km), MEDIUM (<10km), LOW (<50km)
-- Saves predictions to HDFS
+- Saves predictions to HDFS (historical archive)
+- Writes to PostgreSQL (real-time dashboard queries)
 - Publishes alerts to Kafka topic: `space_debris_collisions`
 
-### 4. Storage Structure
+### 4. PostgreSQL Dashboard Integration ✨ NEW
+The collision prediction pipeline writes directly to PostgreSQL for fast dashboard queries:
+
+```
+Spark Collision Job
+    ↓
+    ├── HDFS (historical archive)
+    ├── PostgreSQL (real-time dashboard)
+    └── Kafka (streaming alerts)
+```
+
+**PostgreSQL Tables:**
+- `satellites` - Current satellite tracking status
+- `collision_alerts` - Active collision predictions
+- `tracking_status_changes` - Audit log of status changes
+- `system_metrics` - Dashboard metrics
+
+**Why Spark → PostgreSQL?**
+- Single pipeline, no additional components
+- Near real-time updates (immediate after detection)
+- Simple architecture with JDBC writes
+
+### 5. Storage Structure
 ```bash
 hdfs://namenode:9000/space-debris/
   ├── sgp4_vectors/                  # Computed vectors
   │   └── epoch_time=.../            # Partitioned by time
   ├── collision_predictions/         # Collision data ✨
-  │   └── risk_level=.../            # Partitioned by risk
+  │   └── batch_YYYYMMDD_HHMMSS/    # Batch-timestamped
   └── tle_raw/                       # Raw TLE backup
       └── satellite_id=.../          # Partitioned by satellite
+
+PostgreSQL (space_debris database):
+  ├── satellites                     # Current tracking status
+  ├── collision_alerts               # Active predictions (7-day window)
+  ├── tracking_status_changes        # Audit log
+  └── system_metrics                 # Dashboard metrics
 ```
 
 ## 🎨 Collision Dashboard ✨ NEW

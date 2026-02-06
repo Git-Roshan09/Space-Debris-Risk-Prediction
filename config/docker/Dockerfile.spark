@@ -10,11 +10,12 @@ RUN apt-get update && \
 
 # Pre-install Python packages with caching
 RUN pip3 install --upgrade pip && \
-    pip3 install sgp4 pyspark==3.5.0
+    pip3 install sgp4 pyspark==3.5.0 psycopg2-binary==2.9.9
 
 # Verify installation
 RUN python3 -c "import sgp4; print('sgp4 installed successfully')" && \
-    python3 -c "import pyspark; print('pyspark installed successfully')"
+    python3 -c "import pyspark; print('pyspark installed successfully')" && \
+    python3 -c "import psycopg2; print('psycopg2 installed successfully')"
 
 WORKDIR /opt/spark
 

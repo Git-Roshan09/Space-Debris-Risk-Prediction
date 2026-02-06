@@ -1,21 +1,30 @@
 """
 Spark Job: Collision Prediction System
 Reads SGP4 vectors from HDFS and detects potential collisions based on position proximity.
-Simplified version that works with already-computed position vectors.
+Writes results to HDFS (historical), Kafka (streaming), and PostgreSQL (dashboard).
 """
 
 from pyspark.sql import SparkSession, Window
 from pyspark.sql.functions import (
     col, lit, current_timestamp, sqrt, pow as spark_pow,
-    when, broadcast, max as spark_max, count
+    when, broadcast, max as spark_max, count, coalesce
 )
-from pyspark.sql.types import DoubleType
+from pyspark.sql.types import DoubleType, IntegerType, StringType, TimestampType
 from datetime import datetime, timedelta, timezone
 import logging
 import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# PostgreSQL Configuration
+POSTGRES_CONFIG = {
+    'host': os.getenv('POSTGRES_HOST', 'postgres-debris'),
+    'port': os.getenv('POSTGRES_PORT', '5432'),
+    'database': os.getenv('POSTGRES_DB', 'space_debris'),
+    'user': os.getenv('POSTGRES_USER', 'postgres'),
+    'password': os.getenv('POSTGRES_PASSWORD', 'postgres')
+}
 
 
 class CollisionPredictionEngine:
@@ -41,7 +50,7 @@ class CollisionPredictionEngine:
         self.spark = SparkSession.builder \
             .appName("Collision-Prediction-Engine") \
             .config("spark.jars.packages", 
-                   "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0") \
+                   "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.postgresql:postgresql:42.7.1") \
             .config("spark.sql.adaptive.enabled", "true") \
             .config("spark.sql.adaptive.coalescePartitions.enabled", "true") \
             .config("spark.hadoop.fs.defaultFS", "hdfs://namenode:9000") \
@@ -49,12 +58,21 @@ class CollisionPredictionEngine:
         
         self.spark.sparkContext.setLogLevel("WARN")
         
+        # PostgreSQL JDBC URL
+        self.postgres_url = f"jdbc:postgresql://{POSTGRES_CONFIG['host']}:{POSTGRES_CONFIG['port']}/{POSTGRES_CONFIG['database']}"
+        self.postgres_properties = {
+            "user": POSTGRES_CONFIG['user'],
+            "password": POSTGRES_CONFIG['password'],
+            "driver": "org.postgresql.Driver"
+        }
+        
         logger.info("=" * 60)
         logger.info("=== Collision Prediction Engine Initialized ===")
         logger.info(f"Collision Threshold: {self.collision_threshold_km} km")
         logger.info(f"Time Window: {self.time_window_days} days")
         logger.info(f"Input: {self.hdfs_input}")
         logger.info(f"Output: {self.hdfs_output}")
+        logger.info(f"PostgreSQL: {POSTGRES_CONFIG['host']}:{POSTGRES_CONFIG['port']}/{POSTGRES_CONFIG['database']}")
         logger.info("=" * 60)
     
     def read_latest_sgp4_data(self):
@@ -222,6 +240,99 @@ class CollisionPredictionEngine:
         except Exception as e:
             logger.error(f"Error publishing to Kafka: {e}")
     
+    def save_satellites_to_postgres(self, df_positions):
+        """
+        Save/update satellite records to PostgreSQL using Spark JDBC.
+        Must be called before collision alerts (due to FK constraint).
+        """
+        try:
+            # Prepare satellite data for PostgreSQL
+            df_satellites = df_positions.select(
+                col("satellite_id").cast(IntegerType()).alias("norad_id"),
+                lit("Unknown").alias("name"),
+                lit("SATELLITE").alias("object_type"),
+                lit("Unknown").alias("country"),
+                lit("ACTIVE").alias("tracking_status"),
+                col("epoch_time").alias("last_tle_epoch"),
+                col("altitude_km").alias("last_altitude_km"),
+                col("velocity_magnitude_kms").alias("last_velocity_kms"),
+                col("position_x").alias("last_position_x"),
+                col("position_y").alias("last_position_y"),
+                col("position_z").alias("last_position_z"),
+                coalesce(col("sgp4_error_code"), lit(0)).alias("last_sgp4_error_code"),
+                lit(1).alias("total_observations"),
+                current_timestamp().alias("status_updated_at")
+            ).dropDuplicates(["norad_id"])
+            
+            satellite_count = df_satellites.count()
+            logger.info(f"Writing {satellite_count} satellites to PostgreSQL...")
+            
+            # Write to temp table then merge (Spark JDBC doesn't support upsert directly)
+            # Using overwrite mode - this will replace all satellite data
+            df_satellites.write \
+                .jdbc(
+                    url=self.postgres_url,
+                    table="satellites",
+                    mode="overwrite",
+                    properties=self.postgres_properties
+                )
+            
+            logger.info(f"✓ Saved {satellite_count} satellites to PostgreSQL")
+            
+        except Exception as e:
+            logger.error(f"Error saving satellites to PostgreSQL: {e}")
+            # Don't raise - continue with other operations
+    
+    def save_collisions_to_postgres(self, df_collisions):
+        """
+        Save collision alerts to PostgreSQL for dashboard queries using Spark JDBC.
+        """
+        try:
+            collision_count = df_collisions.count()
+            if collision_count == 0:
+                logger.info("No collisions to save to PostgreSQL")
+                return
+            
+            # Prepare collision data for PostgreSQL schema
+            batch_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+            
+            df_alerts = df_collisions.select(
+                col("satellite_1").cast(IntegerType()).alias("satellite_1_id"),
+                col("satellite_2").cast(IntegerType()).alias("satellite_2_id"),
+                lit(None).cast(StringType()).alias("satellite_1_name"),
+                lit(None).cast(StringType()).alias("satellite_2_name"),
+                col("detection_timestamp").alias("predicted_time"),
+                col("distance_km").alias("miss_distance_km"),
+                lit(None).cast(DoubleType()).alias("relative_velocity_kms"),
+                col("sat1_x").alias("approach_position_x"),
+                col("sat1_y").alias("approach_position_y"),
+                col("sat1_z").alias("approach_position_z"),
+                col("risk_level"),
+                lit(None).cast(DoubleType()).alias("collision_probability"),
+                current_timestamp().alias("detected_at"),
+                lit(batch_id).alias("batch_id"),
+                lit(True).alias("is_active")
+            )
+            
+            logger.info(f"Writing {collision_count} collision alerts to PostgreSQL...")
+            
+            # Use append mode - new collision alerts are added
+            df_alerts.write \
+                .jdbc(
+                    url=self.postgres_url,
+                    table="collision_alerts",
+                    mode="append",
+                    properties=self.postgres_properties
+                )
+            
+            logger.info(f"✓ Saved {collision_count} collision alerts to PostgreSQL")
+            
+        except Exception as e:
+            logger.error(f"Error saving collisions to PostgreSQL: {e}")
+            
+        except Exception as e:
+            logger.error(f"Error saving collisions to PostgreSQL: {e}")
+    
     def run(self):
         """Execute the complete collision prediction pipeline."""
         try:
@@ -230,12 +341,16 @@ class CollisionPredictionEngine:
             # Step 1: Read latest SGP4 position data
             df_positions = self.read_latest_sgp4_data()
             
-            # Step 2: Detect collisions based on position proximity
+            # Step 2: Save satellites to PostgreSQL (required for FK constraint)
+            self.save_satellites_to_postgres(df_positions)
+            
+            # Step 3: Detect collisions based on position proximity
             df_collisions = self.detect_collisions(df_positions)
             
-            # Step 3: Save and publish results
+            # Step 4: Save and publish results
             if df_collisions.count() > 0:
                 self.save_to_hdfs(df_collisions)
+                self.save_collisions_to_postgres(df_collisions)
                 self.publish_to_kafka(df_collisions)
             else:
                 logger.info("No collisions detected within threshold")

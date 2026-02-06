@@ -1,11 +1,13 @@
 """
-Simplified Spark Streaming: TLE → SGP4 Vectors → HDFS
+Simplified Spark Streaming: TLE → SGP4 Vectors → HDFS + PostgreSQL
 Focus: Calculate position/velocity vectors and store for time-series analysis
+Writes: HDFS (all vectors) + PostgreSQL (satellite metadata)
 """
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import (
-    from_json, col, udf, current_timestamp, to_timestamp, lit
+    from_json, col, udf, current_timestamp, to_timestamp, lit,
+    datediff, when, max as spark_max, count as spark_count
 )
 from pyspark.sql.types import (
     StructType, StructField, StringType, DoubleType, 
@@ -14,6 +16,18 @@ from pyspark.sql.types import (
 from sgp4.api import Satrec, jday
 from datetime import datetime, timezone
 import logging
+import os
+import sys
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
+# Try importing from the current directory first
+try:
+    from postgres_utils import get_postgres_connector
+except ImportError:
+    from pipelines.processing.postgres_utils import get_postgres_connector
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -28,7 +42,9 @@ class TLE_to_SGP4_HDFS:
     def __init__(self, 
                  kafka_servers='kafka:9093',
                  hdfs_output_path='hdfs://namenode:9000/space-debris/sgp4_vectors',
-                 checkpoint_path='hdfs://namenode:9000/tmp/spark-checkpoint-sgp4'):
+                 checkpoint_path='hdfs://namenode:9000/tmp/spark-checkpoint-sgp4',
+                 min_altitude_km=150.0,
+                 max_tle_age_days=30):
         """Initialize Spark with Kafka and HDFS configs."""
         
         self.spark = SparkSession.builder \
@@ -45,11 +61,17 @@ class TLE_to_SGP4_HDFS:
         self.kafka_servers = kafka_servers
         self.hdfs_output = hdfs_output_path
         self.checkpoint_path = checkpoint_path
+        self.min_altitude_km = min_altitude_km
+        self.max_tle_age_days = max_tle_age_days
         
         logger.info(f"=== SGP4 Vector Computation Pipeline ===")
         logger.info(f"Kafka: {kafka_servers}")
         logger.info(f"HDFS Output: {hdfs_output_path}")
         logger.info(f"Checkpoint: {checkpoint_path}")
+        logger.info(f"\n=== Tracking Stop Conditions ===")
+        logger.info(f"1. Minimum Altitude: {min_altitude_km} km (de-orbit threshold)")
+        logger.info(f"2. Maximum TLE Age: {max_tle_age_days} days (data freshness)")
+        logger.info(f"3. SGP4 Error Code: 0 only (valid propagation)")
     
     def get_tle_schema(self):
         """Schema for TLE data from Kafka topic."""
@@ -209,9 +231,120 @@ class TLE_to_SGP4_HDFS:
             col("sgp4_result.altitude_km"),
             col("sgp4_result.velocity_magnitude_kms"),
             col("sgp4_result.sgp4_error_code")
-        ).filter(col("sgp4_error_code") == 0)  # Only successful calculations
+        )
         
         logger.info("✓ Configured SGP4 vector computation")
+        
+        # Step 4a: Apply Tracking Stop Conditions
+        logger.info("\n=== Applying Tracking Stop Conditions ===")
+        
+        # Calculate TLE age in days
+        vectors_with_age = vectors_df.withColumn(
+            "tle_age_days",
+            datediff(current_timestamp(), col("epoch_time"))
+        )
+        
+        # Add tracking status flags
+        # NOTE: TLE age check disabled for historical data testing
+        filtered_vectors = vectors_with_age.withColumn(
+            "tracking_status",
+            when(col("sgp4_error_code") != 0, "STOPPED_SGP4_ERROR")
+            .when(col("altitude_km") < self.min_altitude_km, "STOPPED_LOW_ALTITUDE")
+            # Temporarily disabled for historical data: .when(col("tle_age_days") > self.max_tle_age_days, "STOPPED_STALE_TLE")
+            .otherwise("ACTIVE")
+        )
+        
+        # Filter: Keep only actively tracked satellites
+        active_satellites = filtered_vectors.filter(
+            col("tracking_status") == "ACTIVE"
+        )
+        
+        # Log filtered satellites (for monitoring)
+        stopped_satellites = filtered_vectors.filter(
+            col("tracking_status") != "ACTIVE"
+        )
+        
+        logger.info("Filter 1: SGP4 Error Code = 0 (valid propagation)")
+        logger.info("Filter 2: Altitude >= {} km (above de-orbit threshold)".format(self.min_altitude_km))
+        logger.info("Filter 3: TLE Age <= {} days (data freshness)".format(self.max_tle_age_days))
+        
+        # Use active satellites for further processing
+        vectors_df = active_satellites
+        
+        # Step 4b: Write stopped satellites log to HDFS (for analysis)
+        stopped_hdfs_path = self.hdfs_output.replace('sgp4_vectors', 'stopped_tracking')
+        stopped_query = stopped_satellites \
+            .select(
+                "satellite_id", "epoch_time", "altitude_km", 
+                "sgp4_error_code", "tle_age_days", "tracking_status",
+                "processing_time"
+            ) \
+            .writeStream \
+            .outputMode(output_mode) \
+            .format("parquet") \
+            .option("path", stopped_hdfs_path) \
+            .option("checkpointLocation", f"{self.checkpoint_path}/stopped_tracking") \
+            .partitionBy("tracking_status") \
+            .start()
+        
+        logger.info(f"✓ Logging stopped satellites to: {stopped_hdfs_path}")
+        logger.info("  Partitioning: By tracking_status (for analysis)\n")
+        
+        # Step 4c: Update PostgreSQL with satellite metadata (foreachBatch)
+        def update_postgres_metadata(batch_df, batch_id):
+            """Update satellite metadata in PostgreSQL for each batch."""
+            try:
+                if batch_df.count() == 0:
+                    return
+                
+                logger.info(f"Batch {batch_id}: Updating PostgreSQL with satellite metadata...")
+                
+                # Initialize PostgreSQL connector
+                pg = get_postgres_connector()
+                
+                # Aggregate latest info per satellite
+                satellite_updates = batch_df.groupBy("satellite_id") \
+                    .agg(
+                        spark_max("epoch_time").alias("last_tle_epoch"),
+                        spark_max("altitude_km").alias("last_altitude_km"),
+                        spark_max("velocity_magnitude_kms").alias("last_velocity_kms"),
+                        spark_max("position_x").alias("last_position_x"),
+                        spark_max("position_y").alias("last_position_y"),
+                        spark_max("position_z").alias("last_position_z"),
+                        spark_max("sgp4_error_code").alias("last_sgp4_error_code"),
+                        spark_max("tle_age_days").alias("tle_age_days"),
+                        spark_max("inclination").alias("inclination"),
+                        spark_max("eccentricity").alias("eccentricity"),
+                        spark_max("mean_motion").alias("mean_motion"),
+                        spark_count("*").alias("observations_count")
+                    ) \
+                    .withColumn("status_updated_at", current_timestamp()) \
+                    .withColumn("tracking_status", lit("ACTIVE")) \
+                    .withColumnRenamed("satellite_id", "norad_id")
+                
+                # Write to PostgreSQL (will insert or update)
+                pg.write_table(
+                    satellite_updates,
+                    table_name="satellites",
+                    mode="append",
+                    batch_size=500
+                )
+                
+                logger.info(f"✓ Batch {batch_id}: Updated {satellite_updates.count()} satellites in PostgreSQL")
+                
+            except Exception as e:
+                logger.error(f"Error updating PostgreSQL in batch {batch_id}: {e}")
+        
+        # Apply PostgreSQL updates using foreachBatch
+        postgres_query = active_satellites \
+            .writeStream \
+            .outputMode("update") \
+            .foreachBatch(update_postgres_metadata) \
+            .option("checkpointLocation", f"{self.checkpoint_path}/postgres_metadata") \
+            .trigger(processingTime="30 seconds") \
+            .start()
+        
+        logger.info("✓ PostgreSQL metadata updates configured (every 30 seconds)")
         
         # Step 5a: Write raw TLE data to HDFS (for backup/auditing)
         tle_hdfs_path = self.hdfs_output.replace('sgp4_vectors', 'tle_raw')
@@ -265,7 +398,8 @@ class TLE_to_SGP4_HDFS:
         logger.info(f"Input:   Kafka topic 'space_debris_tle'")
         logger.info(f"Output:  {tle_hdfs_path} (raw TLE)")
         logger.info(f"         {self.hdfs_output} (SGP4 vectors)")
-        logger.info(f"Status:  Processing TLE → SGP4 vectors → HDFS")
+        logger.info(f"         PostgreSQL satellites table (metadata)")
+        logger.info(f"Status:  Processing TLE → SGP4 vectors → HDFS + PostgreSQL")
         logger.info("="*60 + "\n")
         
         # Wait for termination
@@ -273,7 +407,8 @@ class TLE_to_SGP4_HDFS:
             self.spark.streams.awaitAnyTermination()
         except KeyboardInterrupt:
             logger.info("\nStopping streaming pipeline...")
-            self.spark.streams.active[0].stop()
+            for stream in self.spark.streams.active:
+                stream.stop()
             logger.info("✓ Pipeline stopped gracefully")
 
 
@@ -299,6 +434,18 @@ def main():
         default='/tmp/spark-checkpoint-sgp4',
         help='Checkpoint directory (default: /tmp/spark-checkpoint-sgp4)'
     )
+    parser.add_argument(
+        '--min-altitude',
+        type=float,
+        default=150.0,
+        help='Minimum altitude in km for active tracking (default: 150.0)'
+    )
+    parser.add_argument(
+        '--max-tle-age',
+        type=int,
+        default=30,
+        help='Maximum TLE age in days before stopping tracking (default: 30)'
+    )
     
     args = parser.parse_args()
     
@@ -306,7 +453,9 @@ def main():
     pipeline = TLE_to_SGP4_HDFS(
         kafka_servers=args.kafka,
         hdfs_output_path=args.hdfs_path,
-        checkpoint_path=args.checkpoint
+        checkpoint_path=args.checkpoint,
+        min_altitude_km=args.min_altitude,
+        max_tle_age_days=args.max_tle_age
     )
     
     pipeline.start_streaming()

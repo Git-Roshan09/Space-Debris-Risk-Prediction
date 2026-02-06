@@ -255,6 +255,7 @@ services:
       - spark-master
       - kafka
       - namenode
+      - postgres-debris
     environment:
       - SPARK_MODE=client
       - SPARK_MASTER_URL=spark://spark-master:7077
@@ -262,6 +263,13 @@ services:
       - KAFKA_TOPIC=space_debris_tle
       - HDFS_OUTPUT=hdfs://namenode:9000/space-debris/sgp4_vectors
       - CHECKPOINT_PATH=hdfs://namenode:9000/tmp/spark-checkpoint-sgp4
+      - MIN_ALTITUDE_KM=150.0
+      - MAX_TLE_AGE_DAYS=36500
+      - POSTGRES_HOST=postgres-debris
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=space_debris
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
       - TZ=Asia/Kolkata
     volumes:
       - ./pipelines:/opt/spark-apps
@@ -293,6 +301,7 @@ services:
       - spark-master
       - namenode
       - kafka
+      - postgres-debris
     environment:
       - SPARK_MODE=client
       - SPARK_MASTER_URL=spark://spark-master:7077
@@ -304,6 +313,11 @@ services:
       - HDFS_COLLISION_PREDICTIONS_PATH=hdfs://namenode:9000/space-debris/collision_predictions
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9093
       - KAFKA_COLLISION_TOPIC=space_debris_collisions
+      - POSTGRES_HOST=postgres-debris
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=space_debris
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
       - TZ=Asia/Kolkata
     volumes:
       - ./pipelines:/opt/spark-apps
@@ -368,6 +382,32 @@ services:
       - bigdata-net
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ==========================================
+  # POSTGRES (Space Debris Data)
+  # ==========================================
+  postgres-debris:
+    image: postgres:14-alpine
+    container_name: postgres-debris
+    hostname: postgres-debris
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: space_debris
+      TZ: 'Asia/Kolkata'
+    volumes:
+      - postgres-debris-data:/var/lib/postgresql/data
+      - ./config/postgres/init_schema.sql:/docker-entrypoint-initdb.d/init_schema.sql
+    networks:
+      - bigdata-net
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "space_debris"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -511,6 +551,7 @@ services:
     depends_on:
       - namenode
       - spark-master
+      - postgres-debris
     ports:
       - "5001:5001"
     environment:
@@ -526,9 +567,14 @@ services:
       - HIGH_RISK_THRESHOLD_KM=5.0
       - MEDIUM_RISK_THRESHOLD_KM=10.0
       - LOW_RISK_THRESHOLD_KM=50.0
+      - POSTGRES_HOST=postgres-debris
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=space_debris
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
       - TZ=Asia/Kolkata
     volumes:
-      - ./dashboard_api.py:/opt/spark-apps/dashboard_api.py
+      - ./dashboard_api_postgres.py:/opt/spark-apps/dashboard_api.py
       - ./requirements-dashboard.txt:/opt/spark-apps/requirements-dashboard.txt
       - ./pipelines:/opt/spark-apps/pipelines:ro
     networks:
@@ -574,4 +620,6 @@ volumes:
     name: datanode-data
   postgres-data:
     name: postgres-data
+  postgres-debris-data:
+    name: postgres-debris-data
 

@@ -22,6 +22,8 @@ echo 'Submitting Spark Streaming job...'
   --conf spark.sql.streaming.checkpointLocation=hdfs://namenode:9000/tmp/spark-checkpoint-sgp4 \
   --conf spark.hadoop.fs.defaultFS=hdfs://namenode:9000 \
   /opt/spark-apps/processing/spark_sgp4_to_hdfs.py \
-  --kafka kafka:9093 \
-  --hdfs-path hdfs://namenode:9000/space-debris/sgp4_vectors \
-  --checkpoint hdfs://namenode:9000/tmp/spark-checkpoint-sgp4
+  --kafka "${KAFKA_SERVERS:-kafka:9093}" \
+  --hdfs-path "${HDFS_OUTPUT:-hdfs://namenode:9000/space-debris/sgp4_vectors}" \
+  --checkpoint "${CHECKPOINT_PATH:-hdfs://namenode:9000/tmp/spark-checkpoint-sgp4}" \
+  --min-altitude "${MIN_ALTITUDE_KM:-150.0}" \
+  --max-tle-age "${MAX_TLE_AGE_DAYS:-30}"

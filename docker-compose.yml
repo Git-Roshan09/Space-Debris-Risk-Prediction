@@ -318,6 +318,7 @@ services:
       - POSTGRES_DB=space_debris
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+      - CATALOG_DIR=/opt/spark-data/raw
       - TZ=Asia/Kolkata
     volumes:
       - ./pipelines:/opt/spark-apps
@@ -329,26 +330,25 @@ services:
     restart: unless-stopped
 
   # ==========================================
-  # TLE API (Flask Streaming API)
+  # TLE API (Optimized Flask Streaming API - 65M+ Objects)
   # ==========================================
   tle-api:
-    image: python:3.11-slim
+    build:
+      context: .
+      dockerfile: config/docker/Dockerfile.tle
+    image: tle-api:local
     container_name: tle-api
     hostname: tle-api
     ports:
       - "5000:5000"
-    working_dir: /app
     volumes:
-      - ./:/app
+      - ./data:/app/data:ro
     environment:
-      FLASK_APP: api.py
+      FLASK_APP: src/apis/optimized_tle_api.py
       FLASK_ENV: development
       PYTHONUNBUFFERED: 1
       TZ: 'Asia/Kolkata'
-    command: >
-      bash -c "apt-get update && apt-get install -y curl &&
-               pip install --no-cache-dir -r requirements-api.txt &&
-               python api.py"
+    # Custom command removed - handled by Dockerfile
     networks:
       - bigdata-net
     dns:
@@ -356,7 +356,7 @@ services:
       - 8.8.4.4
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
       interval: 30s
       timeout: 15s
       retries: 10
@@ -417,7 +417,10 @@ services:
   # AIRFLOW INIT (One-time setup)
   # ==========================================
   airflow-init:
-    image: apache/airflow:2.8.1-python3.11
+    build:
+      context: ./config/docker
+      dockerfile: Dockerfile.airflow
+    image: localhost/airflow-custom:latest
     container_name: airflow-init
     depends_on:
       postgres:
@@ -431,7 +434,6 @@ services:
       _AIRFLOW_WWW_USER_CREATE: 'true'
       _AIRFLOW_WWW_USER_USERNAME: admin
       _AIRFLOW_WWW_USER_PASSWORD: admin
-      _PIP_ADDITIONAL_REQUIREMENTS: 'kafka-python==2.0.2 requests==2.31.0'
       TZ: 'Asia/Kolkata'
     networks:
       - bigdata-net
@@ -453,7 +455,10 @@ services:
   # AIRFLOW WEBSERVER
   # ==========================================
   airflow-webserver:
-    image: apache/airflow:2.8.1-python3.11
+    build:
+      context: ./config/docker
+      dockerfile: Dockerfile.airflow
+    image: localhost/airflow-custom:latest
     container_name: airflow-webserver
     hostname: airflow-webserver
     user: "50000:0"
@@ -476,7 +481,6 @@ services:
       AIRFLOW__WEBSERVER__DEFAULT_UI_TIMEZONE: 'Asia/Kolkata'
       AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'true'
       AIRFLOW__WEBSERVER__SECRET_KEY: 'airflow_secret_key_space_debris_2026'
-      _PIP_ADDITIONAL_REQUIREMENTS: 'kafka-python==2.0.2 requests==2.31.0 apache-airflow-providers-apache-spark==4.5.0'
       TZ: 'Asia/Kolkata'
     volumes:
       - ./pipelines/ingestion:/opt/airflow/dags
@@ -501,7 +505,10 @@ services:
   # AIRFLOW SCHEDULER
   # ==========================================
   airflow-scheduler:
-    image: apache/airflow:2.8.1-python3.11
+    build:
+      context: ./config/docker
+      dockerfile: Dockerfile.airflow
+    image: localhost/airflow-custom:latest
     container_name: airflow-scheduler
     hostname: airflow-scheduler
     user: "50000:960"
@@ -521,7 +528,6 @@ services:
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__CORE__DEFAULT_TIMEZONE: 'Asia/Kolkata'
-      _PIP_ADDITIONAL_REQUIREMENTS: 'kafka-python==2.0.2 requests==2.31.0 apache-airflow-providers-apache-spark==4.5.0'
       TZ: 'Asia/Kolkata'
     volumes:
       - ./pipelines/ingestion:/opt/airflow/dags
@@ -574,7 +580,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - TZ=Asia/Kolkata
     volumes:
-      - ./dashboard_api_postgres.py:/opt/spark-apps/dashboard_api.py
+      - ./src/apis/dashboard_api_postgres.py:/opt/spark-apps/dashboard_api.py
       - ./requirements-dashboard.txt:/opt/spark-apps/requirements-dashboard.txt
       - ./pipelines:/opt/spark-apps/pipelines:ro
     networks:
@@ -622,4 +628,3 @@ volumes:
     name: postgres-data
   postgres-debris-data:
     name: postgres-debris-data
-

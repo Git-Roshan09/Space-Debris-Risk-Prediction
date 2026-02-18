@@ -1,0 +1,47 @@
+# Exclude large data files and directories that aren't needed for builds
+data/alldata/
+data/processed/
+data/raw/
+data/archive/
+data/external/
+
+# Exclude log files
+logs/
+*.log
+
+# Exclude backup files
+backup_demo_data/
+archive/
+
+# Exclude git files
+.git/
+.gitignore
+
+# Exclude IDE files
+.vscode/
+.idea/
+
+# Exclude temporary files
+**/.DS_Store
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.Python
+**/.pytest_cache/
+
+# Exclude documentation (unless needed)
+docs/
+*.md
+README*
+
+# Exclude test files (unless needed for the specific service)
+tests/
+
+# Exclude notebooks
+notebooks/
+
+# Exclude other build artifacts
+**/.dockerignore
+**/Dockerfile
+**/docker-compose*

@@ -15,7 +15,7 @@ ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
 # Install Python packages
 RUN pip3 install --no-cache-dir --upgrade pip && \
-    pip3 install --no-cache-dir \
+    pip3 install  \
         Flask==3.0.3 \
         flask-cors==4.0.0 \
         pyspark==3.5.0 \

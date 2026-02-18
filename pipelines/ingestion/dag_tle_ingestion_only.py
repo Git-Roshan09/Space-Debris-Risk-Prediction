@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 default_args = {
     'owner': 'space-debris-team',
-    'start_date': datetime(2024, 1, 1),
+    'start_date': datetime.utcnow() - timedelta(days=1),  # Start from yesterday to prevent past runs
     'retries': 2,
     'retry_delay': timedelta(minutes=3)
 }
@@ -75,16 +75,22 @@ def check_api_health():
 def get_api_stats():
     """Get statistics from the TLE streaming API."""
     try:
-        response = requests.get(f"{TLE_API_BASE_URL}/stats", timeout=30)
+        response = requests.get(f"{TLE_API_BASE_URL}/api/stats", timeout=30)
         response.raise_for_status()
         
         stats = response.json()
-        logger.info("\n=== TLE Dataset Statistics ===")
-        logger.info(f"Total Records: {stats['total_records']:,}")
-        logger.info(f"Total Satellites: {stats['total_satellites']}")
-        logger.info(f"Date Range: {stats['date_range']['start']} to {stats['date_range']['end']}")
-        
-        return stats
+        if stats.get('success') and 'data' in stats:
+            data = stats['data']
+            logger.info("\n=== TLE Dataset Statistics ===")
+            logger.info(f"Total Objects: {data['total_objects']:,}")
+            logger.info(f"Satellites: {data['satellites_count']:,}")
+            logger.info(f"Debris: {data['debris_count']:,}")
+            logger.info(f"Years covered: {', '.join(data['years_covered'])}")
+            logger.info(f"Last updated: {data['last_updated']}")
+            return data
+        else:
+            logger.error("Invalid stats response format")
+            return None
         
     except Exception as e:
         logger.error(f"Error getting API stats: {e}")
@@ -126,13 +132,12 @@ def stream_api_to_kafka():
     if not kafka_connected or producer is None:
         raise RuntimeError("Could not connect to any Kafka server")
     
-    # Build stream URL
-    stream_url = f"{TLE_API_BASE_URL}/stream"
+    # Build stream URL with new API format
+    stream_url = f"{TLE_API_BASE_URL}/api/objects/stream"
     params = {
-        'acceleration': STREAM_ACCELERATION,
-        'mode': STREAM_MODE,
-        'max_delay': MAX_DELAY,
-        'limit': STREAM_LIMIT
+        'batch_size': 50,  # Objects per batch
+        'delay_ms': 1000,  # 1 second delay between batches
+        'type': 'all'      # Both satellites and debris
     }
     
     logger.info(f"Streaming from: {stream_url}")
@@ -149,45 +154,58 @@ def stream_api_to_kafka():
         for line in response.iter_lines():
             if line:
                 try:
-                    record = json.loads(line)
-                    
-                    # Skip summary messages
-                    if record.get('type') == 'summary':
-                        logger.info(f"Stream summary: {record}")
-                        continue
-                    
-                    # Parse orbital elements
-                    orbital_elements = parse_tle_elements(
-                        record['tle_line1'],
-                        record['tle_line2']
-                    )
-                    
-                    # Enrich record
-                    enriched_record = {
-                        'message_id': str(uuid.uuid4()),
-                        'message_timestamp': datetime.utcnow().isoformat(),
-                        'source': 'tle_stream_api',
-                        'satellite_id': record['satellite_id'],
-                        'epoch': record['epoch'],
-                        'tle_line1': record['tle_line1'],
-                        'tle_line2': record['tle_line2'],
-                        'sequence_number': record.get('sequence_number'),
-                        'time_gap_seconds': record.get('time_gap_seconds', 0),
-                        **orbital_elements
-                    }
-                    
-                    # Send to Kafka
-                    future = producer.send(
-                        KAFKA_TOPIC_TLE,
-                        key=record['satellite_id'],
-                        value=enriched_record
-                    )
-                    future.get(timeout=10)
-                    
-                    success_count += 1
-                    
-                    if success_count % 100 == 0:
-                        logger.info(f"Progress: {success_count} records sent to Kafka")
+                    # Handle Server-Sent Events format
+                    line_str = line.decode('utf-8')
+                    if line_str.startswith('data: '):
+                        json_str = line_str[6:]  # Remove 'data: ' prefix
+                        batch_data = json.loads(json_str)
+                        
+                        # Handle error responses
+                        if 'error' in batch_data:
+                            logger.error(f"API error: {batch_data['error']}")
+                            continue
+                            
+                        # Process batch of objects
+                        if 'batch' in batch_data:
+                            batch = batch_data['batch']
+                            batch_num = batch_data.get('batch_number', 0)
+                            
+                            logger.info(f"Processing batch {batch_num} with {len(batch)} objects")
+                            
+                            for obj in batch:
+                                # Parse orbital elements
+                                orbital_elements = parse_tle_elements(
+                                    obj['tle_line1'],
+                                    obj['tle_line2']
+                                )
+                                
+                                # Create enriched record with new API format
+                                enriched_record = {
+                                    'message_id': str(uuid.uuid4()),
+                                    'message_timestamp': datetime.utcnow().isoformat(),
+                                    'source': 'optimized_tle_api',
+                                    'norad_id': obj['norad_id'],
+                                    'object_name': obj['name'],
+                                    'tle_line1': obj['tle_line1'],
+                                    'tle_line2': obj['tle_line2'],
+                                    'classification': obj['classification'],
+                                    'metadata': obj['metadata'],
+                                    'source_file': obj.get('source_file', ''),
+                                    **orbital_elements
+                                }
+                                
+                                # Send to Kafka
+                                future = producer.send(
+                                    KAFKA_TOPIC_TLE,
+                                    key=str(obj['norad_id']),
+                                    value=enriched_record
+                                )
+                                future.get(timeout=10)
+                                
+                                success_count += 1
+                            
+                            if success_count % 50 == 0:
+                                logger.info(f"Progress: {success_count} records sent to Kafka")
                         
                 except json.JSONDecodeError as e:
                     error_count += 1

@@ -77,17 +77,19 @@ class TLE_to_SGP4_HDFS:
         """Schema for TLE data from Kafka topic."""
         return StructType([
             StructField("message_id", StringType(), True),
-            StructField("satellite_id", StringType(), True),
-            StructField("epoch", StringType(), True),
+            StructField("message_timestamp", StringType(), True),
+            StructField("source", StringType(), True),
+            StructField("norad_id", IntegerType(), True),
+            StructField("object_name", StringType(), True),
             StructField("tle_line1", StringType(), True),
             StructField("tle_line2", StringType(), True),
+            StructField("classification", StringType(), True),
             StructField("inclination", DoubleType(), True),
             StructField("raan", DoubleType(), True),
             StructField("eccentricity", StringType(), True),
             StructField("argument_of_perigee", DoubleType(), True),
             StructField("mean_anomaly", DoubleType(), True),
             StructField("mean_motion", DoubleType(), True),
-            StructField("revolution_number", IntegerType(), True),
         ])
     
     @staticmethod
@@ -203,12 +205,14 @@ class TLE_to_SGP4_HDFS:
         # Step 4: Compute SGP4 vectors
         vectors_df = tle_data.withColumn(
             "sgp4_result",
-            sgp4_udf(col("tle_line1"), col("tle_line2"), col("epoch"))
+            sgp4_udf(col("tle_line1"), col("tle_line2"), col("message_timestamp"))
         ).select(
             # Original TLE metadata
             col("message_id"),
-            col("satellite_id"),
-            to_timestamp(col("epoch")).alias("epoch_time"),
+            col("norad_id"),
+            col("object_name"),
+            col("classification"),
+            to_timestamp(col("message_timestamp")).alias("epoch_time"),
             col("kafka_timestamp"),
             current_timestamp().alias("processing_time"),
             
@@ -219,7 +223,6 @@ class TLE_to_SGP4_HDFS:
             col("argument_of_perigee"),
             col("mean_anomaly"),
             col("mean_motion"),
-            col("revolution_number"),
             
             # SGP4 computed vectors
             col("sgp4_result.position_x"),
@@ -275,7 +278,7 @@ class TLE_to_SGP4_HDFS:
         stopped_hdfs_path = self.hdfs_output.replace('sgp4_vectors', 'stopped_tracking')
         stopped_query = stopped_satellites \
             .select(
-                "satellite_id", "epoch_time", "altitude_km", 
+                "norad_id", "epoch_time", "altitude_km", 
                 "sgp4_error_code", "tle_age_days", "tracking_status",
                 "processing_time"
             ) \
@@ -303,7 +306,7 @@ class TLE_to_SGP4_HDFS:
                 pg = get_postgres_connector()
                 
                 # Aggregate latest info per satellite
-                satellite_updates = batch_df.groupBy("satellite_id") \
+                satellite_updates = batch_df.groupBy("norad_id") \
                     .agg(
                         spark_max("epoch_time").alias("last_tle_epoch"),
                         spark_max("altitude_km").alias("last_altitude_km"),
@@ -319,8 +322,7 @@ class TLE_to_SGP4_HDFS:
                         spark_count("*").alias("observations_count")
                     ) \
                     .withColumn("status_updated_at", current_timestamp()) \
-                    .withColumn("tracking_status", lit("ACTIVE")) \
-                    .withColumnRenamed("satellite_id", "norad_id")
+                    .withColumn("tracking_status", lit("ACTIVE"))
                 
                 # Write to PostgreSQL (will insert or update)
                 pg.write_table(
@@ -354,12 +356,12 @@ class TLE_to_SGP4_HDFS:
             .format("parquet") \
             .option("path", tle_hdfs_path) \
             .option("checkpointLocation", f"{self.checkpoint_path}/tle_raw") \
-            .partitionBy("satellite_id") \
+            .partitionBy("norad_id") \
             .start()
         
         logger.info(f"✓ Writing raw TLE data to HDFS: {tle_hdfs_path}")
         logger.info("  Format: Parquet")
-        logger.info("  Partitioning: By satellite_id")
+        logger.info("  Partitioning: By norad_id")
         
         # Step 5b: Write SGP4 vectors to HDFS in Parquet format (columnar, compressed)
         # Partition by date for efficient time-series queries
@@ -379,7 +381,7 @@ class TLE_to_SGP4_HDFS:
         # Step 6: Console output for monitoring
         console_query = vectors_df \
             .select(
-                "satellite_id", "epoch_time", "altitude_km", 
+                "norad_id", "epoch_time", "altitude_km", 
                 "velocity_magnitude_kms", "position_x", "position_y", "position_z"
             ) \
             .writeStream \

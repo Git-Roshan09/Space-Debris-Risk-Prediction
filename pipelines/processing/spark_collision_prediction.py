@@ -1,18 +1,21 @@
 """
-Spark Job: Collision Prediction System
-Reads SGP4 vectors from HDFS and detects potential collisions based on position proximity.
+Spark Job: Optimized Collision Prediction System
+Reads classified SGP4 vectors from HDFS and detects potential collisions.
+ONLY processes SAT-SAT and SAT-DEB collision pairs (excludes DEB-DEB as requested).
 Writes results to HDFS (historical), Kafka (streaming), and PostgreSQL (dashboard).
 """
 
 from pyspark.sql import SparkSession, Window
 from pyspark.sql.functions import (
     col, lit, current_timestamp, sqrt, pow as spark_pow,
-    when, broadcast, max as spark_max, count, coalesce
+    when, broadcast, max as spark_max, count, coalesce, 
+    desc, asc, size, array_contains
 )
-from pyspark.sql.types import DoubleType, IntegerType, StringType, TimestampType
+from pyspark.sql.types import DoubleType, IntegerType, StringType, TimestampType, StructType, StructField
 from datetime import datetime, timedelta, timezone
 import logging
 import os
+import csv
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -26,18 +29,22 @@ POSTGRES_CONFIG = {
     'password': os.getenv('POSTGRES_PASSWORD', 'postgres')
 }
 
+# Object Classification Configuration
+CATALOG_DIR = os.getenv('CATALOG_DIR', 'data/raw')
+
 
 class CollisionPredictionEngine:
     """
-    Simplified Collision Detection Pipeline:
-    Read SGP4 vectors → Detect close approaches → Output collision alerts
+    Optimized Collision Detection Pipeline:
+    Read SGP4 vectors → Classify objects → Detect sat-sat and sat-deb collisions only → Output alerts
     """
     
     def __init__(self):
         """Initialize Spark with configuration from environment."""
         
         # Load configuration from environment
-        self.collision_threshold_km = float(os.getenv('COLLISION_THRESHOLD_KM', '10.0'))
+        # Threshold of 50km captures all risk levels: CRITICAL (<1km), HIGH (<5km), MEDIUM (<10km), LOW (10-50km)
+        self.collision_threshold_km = float(os.getenv('COLLISION_THRESHOLD_KM', '50.0'))
         self.time_window_days = int(os.getenv('TIME_WINDOW_DAYS', '7'))
         
         self.hdfs_input = os.getenv('HDFS_SGP4_VECTORS_PATH', 
@@ -48,7 +55,7 @@ class CollisionPredictionEngine:
         self.kafka_topic = os.getenv('KAFKA_COLLISION_TOPIC', 'space_debris_collisions')
         
         self.spark = SparkSession.builder \
-            .appName("Collision-Prediction-Engine") \
+            .appName("Optimized-Collision-Prediction-Engine") \
             .config("spark.jars.packages", 
                    "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.postgresql:postgresql:42.7.1") \
             .config("spark.sql.adaptive.enabled", "true") \
@@ -66,30 +73,97 @@ class CollisionPredictionEngine:
             "driver": "org.postgresql.Driver"
         }
         
-        logger.info("=" * 60)
-        logger.info("=== Collision Prediction Engine Initialized ===")
+        # Load object classifications
+        self.satellite_ids = set()
+        self.debris_ids = set()
+        self._load_object_classifications()
+        
+        logger.info("=" * 70)
+        logger.info("=== Optimized Collision Prediction Engine Initialized ===")
         logger.info(f"Collision Threshold: {self.collision_threshold_km} km")
         logger.info(f"Time Window: {self.time_window_days} days")
+        logger.info(f"Satellites classified: {len(self.satellite_ids):,}")
+        logger.info(f"Debris classified: {len(self.debris_ids):,}")
+        logger.info(f"Collision types: SAT-SAT, SAT-DEB (DEB-DEB excluded)")
         logger.info(f"Input: {self.hdfs_input}")
         logger.info(f"Output: {self.hdfs_output}")
         logger.info(f"PostgreSQL: {POSTGRES_CONFIG['host']}:{POSTGRES_CONFIG['port']}/{POSTGRES_CONFIG['database']}")
-        logger.info("=" * 60)
+        logger.info("=" * 70)
+    
+    def _load_object_classifications(self):
+        """Load satellite and debris classifications from catalogs"""
+        try:
+            # Load satellites catalog
+            sat_catalog_path = os.path.join(CATALOG_DIR, 'satellites_and_objects_catalog.csv')
+            if os.path.exists(sat_catalog_path):
+                with open(sat_catalog_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        try:
+                            norad_id = int(row['NORAD_CAT_ID'])
+                            self.satellite_ids.add(norad_id)
+                        except (ValueError, KeyError):
+                            continue
+                logger.info(f"✅ Loaded {len(self.satellite_ids):,} satellite classifications")
+            
+            # Load debris catalog
+            debris_catalog_path = os.path.join(CATALOG_DIR, 'space_debris_catalog.csv')
+            if os.path.exists(debris_catalog_path):
+                with open(debris_catalog_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        try:
+                            norad_id = int(row['NORAD_CAT_ID'])
+                            self.debris_ids.add(norad_id)
+                        except (ValueError, KeyError):
+                            continue
+                logger.info(f"✅ Loaded {len(self.debris_ids):,} debris classifications")
+            
+            # Convert to broadcast variables for efficient joins
+            satellite_ids_list = list(self.satellite_ids)
+            debris_ids_list = list(self.debris_ids)
+            
+            # Create Spark DataFrames for joining
+            satellite_df = self.spark.createDataFrame(
+                [(sat_id, 'SATELLITE') for sat_id in satellite_ids_list],
+                ['norad_id', 'classification']
+            ).cache()
+            
+            debris_df = self.spark.createDataFrame(
+                [(deb_id, 'DEBRIS') for deb_id in debris_ids_list],
+                ['norad_id', 'classification']
+            ).cache()
+            
+            self.classification_df = satellite_df.union(debris_df)
+            logger.info(f"📊 Classification lookup table: {self.classification_df.count():,} objects")
+            
+        except Exception as e:
+            logger.error(f"❌ Error loading classifications: {e}")
+            # Create empty sets if loading fails
+            self.satellite_ids = set()
+            self.debris_ids = set()
+            self.classification_df = self.spark.createDataFrame([], 'norad_id int, classification string')
     
     def read_latest_sgp4_data(self):
         """
-        Read latest SGP4 vector data from HDFS within time window.
+        Read latest SGP4 vector data from HDFS and classify objects.
         """
         try:
-            # Read parquet data from HDFS
-            df = self.spark.read.parquet(self.hdfs_input)
+            # Read parquet data from HDFS (handles partitioned data automatically)
+            df = self.spark.read \
+                .option("basePath", self.hdfs_input) \
+                .option("mergeSchema", "true") \
+                .parquet(self.hdfs_input + "/epoch_time=*")
             
             logger.info(f"Available columns: {df.columns}")
             
-            # Get latest record for each satellite
-            window_spec = Window.partitionBy("satellite_id")
+            # Get latest record for each object (using norad_id directly)
+            window_spec = Window.partitionBy("norad_id")
             
-            # Use kafka_timestamp or epoch_time for ordering
-            if "kafka_timestamp" in df.columns:
+            # Use message_timestamp or kafka_timestamp for ordering
+            if "message_timestamp" in df.columns:
+                timestamp_col = "message_timestamp"
+            elif "kafka_timestamp" in df.columns:
                 timestamp_col = "kafka_timestamp"
             elif "epoch_time" in df.columns:
                 timestamp_col = "epoch_time"
@@ -101,48 +175,132 @@ class CollisionPredictionEngine:
                               .filter(col(timestamp_col) == col("max_ts")) \
                               .drop("max_ts")
             else:
-                df_latest = df.dropDuplicates(["satellite_id"])
+                df_latest = df.dropDuplicates(["norad_id"])
             
-            satellite_count = df_latest.select("satellite_id").distinct().count()
-            logger.info(f"Loaded {satellite_count} satellites with latest position data")
-            return df_latest
+            # Ensure norad_id is integer type (should already be from new API)
+            df_latest = df_latest.withColumn("norad_id", col("norad_id").cast(IntegerType()))
+            
+            # Drop existing classification column to avoid ambiguity when joining
+            if "classification" in df_latest.columns:
+                df_latest = df_latest.drop("classification")
+            
+            # Join with classification data
+            df_classified = df_latest.join(
+                broadcast(self.classification_df),
+                on="norad_id",
+                how="left"
+            ).fillna("UNKNOWN", ["classification"])
+            
+            # Count by classification
+            classification_counts = df_classified.groupBy("classification").count().collect()
+            for row in classification_counts:
+                logger.info(f"  {row['classification']}: {row['count']:,} objects")
+            
+            total_objects = df_classified.count()
+            logger.info(f"✅ Loaded {total_objects:,} objects with classifications")
+            
+            return df_classified
             
         except Exception as e:
             logger.error(f"Error reading SGP4 data: {e}")
             raise
-    
-    def detect_collisions(self, df_positions):
+
+    def detect_optimized_collisions(self, df_positions):
         """
-        Detect potential collisions by comparing satellite positions.
-        Uses Euclidean distance in 3D space.
+        Detect potential collisions ONLY between SAT-SAT and SAT-DEB pairs.
+        DEB-DEB collisions are explicitly excluded as requested.
         """
         try:
-            # Select relevant columns for comparison
-            df_sat = df_positions.select(
-                col("satellite_id"),
+            # Select relevant columns and cache for performance
+            df_objects = df_positions.select(
+                col("norad_id"),
+                col("object_name"),
+                col("classification"),
                 col("position_x"),
                 col("position_y"),
                 col("position_z"),
                 col("altitude_km"),
                 col("velocity_magnitude_kms").alias("velocity")
-            ).cache()  # Cache for join performance
+            ).cache()
             
-            satellite_count = df_sat.count()
-            logger.info(f"Comparing {satellite_count} satellites for potential collisions...")
+            # Separate satellites and debris
+            df_satellites = df_objects.filter(col("classification") == "SATELLITE").cache()
+            df_debris = df_objects.filter(col("classification") == "DEBRIS").cache()
             
-            if satellite_count < 2:
-                logger.warning("Not enough satellites for collision detection")
-                return self.spark.createDataFrame([], schema="satellite_1 string, satellite_2 string")
+            satellite_count = df_satellites.count()
+            debris_count = df_debris.count()
             
-            # Self-join to compare all pairs (avoid comparing satellite with itself)
-            # Use satellite_id < satellite_id to avoid duplicate pairs
-            df_pairs = df_sat.alias("sat1").crossJoin(
-                broadcast(df_sat.alias("sat2"))
-            ).filter(
-                col("sat1.satellite_id") < col("sat2.satellite_id")
+            logger.info(f"🛰️  Satellites for collision detection: {satellite_count:,}")
+            logger.info(f"🗑️  Debris for collision detection: {debris_count:,}")
+            
+            collision_pairs = []
+            
+            # SAT-SAT Collisions
+            if satellite_count >= 2:
+                logger.info("🔍 Detecting SAT-SAT collision pairs...")
+                df_sat_sat = self._detect_pairs(
+                    df_satellites.alias("sat1"),
+                    df_satellites.alias("sat2"),
+                    "SAT-SAT"
+                )
+                collision_pairs.append(df_sat_sat)
+            
+            # SAT-DEB Collisions
+            if satellite_count > 0 and debris_count > 0:
+                logger.info("🔍 Detecting SAT-DEB collision pairs...")
+                df_sat_deb = self._detect_pairs(
+                    df_satellites.alias("sat1"),
+                    df_debris.alias("deb1"),
+                    "SAT-DEB"
+                )
+                collision_pairs.append(df_sat_deb)
+            
+            # Combine all collision types
+            if collision_pairs:
+                df_all_collisions = collision_pairs[0]
+                for df_collision in collision_pairs[1:]:
+                    df_all_collisions = df_all_collisions.union(df_collision)
+            else:
+                # Create empty DataFrame with correct schema
+                schema = StructType([
+                    StructField("object_1", StringType(), True),
+                    StructField("object_2", StringType(), True),
+                    StructField("collision_type", StringType(), True)
+                ])
+                df_all_collisions = self.spark.createDataFrame([], schema)
+            
+            # Clean up caches
+            df_objects.unpersist()
+            df_satellites.unpersist()
+            df_debris.unpersist()
+            
+            total_collisions = df_all_collisions.count()
+            logger.info(f"📊 Total collision pairs detected: {total_collisions:,}")
+            
+            if total_collisions > 0:
+                # Log collision type breakdown
+                collision_type_counts = df_all_collisions.groupBy("collision_type").count().collect()
+                for row in collision_type_counts:
+                    logger.info(f"  {row['collision_type']}: {row['count']:,} pairs")
+            
+            return df_all_collisions
+            
+        except Exception as e:
+            logger.error(f"Error detecting collisions: {e}")
+            raise
+
+    def _detect_pairs(self, df1, df2, collision_type):
+        """
+        Helper method to detect collision pairs between two object groups.
+        """
+        # Create pairs (avoid self-comparison for SAT-SAT)
+        if collision_type == "SAT-SAT":
+            # For SAT-SAT, use norad_id comparison to avoid duplicates
+            df_pairs = df1.crossJoin(broadcast(df2)).filter(
+                col("sat1.norad_id") < col("sat2.norad_id")
             )
             
-            # Calculate 3D Euclidean distance
+            # Calculate 3D Euclidean distance for SAT-SAT
             df_distances = df_pairs.withColumn(
                 "distance_km",
                 sqrt(
@@ -152,48 +310,80 @@ class CollisionPredictionEngine:
                 )
             )
             
-            # Filter pairs below collision threshold
-            df_collisions = df_distances.filter(
-                col("distance_km") <= self.collision_threshold_km
-            ).select(
-                col("sat1.satellite_id").alias("satellite_1"),
-                col("sat2.satellite_id").alias("satellite_2"),
+        else:
+            # For SAT-DEB, compare satellites with debris
+            df_pairs = df1.crossJoin(broadcast(df2))
+            
+            # Calculate 3D Euclidean distance for SAT-DEB
+            df_distances = df_pairs.withColumn(
+                "distance_km",
+                sqrt(
+                    spark_pow(col("deb1.position_x") - col("sat1.position_x"), 2) +
+                    spark_pow(col("deb1.position_y") - col("sat1.position_y"), 2) +
+                    spark_pow(col("deb1.position_z") - col("sat1.position_z"), 2)
+                )
+            )
+        
+        # Filter pairs below collision threshold
+        df_collisions = df_distances.filter(
+            col("distance_km") <= self.collision_threshold_km
+        )
+        
+        # Select appropriate columns based on collision type
+        if collision_type == "SAT-DEB":
+            df_result = df_collisions.select(
+                col("sat1.norad_id").alias("object_1"),
+                col("deb1.norad_id").alias("object_2"),
+                col("sat1.norad_id").alias("norad_1"),
+                col("deb1.norad_id").alias("norad_2"),
+                col("sat1.classification").alias("classification_1"),
+                col("deb1.classification").alias("classification_2"),
                 col("distance_km"),
-                col("sat1.position_x").alias("sat1_x"),
-                col("sat1.position_y").alias("sat1_y"),
-                col("sat1.position_z").alias("sat1_z"),
-                col("sat1.altitude_km").alias("sat1_altitude"),
-                col("sat2.position_x").alias("sat2_x"),
-                col("sat2.position_y").alias("sat2_y"),
-                col("sat2.position_z").alias("sat2_z"),
-                col("sat2.altitude_km").alias("sat2_altitude"),
+                lit(collision_type).alias("collision_type"),
+                col("sat1.position_x").alias("obj1_x"),
+                col("sat1.position_y").alias("obj1_y"),
+                col("sat1.position_z").alias("obj1_z"),
+                col("sat1.altitude_km").alias("obj1_altitude"),
+                col("deb1.position_x").alias("obj2_x"),
+                col("deb1.position_y").alias("obj2_y"),
+                col("deb1.position_z").alias("obj2_z"),
+                col("deb1.altitude_km").alias("obj2_altitude"),
                 current_timestamp().alias("detection_timestamp")
             )
-            
-            # Add risk classification based on distance
-            df_collisions = df_collisions.withColumn(
-                "risk_level",
-                when(col("distance_km") <= 1.0, "CRITICAL")
-                .when(col("distance_km") <= 5.0, "HIGH")
-                .when(col("distance_km") <= 10.0, "MEDIUM")
-                .otherwise("LOW")
+        else:
+            df_result = df_collisions.select(
+                col("sat1.norad_id").alias("object_1"),
+                col("sat2.norad_id").alias("object_2"),
+                col("sat1.norad_id").alias("norad_1"),
+                col("sat2.norad_id").alias("norad_2"),
+                col("sat1.classification").alias("classification_1"),
+                col("sat2.classification").alias("classification_2"),
+                col("distance_km"),
+                lit(collision_type).alias("collision_type"),
+                col("sat1.position_x").alias("obj1_x"),
+                col("sat1.position_y").alias("obj1_y"),
+                col("sat1.position_z").alias("obj1_z"),
+                col("sat1.altitude_km").alias("obj1_altitude"),
+                col("sat2.position_x").alias("obj2_x"),
+                col("sat2.position_y").alias("obj2_y"),
+                col("sat2.position_z").alias("obj2_z"),
+                col("sat2.altitude_km").alias("obj2_altitude"),
+                current_timestamp().alias("detection_timestamp")
             )
-            
-            collision_count = df_collisions.count()
-            logger.info(f"Detected {collision_count} potential collision pairs within {self.collision_threshold_km} km")
-            
-            # Log risk breakdown
-            if collision_count > 0:
-                risk_counts = df_collisions.groupBy("risk_level").agg(count("*").alias("count")).collect()
-                for row in risk_counts:
-                    logger.info(f"  {row['risk_level']}: {row['count']} pairs")
-            
-            df_sat.unpersist()  # Release cache
-            return df_collisions
-            
-        except Exception as e:
-            logger.error(f"Error detecting collisions: {e}")
-            raise
+        
+        # Add risk classification
+        df_result = df_result.withColumn(
+            "risk_level",
+            when(col("distance_km") <= 1.0, "CRITICAL")
+            .when(col("distance_km") <= 5.0, "HIGH")
+            .when(col("distance_km") <= 10.0, "MEDIUM")
+            .otherwise("LOW")
+        )
+        
+        pair_count = df_result.count()
+        logger.info(f"  {collision_type}: {pair_count:,} collision pairs detected within {self.collision_threshold_km} km")
+        
+        return df_result
     
     def save_to_hdfs(self, df_collisions):
         """Save collision predictions to HDFS."""
@@ -211,18 +401,18 @@ class CollisionPredictionEngine:
             raise
     
     def publish_to_kafka(self, df_collisions):
-        """Publish high-risk collision alerts to Kafka."""
+        """Publish collision alerts to Kafka (all risk levels)."""
         try:
-            # Filter only high risk and above
+            # Include all risk levels: CRITICAL, HIGH, MEDIUM, LOW
             df_alerts = df_collisions.filter(
-                col("risk_level").isin(["CRITICAL", "HIGH", "MEDIUM"])
+                col("risk_level").isin(["CRITICAL", "HIGH", "MEDIUM", "LOW"])
             )
             
             alert_count = df_alerts.count()
             if alert_count > 0:
                 # Convert to JSON for Kafka
                 df_kafka = df_alerts.selectExpr(
-                    "CAST(satellite_1 AS STRING) as key",
+                    "CAST(object_1 AS STRING) as key",
                     "to_json(struct(*)) as value"
                 )
                 
@@ -242,15 +432,19 @@ class CollisionPredictionEngine:
     
     def save_satellites_to_postgres(self, df_positions):
         """
-        Save/update satellite records to PostgreSQL using Spark JDBC.
+        Save/update satellite records to PostgreSQL using psycopg2.
         Must be called before collision alerts (due to FK constraint).
+        Filters out invalid data (SGP4 errors, unrealistic altitudes).
         """
         try:
-            # Prepare satellite data for PostgreSQL
+            # Define max reasonable altitude (100,000 km - well beyond GEO at ~36,000 km)
+            MAX_REASONABLE_ALTITUDE_KM = 100000.0
+            
+            # Prepare satellite data for PostgreSQL with data quality filters
             df_satellites = df_positions.select(
-                col("satellite_id").cast(IntegerType()).alias("norad_id"),
-                lit("Unknown").alias("name"),
-                lit("SATELLITE").alias("object_type"),
+                col("norad_id").cast(IntegerType()).alias("norad_id"),
+                coalesce(col("object_name"), lit("Unknown")).alias("name"),
+                coalesce(col("classification"), lit("SATELLITE")).alias("object_type"),
                 lit("Unknown").alias("country"),
                 lit("ACTIVE").alias("tracking_status"),
                 col("epoch_time").alias("last_tle_epoch"),
@@ -264,20 +458,96 @@ class CollisionPredictionEngine:
                 current_timestamp().alias("status_updated_at")
             ).dropDuplicates(["norad_id"])
             
+            # Filter out invalid data:
+            # - SGP4 error code must be 0 (successful propagation)
+            # - Altitude must be positive and within reasonable bounds
+            # - Altitude must not be NULL/NaN
+            initial_count = df_satellites.count()
+            df_satellites = df_satellites.filter(
+                (col("last_sgp4_error_code") == 0) &
+                (col("last_altitude_km").isNotNull()) &
+                (col("last_altitude_km") > 0) &
+                (col("last_altitude_km") < MAX_REASONABLE_ALTITUDE_KM)
+            )
+            
             satellite_count = df_satellites.count()
-            logger.info(f"Writing {satellite_count} satellites to PostgreSQL...")
+            filtered_out = initial_count - satellite_count
+            if filtered_out > 0:
+                logger.info(f"📊 Data quality filter: removed {filtered_out} records with invalid data")
+            logger.info(f"Writing {satellite_count} valid satellites to PostgreSQL...")
             
-            # Write to temp table then merge (Spark JDBC doesn't support upsert directly)
-            # Using overwrite mode - this will replace all satellite data
-            df_satellites.write \
-                .jdbc(
-                    url=self.postgres_url,
-                    table="satellites",
-                    mode="overwrite",
-                    properties=self.postgres_properties
+            # Use psycopg2 for direct database insert (Spark JDBC has issues with FK constraints)
+            import psycopg2
+            from psycopg2.extras import execute_batch
+            
+            try:
+                logger.info("Step 1: Connecting to PostgreSQL...")
+                conn = psycopg2.connect(
+                    host=POSTGRES_CONFIG['host'],
+                    port=POSTGRES_CONFIG['port'],
+                    database=POSTGRES_CONFIG['database'],
+                    user=POSTGRES_CONFIG['user'],
+                    password=POSTGRES_CONFIG['password']
                 )
-            
-            logger.info(f"✓ Saved {satellite_count} satellites to PostgreSQL")
+                cursor = conn.cursor()
+                logger.info("✓ Connected to PostgreSQL")
+                
+                # Collect satellite data
+                logger.info("Step 2: Collecting satellite data from Spark DataFrame...")
+                satellite_data = df_satellites.collect()
+                logger.info(f"✓ Collected {len(satellite_data)} satellite records")
+                
+                # Delete existing records for these NORAD IDs
+                logger.info("Step 3: Deleting existing satellite records...")
+                norad_ids = [row['norad_id'] for row in satellite_data]
+                if norad_ids:
+                    norad_ids_str = ','.join(map(str, norad_ids))
+                    cursor.execute(f"DELETE FROM satellites WHERE norad_id IN ({norad_ids_str})")
+                    deleted_count = cursor.rowcount
+                    logger.info(f"✓ Deleted {deleted_count} existing satellite records")
+                
+                # Batch insert new satellites
+                logger.info("Step 4: Preparing batch insert...")
+                insert_query = """
+                    INSERT INTO satellites (
+                        norad_id, name, object_type, country, tracking_status,
+                        last_tle_epoch, last_altitude_km, last_velocity_kms,
+                        last_position_x, last_position_y, last_position_z,
+                        last_sgp4_error_code, total_observations, status_updated_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """
+                
+                rows = [
+                    (
+                        row['norad_id'], row['name'], row['object_type'], row['country'],
+                        row['tracking_status'], row['last_tle_epoch'], row['last_altitude_km'],
+                        row['last_velocity_kms'], row['last_position_x'], row['last_position_y'],
+                        row['last_position_z'], row['last_sgp4_error_code'],
+                        row['total_observations'], row['status_updated_at']
+                    )
+                    for row in satellite_data
+                ]
+                logger.info(f"✓ Prepared {len(rows)} rows for insertion")
+                
+                logger.info("Step 5: Executing batch insert...")
+                execute_batch(cursor, insert_query, rows, page_size=1000)
+                logger.info("✓ Batch insert executed")
+                
+                logger.info("Step 6: Committing transaction...")
+                conn.commit()
+                logger.info("✓ Transaction committed")
+                
+                cursor.close()
+                conn.close()
+                
+                logger.info(f"✅ Successfully saved {satellite_count} satellites to PostgreSQL via psycopg2")
+                
+            except Exception as psycopg2_err:
+                logger.error(f"❌ psycopg2 error: {psycopg2_err}")
+                logger.error(f"Error type: {type(psycopg2_err).__name__}")
+                import traceback
+                logger.error(f"Traceback: {traceback.format_exc()}")
+                raise  # Re-raise to trigger outer exception handler
             
         except Exception as e:
             logger.error(f"Error saving satellites to PostgreSQL: {e}")
@@ -297,16 +567,16 @@ class CollisionPredictionEngine:
             batch_id = datetime.now().strftime("%Y%m%d_%H%M%S")
             
             df_alerts = df_collisions.select(
-                col("satellite_1").cast(IntegerType()).alias("satellite_1_id"),
-                col("satellite_2").cast(IntegerType()).alias("satellite_2_id"),
+                col("object_1").cast(IntegerType()).alias("satellite_1_id"),
+                col("object_2").cast(IntegerType()).alias("satellite_2_id"),
                 lit(None).cast(StringType()).alias("satellite_1_name"),
                 lit(None).cast(StringType()).alias("satellite_2_name"),
                 col("detection_timestamp").alias("predicted_time"),
                 col("distance_km").alias("miss_distance_km"),
                 lit(None).cast(DoubleType()).alias("relative_velocity_kms"),
-                col("sat1_x").alias("approach_position_x"),
-                col("sat1_y").alias("approach_position_y"),
-                col("sat1_z").alias("approach_position_z"),
+                col("obj1_x").alias("approach_position_x"),
+                col("obj1_y").alias("approach_position_y"),
+                col("obj1_z").alias("approach_position_z"),
                 col("risk_level"),
                 lit(None).cast(DoubleType()).alias("collision_probability"),
                 current_timestamp().alias("detected_at"),
@@ -334,31 +604,35 @@ class CollisionPredictionEngine:
             logger.error(f"Error saving collisions to PostgreSQL: {e}")
     
     def run(self):
-        """Execute the complete collision prediction pipeline."""
+        """Execute the optimized collision prediction pipeline."""
         try:
-            logger.info("Starting collision prediction pipeline...")
+            logger.info("🚀 Starting optimized collision prediction pipeline...")
+            logger.info("📋 Pipeline scope: SAT-SAT and SAT-DEB collisions only (DEB-DEB excluded)")
             
-            # Step 1: Read latest SGP4 position data
+            # Step 1: Read latest SGP4 position data with classifications
             df_positions = self.read_latest_sgp4_data()
             
             # Step 2: Save satellites to PostgreSQL (required for FK constraint)
             self.save_satellites_to_postgres(df_positions)
             
-            # Step 3: Detect collisions based on position proximity
-            df_collisions = self.detect_collisions(df_positions)
+            # Step 3: Detect optimized collisions (SAT-SAT and SAT-DEB only)
+            df_collisions = self.detect_optimized_collisions(df_positions)
             
             # Step 4: Save and publish results
-            if df_collisions.count() > 0:
+            collision_count = df_collisions.count()
+            if collision_count > 0:
+                logger.info(f"💾 Saving {collision_count:,} collision predictions...")
                 self.save_to_hdfs(df_collisions)
                 self.save_collisions_to_postgres(df_collisions)
                 self.publish_to_kafka(df_collisions)
             else:
-                logger.info("No collisions detected within threshold")
+                logger.info("✅ No collisions detected within threshold - system safe")
             
-            logger.info("✓ Collision prediction pipeline completed successfully")
+            logger.info("🎉 Optimized collision prediction pipeline completed successfully")
+            logger.info(f"📊 Final results: {collision_count:,} collision pairs identified (SAT-SAT + SAT-DEB)")
             
         except Exception as e:
-            logger.error(f"Pipeline execution failed: {e}")
+            logger.error(f"❌ Pipeline execution failed: {e}")
             raise
         finally:
             self.spark.stop()

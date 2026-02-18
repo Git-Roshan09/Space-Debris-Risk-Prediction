@@ -108,14 +108,14 @@ class DashboardDataProvider:
             logger.error(f"Error reading high-risk collisions: {e}")
             return []
     
-    def get_satellite_tracking(self, satellite_id=None):
+    def get_satellite_tracking(self, norad_id=None):
         """Get tracking data for satellites."""
         try:
             # Read from all batch subdirectories
             df = self.spark.read.parquet(f"{HDFS_SGP4_PATH}/batch_*")
             
-            if satellite_id:
-                df = df.filter(col("satellite_id") == satellite_id)
+            if norad_id:
+                df = df.filter(col("norad_id") == norad_id)
             
             df_recent = df.orderBy(desc("timestamp")).limit(1000)
             
@@ -224,8 +224,8 @@ def get_timeline():
 @app.route('/api/satellites/tracking', methods=['GET'])
 def get_tracking():
     """Get satellite tracking data."""
-    satellite_id = request.args.get('satellite_id', None)
-    tracking = data_provider.get_satellite_tracking(satellite_id)
+    norad_id = request.args.get('norad_id', None)
+    tracking = data_provider.get_satellite_tracking(norad_id)
     return jsonify({
         'count': len(tracking),
         'data': tracking

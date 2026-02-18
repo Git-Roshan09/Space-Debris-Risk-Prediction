@@ -9,6 +9,8 @@ data/processed/TLE_History/
 data/processed/TLE_History_Satellites/
 data/external/*.bsp
 data/archive/**
+data/alldata/**
+backup_demo_data
 
 # Logs
 logs/
@@ -32,3 +34,4 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+

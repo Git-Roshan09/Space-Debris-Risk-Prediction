@@ -7,7 +7,7 @@ echo "================================="
 echo ""
 echo "1️⃣  Checking Flask API..."
 if ! curl -s http://localhost:5000/health > /dev/null 2>&1; then
-    echo "❌ Flask API is not running. Start it with: python3 api.py"
+    echo "❌ Flask API is not running. Start it with: python3 src/apis/api.py"
     exit 1
 fi
 
@@ -39,4 +39,4 @@ echo ""
 echo "✅ Pipeline test complete!"
 echo ""
 echo "💡 To run full stream to Kafka:"
-echo "   python3 kafka_producer.py --limit 100"
+echo "   python3 pipelines/ingestion/kafka_producer.py --limit 100"

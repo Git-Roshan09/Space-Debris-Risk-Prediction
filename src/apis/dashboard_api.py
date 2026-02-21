@@ -16,9 +16,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for frontend
+CORS(app)
 
-# Configuration
 HDFS_COLLISION_PATH = os.getenv('HDFS_COLLISION_PREDICTIONS_PATH', 
                                  'hdfs://namenode:9000/space-debris/collision_predictions')
 HDFS_SGP4_PATH = os.getenv('HDFS_SGP4_VECTORS_PATH',
@@ -26,7 +25,12 @@ HDFS_SGP4_PATH = os.getenv('HDFS_SGP4_VECTORS_PATH',
 
 
 class DashboardDataProvider:
-    """Provides data for the dashboard by querying HDFS."""
+    """
+    Provides collision prediction and satellite tracking data for dashboard visualization.
+    
+    Queries HDFS to retrieve collision predictions, SGP4 vectors, and statistical summaries
+    for real-time space debris monitoring dashboard.
+    """
     
     def __init__(self):
         self.spark = SparkSession.builder \
@@ -37,12 +41,19 @@ class DashboardDataProvider:
         logger.info("Spark session initialized for Dashboard API")
     
     def get_collision_alerts(self, limit=100):
-        """Get recent collision predictions."""
+        """
+        Retrieve recent collision predictions from HDFS storage.
+        
+        Args:
+            limit (int): Maximum number of collision records to return (default: 100)
+            
+        Returns:
+            list: Array of collision prediction dictionaries with detection timestamps,
+                  satellite pairs, distances, and risk levels
+        """
         try:
-            # Read from all batch subdirectories
             df = self.spark.read.parquet(f"{HDFS_COLLISION_PATH}/batch_*")
             
-            # Get most recent collisions
             df_recent = df.orderBy(desc("detection_timestamp")) \
                          .limit(limit)
             
@@ -52,26 +63,27 @@ class DashboardDataProvider:
             return []
     
     def get_collision_stats(self):
-        """Get statistical summary of collision predictions."""
+        """
+        Generate comprehensive statistical summary of collision predictions.
+        
+        Returns:
+            dict: Statistics including total collision count, risk level distribution,
+                  distance statistics (min/max/avg), and time range of predictions
+        """
         try:
-            # Read from all batch subdirectories
             df = self.spark.read.parquet(f"{HDFS_COLLISION_PATH}/batch_*")
             
-            # Overall statistics
             total_collisions = df.count()
             
-            # By risk level
             risk_counts = df.groupBy("risk_level").count().collect()
             risk_stats = {row['risk_level']: row['count'] for row in risk_counts}
             
-            # Distance statistics
             distance_stats = df.select(
                 spark_min("distance_km").alias("min_distance"),
                 spark_max("distance_km").alias("max_distance"),
                 avg("distance_km").alias("avg_distance")
             ).first()
             
-            # Time range
             time_range = df.select(
                 spark_min("detection_timestamp").alias("earliest"),
                 spark_max("detection_timestamp").alias("latest")
@@ -95,7 +107,12 @@ class DashboardDataProvider:
             return {}
     
     def get_high_risk_collisions(self):
-        """Get only high-risk collision alerts."""
+        """
+        Retrieve only high-risk collision alerts for priority monitoring.
+        
+        Returns:
+            list: Array of HIGH risk collision predictions ordered by detection time
+        """
         try:
             # Read from all batch subdirectories
             df = self.spark.read.parquet(f"{HDFS_COLLISION_PATH}/batch_*")
@@ -109,9 +126,16 @@ class DashboardDataProvider:
             return []
     
     def get_satellite_tracking(self, norad_id=None):
-        """Get tracking data for satellites."""
+        """
+        Retrieve satellite tracking data and SGP4 propagation vectors.
+        
+        Args:
+            norad_id (int, optional): Filter by specific NORAD catalog ID
+            
+        Returns:
+            list: Array of satellite tracking records with positions, velocities, and timestamps
+        """
         try:
-            # Read from all batch subdirectories
             df = self.spark.read.parquet(f"{HDFS_SGP4_PATH}/batch_*")
             
             if norad_id:
@@ -125,16 +149,21 @@ class DashboardDataProvider:
             return []
     
     def get_collision_timeline(self, days=7):
-        """Get collision predictions grouped by time."""
+        """
+        Generate collision prediction timeline grouped by time periods.
+        
+        Args:
+            days (int): Number of days to include in timeline (default: 7)
+            
+        Returns:
+            list: Array of time-grouped collision counts with timestamps and risk levels
+        """
         try:
-            # Read from all batch subdirectories
             df = self.spark.read.parquet(f"{HDFS_COLLISION_PATH}/batch_*")
             
-            # Filter recent predictions
             cutoff = (datetime.now() - timedelta(days=days)).isoformat()
             df_recent = df.filter(col("detection_timestamp") >= cutoff)
             
-            # Group by hour
             timeline = df_recent.groupBy("detection_timestamp", "risk_level") \
                                .agg(count("*").alias("collision_count")) \
                                .orderBy("detection_timestamp") \
@@ -146,9 +175,14 @@ class DashboardDataProvider:
             return []
     
     def get_satellite_pairs(self):
-        """Get most frequently colliding satellite pairs."""
+        """
+        Identify satellite pairs with the highest collision frequency.
+        
+        Returns:
+            list: Array of satellite pairs with collision counts, minimum distances,
+                  and average distances, ordered by collision frequency
+        """
         try:
-            # Read from all batch subdirectories
             df = self.spark.read.parquet(f"{HDFS_COLLISION_PATH}/batch_*")
             
             pairs = df.groupBy("satellite_1", "satellite_2") \
@@ -167,14 +201,17 @@ class DashboardDataProvider:
             return []
 
 
-# Initialize data provider
 data_provider = DashboardDataProvider()
 
 
-# API Endpoints
 @app.route('/api/health', methods=['GET'])
 def health_check():
-    """Health check endpoint."""
+    """
+    Health check endpoint to verify API and Spark connectivity.
+    
+    Returns:
+        JSON response with service status and timestamp
+    """
     return jsonify({
         'status': 'healthy',
         'timestamp': datetime.now().isoformat(),
@@ -184,7 +221,15 @@ def health_check():
 
 @app.route('/api/collisions', methods=['GET'])
 def get_collisions():
-    """Get collision predictions."""
+    """
+    Get collision predictions with optional limit parameter.
+    
+    Query Parameters:
+        limit (int): Maximum number of collision records to return (default: 100)
+    
+    Returns:
+        JSON response with collision count and array of collision data
+    """
     limit = request.args.get('limit', 100, type=int)
     collisions = data_provider.get_collision_alerts(limit)
     return jsonify({
@@ -195,14 +240,25 @@ def get_collisions():
 
 @app.route('/api/collisions/stats', methods=['GET'])
 def get_stats():
-    """Get collision statistics."""
+    """
+    Get comprehensive collision prediction statistics.
+    
+    Returns:
+        JSON response with collision statistics including counts by risk level,
+        distance statistics, and time range coverage
+    """
     stats = data_provider.get_collision_stats()
     return jsonify(stats)
 
 
 @app.route('/api/collisions/high-risk', methods=['GET'])
 def get_high_risk():
-    """Get high-risk collision alerts."""
+    """
+    Get high-risk collision alerts for priority monitoring.
+    
+    Returns:
+        JSON response with count and array of high-risk collision predictions
+    """
     collisions = data_provider.get_high_risk_collisions()
     return jsonify({
         'count': len(collisions),
@@ -212,7 +268,15 @@ def get_high_risk():
 
 @app.route('/api/collisions/timeline', methods=['GET'])
 def get_timeline():
-    """Get collision timeline."""
+    """
+    Get collision prediction timeline for trend analysis.
+    
+    Query Parameters:
+        days (int): Number of days to include in timeline (default: 7)
+    
+    Returns:
+        JSON response with timeline data grouped by time periods and risk levels
+    """
     days = request.args.get('days', 7, type=int)
     timeline = data_provider.get_collision_timeline(days)
     return jsonify({
@@ -223,7 +287,15 @@ def get_timeline():
 
 @app.route('/api/satellites/tracking', methods=['GET'])
 def get_tracking():
-    """Get satellite tracking data."""
+    """
+    Get satellite tracking and propagation data.
+    
+    Query Parameters:
+        norad_id (int, optional): Filter by specific NORAD catalog ID
+    
+    Returns:
+        JSON response with tracking data count and array of satellite records
+    """
     norad_id = request.args.get('norad_id', None)
     tracking = data_provider.get_satellite_tracking(norad_id)
     return jsonify({
@@ -234,7 +306,12 @@ def get_tracking():
 
 @app.route('/api/satellites/pairs', methods=['GET'])
 def get_pairs():
-    """Get frequently colliding satellite pairs."""
+    """
+    Get satellite pairs with highest collision frequencies.
+    
+    Returns:
+        JSON response with satellite pair count and array of collision-prone pairs
+    """
     pairs = data_provider.get_satellite_pairs()
     return jsonify({
         'count': len(pairs),
@@ -244,7 +321,13 @@ def get_pairs():
 
 @app.route('/api/config', methods=['GET'])
 def get_config():
-    """Get dashboard configuration."""
+    """
+    Get dashboard configuration parameters from environment variables.
+    
+    Returns:
+        JSON response with current system configuration including thresholds,
+        time windows, and update intervals for dashboard functionality
+    """
     return jsonify({
         'prediction_days': int(os.getenv('PREDICTION_DAYS', '7')),
         'collision_threshold_km': float(os.getenv('COLLISION_THRESHOLD_KM', '10.0')),

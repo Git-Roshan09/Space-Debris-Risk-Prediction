@@ -20,7 +20,6 @@ import csv
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# PostgreSQL Configuration
 POSTGRES_CONFIG = {
     'host': os.getenv('POSTGRES_HOST', 'postgres-debris'),
     'port': os.getenv('POSTGRES_PORT', '5432'),
@@ -29,23 +28,35 @@ POSTGRES_CONFIG = {
     'password': os.getenv('POSTGRES_PASSWORD', 'postgres')
 }
 
-# Object Classification Configuration
 CATALOG_DIR = os.getenv('CATALOG_DIR', 'data/raw')
 
 
 class CollisionPredictionEngine:
     """
-    Optimized Collision Detection Pipeline:
-    Read SGP4 vectors → Classify objects → Detect sat-sat and sat-deb collisions only → Output alerts
+    Optimized Collision Detection Pipeline for Space Debris Risk Assessment.
+    
+    Processes SGP4 orbital vectors to identify potential satellite-satellite and
+    satellite-debris collisions. Excludes debris-debris pairs as requested.
+    Outputs predictions to HDFS for historical analysis, Kafka for streaming,
+    and PostgreSQL for dashboard queries.
     """
     
     def __init__(self):
-        """Initialize Spark with configuration from environment."""
+        """
+        Initialize Spark session and load configuration from environment variables.
         
-        # Load configuration from environment
-        # Threshold of 50km captures all risk levels: CRITICAL (<1km), HIGH (<5km), MEDIUM (<10km), LOW (10-50km)
+        Sets up collision detection thresholds, HDFS paths, Kafka configuration,
+        and PostgreSQL connection parameters. Loads object classification catalogs
+        for satellite and debris identification.
+        """
+        
         self.collision_threshold_km = float(os.getenv('COLLISION_THRESHOLD_KM', '50.0'))
         self.time_window_days = int(os.getenv('TIME_WINDOW_DAYS', '7'))
+        
+        # Risk threshold configuration from environment variables
+        self.high_risk_threshold = float(os.getenv('HIGH_RISK_THRESHOLD_KM', '20.0'))
+        self.medium_risk_threshold = float(os.getenv('MEDIUM_RISK_THRESHOLD_KM', '35.0'))
+        self.low_risk_threshold = float(os.getenv('LOW_RISK_THRESHOLD_KM', '25.0'))
         
         self.hdfs_input = os.getenv('HDFS_SGP4_VECTORS_PATH', 
                                      'hdfs://namenode:9000/space-debris/sgp4_vectors')
@@ -65,7 +76,6 @@ class CollisionPredictionEngine:
         
         self.spark.sparkContext.setLogLevel("WARN")
         
-        # PostgreSQL JDBC URL
         self.postgres_url = f"jdbc:postgresql://{POSTGRES_CONFIG['host']}:{POSTGRES_CONFIG['port']}/{POSTGRES_CONFIG['database']}"
         self.postgres_properties = {
             "user": POSTGRES_CONFIG['user'],
@@ -73,7 +83,6 @@ class CollisionPredictionEngine:
             "driver": "org.postgresql.Driver"
         }
         
-        # Load object classifications
         self.satellite_ids = set()
         self.debris_ids = set()
         self._load_object_classifications()
@@ -81,6 +90,9 @@ class CollisionPredictionEngine:
         logger.info("=" * 70)
         logger.info("=== Optimized Collision Prediction Engine Initialized ===")
         logger.info(f"Collision Threshold: {self.collision_threshold_km} km")
+        logger.info(f"High Risk Threshold: {self.high_risk_threshold} km")
+        logger.info(f"Medium Risk Threshold: {self.medium_risk_threshold} km")
+        logger.info(f"Low Risk Threshold: {self.low_risk_threshold} km")
         logger.info(f"Time Window: {self.time_window_days} days")
         logger.info(f"Satellites classified: {len(self.satellite_ids):,}")
         logger.info(f"Debris classified: {len(self.debris_ids):,}")
@@ -91,9 +103,14 @@ class CollisionPredictionEngine:
         logger.info("=" * 70)
     
     def _load_object_classifications(self):
-        """Load satellite and debris classifications from catalogs"""
+        """
+        Load satellite and debris classifications from CSV catalog files.
+        
+        Reads satellites_and_objects_catalog.csv and space_debris_catalog.csv
+        to create classification lookup tables. Creates Spark DataFrames for
+        efficient joining with SGP4 vector data.
+        """
         try:
-            # Load satellites catalog
             sat_catalog_path = os.path.join(CATALOG_DIR, 'satellites_and_objects_catalog.csv')
             if os.path.exists(sat_catalog_path):
                 with open(sat_catalog_path, 'r', encoding='utf-8', errors='ignore') as f:
@@ -105,8 +122,6 @@ class CollisionPredictionEngine:
                         except (ValueError, KeyError):
                             continue
                 logger.info(f"✅ Loaded {len(self.satellite_ids):,} satellite classifications")
-            
-            # Load debris catalog
             debris_catalog_path = os.path.join(CATALOG_DIR, 'space_debris_catalog.csv')
             if os.path.exists(debris_catalog_path):
                 with open(debris_catalog_path, 'r', encoding='utf-8', errors='ignore') as f:
@@ -118,12 +133,9 @@ class CollisionPredictionEngine:
                         except (ValueError, KeyError):
                             continue
                 logger.info(f"✅ Loaded {len(self.debris_ids):,} debris classifications")
-            
-            # Convert to broadcast variables for efficient joins
             satellite_ids_list = list(self.satellite_ids)
             debris_ids_list = list(self.debris_ids)
             
-            # Create Spark DataFrames for joining
             satellite_df = self.spark.createDataFrame(
                 [(sat_id, 'SATELLITE') for sat_id in satellite_ids_list],
                 ['norad_id', 'classification']
@@ -139,17 +151,19 @@ class CollisionPredictionEngine:
             
         except Exception as e:
             logger.error(f"❌ Error loading classifications: {e}")
-            # Create empty sets if loading fails
             self.satellite_ids = set()
             self.debris_ids = set()
             self.classification_df = self.spark.createDataFrame([], 'norad_id int, classification string')
     
     def read_latest_sgp4_data(self):
         """
-        Read latest SGP4 vector data from HDFS and classify objects.
+        Read and classify the latest SGP4 vector data from HDFS storage.
+        
+        Returns:
+            DataFrame: Classified SGP4 vectors with satellite and debris objects
+                       including positions, velocities, and timestamps
         """
         try:
-            # Read parquet data from HDFS (handles partitioned data automatically)
             df = self.spark.read \
                 .option("basePath", self.hdfs_input) \
                 .option("mergeSchema", "true") \
@@ -157,10 +171,8 @@ class CollisionPredictionEngine:
             
             logger.info(f"Available columns: {df.columns}")
             
-            # Get latest record for each object (using norad_id directly)
             window_spec = Window.partitionBy("norad_id")
             
-            # Use message_timestamp or kafka_timestamp for ordering
             if "message_timestamp" in df.columns:
                 timestamp_col = "message_timestamp"
             elif "kafka_timestamp" in df.columns:
@@ -177,21 +189,17 @@ class CollisionPredictionEngine:
             else:
                 df_latest = df.dropDuplicates(["norad_id"])
             
-            # Ensure norad_id is integer type (should already be from new API)
             df_latest = df_latest.withColumn("norad_id", col("norad_id").cast(IntegerType()))
             
-            # Drop existing classification column to avoid ambiguity when joining
             if "classification" in df_latest.columns:
                 df_latest = df_latest.drop("classification")
             
-            # Join with classification data
             df_classified = df_latest.join(
                 broadcast(self.classification_df),
                 on="norad_id",
                 how="left"
             ).fillna("UNKNOWN", ["classification"])
             
-            # Count by classification
             classification_counts = df_classified.groupBy("classification").count().collect()
             for row in classification_counts:
                 logger.info(f"  {row['classification']}: {row['count']:,} objects")
@@ -207,11 +215,18 @@ class CollisionPredictionEngine:
 
     def detect_optimized_collisions(self, df_positions):
         """
-        Detect potential collisions ONLY between SAT-SAT and SAT-DEB pairs.
-        DEB-DEB collisions are explicitly excluded as requested.
+        Detect potential collisions between satellite-satellite and satellite-debris pairs.
+        
+        Explicitly excludes debris-debris collisions as requested. Uses efficient
+        cross-join with distance calculations and risk level classification.
+        
+        Args:
+            df_positions (DataFrame): Classified SGP4 position vectors
+            
+        Returns:
+            DataFrame: Collision predictions with distances, velocities, and risk levels
         """
         try:
-            # Select relevant columns and cache for performance
             df_objects = df_positions.select(
                 col("norad_id"),
                 col("object_name"),
@@ -223,7 +238,6 @@ class CollisionPredictionEngine:
                 col("velocity_magnitude_kms").alias("velocity")
             ).cache()
             
-            # Separate satellites and debris
             df_satellites = df_objects.filter(col("classification") == "SATELLITE").cache()
             df_debris = df_objects.filter(col("classification") == "DEBRIS").cache()
             
@@ -235,7 +249,6 @@ class CollisionPredictionEngine:
             
             collision_pairs = []
             
-            # SAT-SAT Collisions
             if satellite_count >= 2:
                 logger.info("🔍 Detecting SAT-SAT collision pairs...")
                 df_sat_sat = self._detect_pairs(
@@ -245,7 +258,6 @@ class CollisionPredictionEngine:
                 )
                 collision_pairs.append(df_sat_sat)
             
-            # SAT-DEB Collisions
             if satellite_count > 0 and debris_count > 0:
                 logger.info("🔍 Detecting SAT-DEB collision pairs...")
                 df_sat_deb = self._detect_pairs(
@@ -255,13 +267,11 @@ class CollisionPredictionEngine:
                 )
                 collision_pairs.append(df_sat_deb)
             
-            # Combine all collision types
             if collision_pairs:
                 df_all_collisions = collision_pairs[0]
                 for df_collision in collision_pairs[1:]:
                     df_all_collisions = df_all_collisions.union(df_collision)
             else:
-                # Create empty DataFrame with correct schema
                 schema = StructType([
                     StructField("object_1", StringType(), True),
                     StructField("object_2", StringType(), True),
@@ -269,7 +279,6 @@ class CollisionPredictionEngine:
                 ])
                 df_all_collisions = self.spark.createDataFrame([], schema)
             
-            # Clean up caches
             df_objects.unpersist()
             df_satellites.unpersist()
             df_debris.unpersist()
@@ -278,7 +287,6 @@ class CollisionPredictionEngine:
             logger.info(f"📊 Total collision pairs detected: {total_collisions:,}")
             
             if total_collisions > 0:
-                # Log collision type breakdown
                 collision_type_counts = df_all_collisions.groupBy("collision_type").count().collect()
                 for row in collision_type_counts:
                     logger.info(f"  {row['collision_type']}: {row['count']:,} pairs")
@@ -291,16 +299,31 @@ class CollisionPredictionEngine:
 
     def _detect_pairs(self, df1, df2, collision_type):
         """
+        Perform pairwise collision detection between two object groups.
+        
+        Uses cross-join to compare all object pairs and calculates 3D Euclidean
+        distances between their positions. Filters pairs within collision threshold
+        and classifies risk levels based on distance.
+        
+        Args:
+            df1 (DataFrame): First set of objects (e.g., satellites)
+            df2 (DataFrame): Second set of objects (e.g., debris or satellites)
+            collision_type (str): Type of collision ('SAT-SAT' or 'SAT-DEB')
+            
+        Returns:
+            DataFrame: Collision pairs with distances, positions, and risk classifications
+
         Helper method to detect collision pairs between two object groups.
         """
         # Create pairs (avoid self-comparison for SAT-SAT)
         if collision_type == "SAT-SAT":
             # For SAT-SAT, use norad_id comparison to avoid duplicates
             df_pairs = df1.crossJoin(broadcast(df2)).filter(
-                col("sat1.norad_id") < col("sat2.norad_id")
+                col("sat1.norad_id") < col("sat2.norad_id"))
+            df_pairs = df1.filter(col("sat1.norad_id") < col("sat2.norad_id")).select(
+                "sat1.*", "sat2.*"
             )
             
-            # Calculate 3D Euclidean distance for SAT-SAT
             df_distances = df_pairs.withColumn(
                 "distance_km",
                 sqrt(
@@ -311,10 +334,8 @@ class CollisionPredictionEngine:
             )
             
         else:
-            # For SAT-DEB, compare satellites with debris
             df_pairs = df1.crossJoin(broadcast(df2))
             
-            # Calculate 3D Euclidean distance for SAT-DEB
             df_distances = df_pairs.withColumn(
                 "distance_km",
                 sqrt(
@@ -323,13 +344,9 @@ class CollisionPredictionEngine:
                     spark_pow(col("deb1.position_z") - col("sat1.position_z"), 2)
                 )
             )
-        
-        # Filter pairs below collision threshold
         df_collisions = df_distances.filter(
             col("distance_km") <= self.collision_threshold_km
         )
-        
-        # Select appropriate columns based on collision type
         if collision_type == "SAT-DEB":
             df_result = df_collisions.select(
                 col("sat1.norad_id").alias("object_1"),
@@ -370,13 +387,11 @@ class CollisionPredictionEngine:
                 col("sat2.altitude_km").alias("obj2_altitude"),
                 current_timestamp().alias("detection_timestamp")
             )
-        
-        # Add risk classification
         df_result = df_result.withColumn(
             "risk_level",
             when(col("distance_km") <= 1.0, "CRITICAL")
-            .when(col("distance_km") <= 5.0, "HIGH")
-            .when(col("distance_km") <= 10.0, "MEDIUM")
+            .when(col("distance_km") <= self.high_risk_threshold, "HIGH")
+            .when(col("distance_km") <= self.medium_risk_threshold, "MEDIUM")
             .otherwise("LOW")
         )
         
@@ -386,7 +401,15 @@ class CollisionPredictionEngine:
         return df_result
     
     def save_to_hdfs(self, df_collisions):
-        """Save collision predictions to HDFS."""
+        """
+        Save collision predictions to HDFS in Parquet format.
+        
+        Creates timestamped batch directories for historical analysis
+        and efficient querying of collision prediction data.
+        
+        Args:
+            df_collisions (DataFrame): Collision predictions to save
+        """
         try:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             output_path = f"{self.hdfs_output}/batch_{timestamp}"
@@ -401,22 +424,28 @@ class CollisionPredictionEngine:
             raise
     
     def publish_to_kafka(self, df_collisions):
-        """Publish collision alerts to Kafka (all risk levels)."""
+        """
+        Publish collision alerts to Kafka for real-time processing.
+        
+        Includes all risk levels (CRITICAL, HIGH, MEDIUM, LOW) for
+        comprehensive monitoring. Converts DataFrame to JSON format
+        for Kafka message consumption.
+        
+        Args:
+            df_collisions (DataFrame): Collision predictions to publish
+        """
         try:
-            # Include all risk levels: CRITICAL, HIGH, MEDIUM, LOW
             df_alerts = df_collisions.filter(
                 col("risk_level").isin(["CRITICAL", "HIGH", "MEDIUM", "LOW"])
             )
             
             alert_count = df_alerts.count()
             if alert_count > 0:
-                # Convert to JSON for Kafka
                 df_kafka = df_alerts.selectExpr(
                     "CAST(object_1 AS STRING) as key",
                     "to_json(struct(*)) as value"
                 )
                 
-                # Write to Kafka
                 df_kafka.write \
                     .format("kafka") \
                     .option("kafka.bootstrap.servers", self.kafka_servers) \
@@ -432,15 +461,18 @@ class CollisionPredictionEngine:
     
     def save_satellites_to_postgres(self, df_positions):
         """
-        Save/update satellite records to PostgreSQL using psycopg2.
-        Must be called before collision alerts (due to FK constraint).
-        Filters out invalid data (SGP4 errors, unrealistic altitudes).
+        Save or update satellite tracking records in PostgreSQL database.
+        
+        Must be called before collision alerts due to foreign key constraints.
+        Filters out invalid data including SGP4 errors and unrealistic altitudes.
+        Updates satellite tracking status and last known positions.
+        
+        Args:
+            df_positions (DataFrame): Classified position data with satellites
         """
         try:
-            # Define max reasonable altitude (100,000 km - well beyond GEO at ~36,000 km)
             MAX_REASONABLE_ALTITUDE_KM = 100000.0
             
-            # Prepare satellite data for PostgreSQL with data quality filters
             df_satellites = df_positions.select(
                 col("norad_id").cast(IntegerType()).alias("norad_id"),
                 coalesce(col("object_name"), lit("Unknown")).alias("name"),

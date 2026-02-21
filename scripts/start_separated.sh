@@ -105,17 +105,18 @@ echo "   Waiting for Airflow (30s)..."
 sleep 30
 
 # ==========================================
-# STEP 6b: Auto-enable Airflow DAG
+# STEP 6b: Wait for Airflow DAG Discovery (Manual Start Required)
 # ==========================================
-echo "📦 Step 6b: Enabling Airflow ingestion DAG..."
+echo "📦 Step 6b: Waiting for Airflow DAG discovery..."
 for i in {1..10}; do
     if docker exec airflow-scheduler airflow dags list 2>/dev/null | grep -q "tle_data_ingestion"; then
-        echo "   DAG found, enabling..."
-        docker exec airflow-scheduler airflow dags unpause tle_data_ingestion 2>/dev/null || true
-        echo "   ✓ DAG 'tle_data_ingestion' enabled"
-        echo "   Triggering first DAG run..."
-        docker exec airflow-scheduler airflow dags trigger tle_data_ingestion 2>/dev/null || true
-        echo "   ✓ First DAG run triggered"
+        echo "   ✓ DAG 'tle_data_ingestion' discovered"
+        echo "   📋 Manual action required: Enable DAG via Airflow UI (http://localhost:8088)"
+        # docker exec airflow-scheduler airflow dags unpause tle_data_ingestion 2>/dev/null || true
+        # echo "   ✓ DAG 'tle_data_ingestion' enabled"
+        # echo "   Triggering first DAG run..."
+        # docker exec airflow-scheduler airflow dags trigger tle_data_ingestion 2>/dev/null || true
+        # echo "   ✓ First DAG run triggered"
         break
     else
         echo "   Waiting for DAG to be discovered ($i/10)..."

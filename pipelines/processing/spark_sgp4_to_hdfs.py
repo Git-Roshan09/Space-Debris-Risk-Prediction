@@ -169,6 +169,7 @@ class TLE_to_SGP4_HDFS:
             .format("kafka") \
             .option("kafka.bootstrap.servers", self.kafka_servers) \
             .option("subscribe", "space_debris_tle") \
+            .option("kafka.group.id", "spark-sgp4-consumer-group") \
             .option("startingOffsets", "earliest") \
             .option("failOnDataLoss", "false") \
             .load()

@@ -17,7 +17,6 @@ from flask import Flask, jsonify, request, Response, stream_with_context
 from flask_cors import CORS
 import logging
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -25,16 +24,13 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for frontend
+CORS(app)
 
-# Configuration
 TLE_DATA_DIR = 'data/alldata'
 CATALOG_DIR = 'data/raw'
 CACHE_EXPIRE_HOURS = 6
 MAX_OBJECTS_PER_REQUEST = 10000
 DEFAULT_SAMPLE_SIZE = 1000
-
-# Global caches for optimized access
 _object_catalog = {
     'satellites': set(),
     'debris': set(),
@@ -55,22 +51,28 @@ class OptimizedTLEProvider:
     
     @staticmethod
     def load_object_catalogs():
-        """Load satellite and debris classification catalogs"""
+        """
+        Load satellite and debris classification catalogs from CSV files.
+        
+        Returns cached data if loaded recently (within CACHE_EXPIRE_HOURS).
+        Loads both satellites_and_objects_catalog.csv and space_debris_catalog.csv
+        to classify objects as SATELLITE, DEBRIS, or UNKNOWN.
+        
+        Returns:
+            dict: Object catalog containing satellites set, debris set, 
+                  metadata dict, and loaded_at timestamp
+        """
         global _object_catalog
         
-        # Return cached if recent
         if (_object_catalog['loaded_at'] and 
             (datetime.now() - _object_catalog['loaded_at']).seconds < CACHE_EXPIRE_HOURS * 3600):
             return _object_catalog
         
         logger.info("🔄 Loading object classification catalogs...")
         
-        # Clear cache
         _object_catalog['satellites'].clear()
         _object_catalog['debris'].clear()
         _object_catalog['metadata'].clear()
-        
-        # Load satellites catalog
         sat_catalog_path = os.path.join(CATALOG_DIR, 'satellites_and_objects_catalog.csv')
         if os.path.exists(sat_catalog_path):
             with open(sat_catalog_path, 'r', encoding='utf-8', errors='ignore') as f:
@@ -90,8 +92,6 @@ class OptimizedTLEProvider:
                     except (ValueError, KeyError):
                         continue
             logger.info(f"✅ Loaded {len(_object_catalog['satellites']):,} satellite classifications")
-        
-        # Load debris catalog
         debris_catalog_path = os.path.join(CATALOG_DIR, 'space_debris_catalog.csv')
         if os.path.exists(debris_catalog_path):
             with open(debris_catalog_path, 'r', encoding='utf-8', errors='ignore') as f:
@@ -117,7 +117,15 @@ class OptimizedTLEProvider:
     
     @staticmethod
     def classify_object(norad_id):
-        """Fast object classification lookup"""
+        """
+        Classify a space object by NORAD ID as SATELLITE, DEBRIS, or UNKNOWN.
+        
+        Args:
+            norad_id (int): NORAD catalog ID of the space object
+            
+        Returns:
+            str: Classification as 'SATELLITE', 'DEBRIS', or 'UNKNOWN'
+        """
         catalog = OptimizedTLEProvider.load_object_catalogs()
         
         if norad_id in catalog['satellites']:
@@ -129,7 +137,15 @@ class OptimizedTLEProvider:
     
     @staticmethod
     def get_object_metadata(norad_id):
-        """Get detailed object metadata"""
+        """
+        Retrieve detailed metadata for a space object by NORAD ID.
+        
+        Args:
+            norad_id (int): NORAD catalog ID of the space object
+            
+        Returns:
+            dict: Object metadata including name, type, country, launch date, RCS size
+        """
         catalog = OptimizedTLEProvider.load_object_catalogs()
         return catalog['metadata'].get(norad_id, {})
     
@@ -149,17 +165,16 @@ class OptimizedTLEProvider:
         sampling_ratio = 1
         
         try:
-            # Estimate file size for sampling
             file_size_mb = os.path.getsize(file_path) / (1024 * 1024)
-            if file_size_mb > 100:  # Large file, use sampling
-                estimated_objects = file_size_mb * 1000  # Rough estimate
+            if file_size_mb > 100:
+                estimated_objects = file_size_mb * 1000
                 if estimated_objects > max_objects:
                     sampling_ratio = int(estimated_objects / max_objects)
                     logger.info(f"📊 Large file detected ({file_size_mb:.1f}MB), using 1:{sampling_ratio} sampling")
             
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                 lines_buffer = []
-                is_two_line_format = None  # Auto-detect format
+                is_two_line_format = None
                 
                 for line in f:
                     line = line.strip()
@@ -168,27 +183,20 @@ class OptimizedTLEProvider:
                     
                     lines_buffer.append(line)
                     
-                    # Auto-detect TLE format from first few lines
                     if is_two_line_format is None and len(lines_buffer) >= 2:
-                        # If first line starts with "1 ", it's 2-line format
                         if lines_buffer[0].startswith('1 ') and lines_buffer[1].startswith('2 '):
                             is_two_line_format = True
                         elif not lines_buffer[0].startswith('1 ') and lines_buffer[1].startswith('1 '):
                             is_two_line_format = False
-                        # Otherwise continue collecting lines
                     
-                    # Process based on detected format
                     expected_lines = 2 if is_two_line_format else 3
                     
                     if len(lines_buffer) >= expected_lines:
-                        # Apply sampling
                         if objects_processed % sampling_ratio == 0:
                             if is_two_line_format:
-                                # 2-line format: no name line, get name from metadata
                                 line1, line2 = lines_buffer[0], lines_buffer[1]
                                 name_line = None
                             else:
-                                # 3-line format: first line is name
                                 name_line, line1, line2 = lines_buffer[0], lines_buffer[1], lines_buffer[2]
                             
                             if line1.startswith('1 ') and line2.startswith('2 '):
@@ -196,7 +204,6 @@ class OptimizedTLEProvider:
                                 if norad_id_str.isdigit():
                                     norad_id = int(norad_id_str)
                                     
-                                    # Get name from metadata catalog, fallback to TLE name line or NORAD ID
                                     obj_metadata = metadata.get(norad_id, {})
                                     object_name = obj_metadata.get('name', '')
                                     if not object_name and name_line:
@@ -214,20 +221,18 @@ class OptimizedTLEProvider:
                                         'source_file': os.path.basename(file_path)
                                     }
                                     
-                                    # Classify and store
+
                                     if norad_id in satellite_ids:
                                         satellites.append(tle_object)
                                     elif norad_id in debris_ids:
                                         debris.append(tle_object)
                         
                         objects_processed += 1
-                        # Clear buffer based on format
                         if is_two_line_format:
                             lines_buffer = lines_buffer[2:]
                         else:
                             lines_buffer = lines_buffer[3:]
                         
-                        # Limit total objects to prevent memory issues
                         if len(satellites) + len(debris) >= max_objects:
                             break
                 
@@ -238,36 +243,37 @@ class OptimizedTLEProvider:
     
     @staticmethod
     def load_sample_data():
-        """Load representative sample of satellites and debris for API"""
+        """
+        Load representative sample of satellites and debris for API endpoints.
+        
+        Returns cached data if loaded recently. Processes TLE files to extract
+        classified objects up to DEFAULT_SAMPLE_SIZE for each type.
+        
+        Returns:
+            dict: Cache containing satellites_sample, debris_sample, stats, and loaded_at timestamp
+        """
         global _tle_cache
         
-        # Return cached if recent
         if (_tle_cache['loaded_at'] and 
             (datetime.now() - _tle_cache['loaded_at']).seconds < CACHE_EXPIRE_HOURS * 3600):
             return _tle_cache
         
         logger.info("🚀 Loading TLE sample data...")
         
-        # Clear cache
         _tle_cache['satellites_sample'].clear()
         _tle_cache['debris_sample'].clear()
         
-        # Load catalogs first
         OptimizedTLEProvider.load_object_catalogs()
-        
-        # Find TLE files
         tle_files = []
         txt_files = glob.glob(os.path.join(TLE_DATA_DIR, '*.txt'))
         tle_files.extend([f for f in txt_files if not f.endswith('.zip')])
         
-        # Add subdirectory files
         for subdir in ['tle2012.txt', 'tle2014.txt', 'tle2015.txt']:
             subdir_path = os.path.join(TLE_DATA_DIR, subdir)
             if os.path.isdir(subdir_path):
                 sub_files = glob.glob(os.path.join(subdir_path, '*.txt'))
                 tle_files.extend(sub_files)
         
-        # Sort by file size (process smaller files first for faster response)
         tle_files_with_size = [(f, os.path.getsize(f)) for f in tle_files]
         tle_files_with_size.sort(key=lambda x: x[1])
         
@@ -277,7 +283,6 @@ class OptimizedTLEProvider:
         total_debris = 0
         years_processed = set()
         
-        # Process files until we have enough samples
         for file_path, file_size in tle_files_with_size:
             if total_satellites >= DEFAULT_SAMPLE_SIZE and total_debris >= DEFAULT_SAMPLE_SIZE:
                 break
@@ -285,12 +290,10 @@ class OptimizedTLEProvider:
             filename = os.path.basename(file_path)
             logger.info(f"📄 Processing {filename} ({file_size/1024/1024:.1f}MB)")
             
-            # Extract year
             year_match = re.search(r'tle(\d{4})', filename)
             if year_match:
                 years_processed.add(year_match.group(1))
             
-            # Parse with sampling
             satellites, debris = OptimizedTLEProvider.parse_tle_file_sampling(file_path)
             
             _tle_cache['satellites_sample'].extend(satellites)
@@ -302,7 +305,6 @@ class OptimizedTLEProvider:
             logger.info(f"  ✅ Added {len(satellites)} satellites, {len(debris)} debris")
             logger.info(f"  📊 Running totals: {total_satellites} satellites, {total_debris} debris")
         
-        # Update stats
         _tle_cache['stats'] = {
             'satellites_count': total_satellites,
             'debris_count': total_debris,
@@ -319,10 +321,14 @@ class OptimizedTLEProvider:
         return _tle_cache
 
 
-# API Routes
 @app.route('/api/health', methods=['GET'])
 def health_check():
-    """Health check endpoint"""
+    """
+    Health check endpoint to verify API status and cache state.
+    
+    Returns:
+        JSON response with service status, timestamp, and cache information
+    """
     return jsonify({
         'status': 'healthy',
         'service': 'TLE Data API',
@@ -336,7 +342,12 @@ def health_check():
 
 @app.route('/api/stats', methods=['GET'])
 def get_data_stats():
-    """Get dataset statistics"""
+    """
+    Get comprehensive dataset statistics including object counts and coverage.
+    
+    Returns:
+        JSON response with dataset statistics from loaded sample data
+    """
     cache = OptimizedTLEProvider.load_sample_data()
     
     return jsonify({
@@ -347,23 +358,29 @@ def get_data_stats():
 
 @app.route('/api/objects/satellites', methods=['GET'])
 def get_satellites():
-    """Get satellite data with optional filtering"""
+    """
+    Get satellite data with optional filtering and pagination.
+    
+    Query Parameters:
+        limit (int): Maximum objects to return (default: DEFAULT_SAMPLE_SIZE)
+        offset (int): Number of objects to skip for pagination (default: 0)
+        country (str): Filter by country code (optional)
+    
+    Returns:
+        JSON response with satellite objects, pagination info, and metadata
+    """
     try:
-        # Get parameters
         limit = min(int(request.args.get('limit', DEFAULT_SAMPLE_SIZE)), MAX_OBJECTS_PER_REQUEST)
         offset = int(request.args.get('offset', 0))
         country_filter = request.args.get('country', '').upper()
         
-        # Load data
         cache = OptimizedTLEProvider.load_sample_data()
         satellites = cache['satellites_sample']
         
-        # Apply filters
         if country_filter:
             satellites = [s for s in satellites 
                          if s.get('metadata', {}).get('country', '').upper() == country_filter]
         
-        # Apply pagination
         total = len(satellites)
         satellites_page = satellites[offset:offset + limit]
         
@@ -388,23 +405,29 @@ def get_satellites():
 
 @app.route('/api/objects/debris', methods=['GET'])
 def get_debris():
-    """Get debris data with optional filtering"""
+    """
+    Get debris data with optional filtering and pagination.
+    
+    Query Parameters:
+        limit (int): Maximum objects to return (default: DEFAULT_SAMPLE_SIZE)
+        offset (int): Number of objects to skip for pagination (default: 0)
+        rcs_size (str): Filter by radar cross-section size category (optional)
+    
+    Returns:
+        JSON response with debris objects, pagination info, and metadata
+    """
     try:
-        # Get parameters
         limit = min(int(request.args.get('limit', DEFAULT_SAMPLE_SIZE)), MAX_OBJECTS_PER_REQUEST)
         offset = int(request.args.get('offset', 0))
         rcs_filter = request.args.get('rcs_size', '').upper()
         
-        # Load data
         cache = OptimizedTLEProvider.load_sample_data()
         debris = cache['debris_sample']
         
-        # Apply filters
         if rcs_filter:
             debris = [d for d in debris 
                      if d.get('metadata', {}).get('rcs_size', '').upper() == rcs_filter]
         
-        # Apply pagination
         total = len(debris)
         debris_page = debris[offset:offset + limit]
         
@@ -429,16 +452,25 @@ def get_debris():
 
 @app.route('/api/objects/collision-pairs', methods=['GET'])
 def get_collision_pairs():
-    """Get objects specifically for collision prediction (sat-sat and sat-deb only)"""
+    """
+    Get objects specifically formatted for collision prediction analysis.
+    
+    Only returns satellite-satellite and satellite-debris pairs as requested.
+    Excludes debris-debris collisions from the response.
+    
+    Query Parameters:
+        satellite_limit (int): Maximum satellites to return (default: 500)
+        debris_limit (int): Maximum debris objects to return (default: 500)
+    
+    Returns:
+        JSON response with satellites and debris arrays for collision analysis
+    """
     try:
-        # Get parameters
         satellite_limit = int(request.args.get('satellite_limit', 500))
         debris_limit = int(request.args.get('debris_limit', 500))
         
-        # Load data
         cache = OptimizedTLEProvider.load_sample_data()
         
-        # Get samples for collision prediction
         satellites = cache['satellites_sample'][:satellite_limit]
         debris = cache['debris_sample'][:debris_limit]
         
@@ -459,26 +491,32 @@ def get_collision_pairs():
 
 @app.route('/api/objects/stream', methods=['GET'])
 def stream_objects():
-    """Stream TLE data for real-time processing"""
+    """
+    Stream TLE data for real-time processing using Server-Sent Events.
+    
+    Query Parameters:
+        type (str): Object type filter ('satellites', 'debris', 'all') - default: 'all'
+        batch_size (int): Objects per batch (1-1000) - default: 100
+        delay_ms (int): Delay between batches in milliseconds - default: 100
+    
+    Returns:
+        Server-Sent Events stream with batched object data
+    """
     def generate_stream():
         try:
             cache = OptimizedTLEProvider.load_sample_data()
             
-            # Get streaming parameters
             object_type = request.args.get('type', 'all').lower()
             batch_size = min(int(request.args.get('batch_size', 100)), 1000)
             delay_ms = int(request.args.get('delay_ms', 100))
             
-            # Select data based on type
             if object_type == 'satellites':
                 data_stream = cache['satellites_sample']
             elif object_type == 'debris':
                 data_stream = cache['debris_sample']
             else:
-                # Combine both types
                 data_stream = cache['satellites_sample'] + cache['debris_sample']
             
-            # Stream in batches
             for i in range(0, len(data_stream), batch_size):
                 batch = data_stream[i:i + batch_size]
                 yield f"data: {json.dumps({'batch': batch, 'batch_number': i//batch_size + 1})}\n\n"
@@ -503,7 +541,6 @@ def stream_objects():
 if __name__ == '__main__':
     logger.info("🚀 Starting Optimized TLE Data API...")
     
-    # Pre-load catalogs on startup
     try:
         OptimizedTLEProvider.load_object_catalogs()
         logger.info("✅ Catalogs pre-loaded successfully")

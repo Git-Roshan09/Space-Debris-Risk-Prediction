@@ -306,7 +306,7 @@ services:
       - SPARK_MODE=client
       - SPARK_MASTER_URL=spark://spark-master:7077
       - PREDICTION_DAYS=7
-      - COLLISION_THRESHOLD_KM=10.0
+      - COLLISION_THRESHOLD_KM=50.0
       - TIME_WINDOW_DAYS=7
       - SGP4_PROPAGATION_STEP_HOURS=6
       - HDFS_SGP4_VECTORS_PATH=hdfs://namenode:9000/space-debris/sgp4_vectors
@@ -570,9 +570,9 @@ services:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9093
       - KAFKA_COLLISION_TOPIC=space_debris_collisions
       - DASHBOARD_PORT=5001
-      - HIGH_RISK_THRESHOLD_KM=5.0
-      - MEDIUM_RISK_THRESHOLD_KM=10.0
-      - LOW_RISK_THRESHOLD_KM=50.0
+      - HIGH_RISK_THRESHOLD_KM=20.0
+      - MEDIUM_RISK_THRESHOLD_KM=35.0
+      - LOW_RISK_THRESHOLD_KM=25.0
       - POSTGRES_HOST=postgres-debris
       - POSTGRES_PORT=5432
       - POSTGRES_DB=space_debris

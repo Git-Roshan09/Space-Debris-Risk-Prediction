@@ -16,9 +16,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for frontend
+CORS(app)
 
-# PostgreSQL Configuration
 POSTGRES_CONFIG = {
     'host': os.getenv('POSTGRES_HOST', 'postgres-debris'),
     'port': int(os.getenv('POSTGRES_PORT', 5432)),
@@ -26,8 +25,6 @@ POSTGRES_CONFIG = {
     'user': os.getenv('POSTGRES_USER', 'postgres'),
     'password': os.getenv('POSTGRES_PASSWORD', 'postgres')
 }
-
-# Create connection pool
 try:
     db_pool = psycopg2.pool.SimpleConnectionPool(
         minconn=1,
@@ -41,25 +38,38 @@ except Exception as e:
 
 
 def get_db_connection():
-    """Get a connection from the pool."""
+    """
+    Get a connection from the PostgreSQL connection pool.
+    
+    Returns:
+        psycopg2.connection: Database connection from the pool
+        
+    Raises:
+        Exception: If database pool is not initialized
+    """
     if db_pool:
         return db_pool.getconn()
     raise Exception("Database pool not initialized")
 
 
 def release_db_connection(conn):
-    """Return connection to pool."""
+    """
+    Return a database connection to the connection pool.
+    
+    Args:
+        conn: Database connection to return to pool
+    """
     if db_pool and conn:
         db_pool.putconn(conn)
 
-
-# ==========================================
-# API ENDPOINTS
-# ==========================================
-
 @app.route('/api/health', methods=['GET'])
 def health_check():
-    """Health check endpoint."""
+    """
+    Health check endpoint to verify API and database connectivity.
+    
+    Returns:
+        JSON response with health status, database connection status, and timestamp
+    """
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -81,13 +91,21 @@ def health_check():
 
 @app.route('/api/satellites', methods=['GET'])
 def get_satellites():
-    """Get all satellites with current tracking status."""
+    """
+    Get all satellites with current tracking status and optional filtering.
+    
+    Query Parameters:
+        status (str): Filter by tracking status (e.g., 'ACTIVE', 'STOPPED_*')
+        limit (int): Maximum number of results to return (default: 1000)
+    
+    Returns:
+        JSON response with satellite count and array of satellite objects
+    """
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Optional filters
-        status = request.args.get('status')  # ACTIVE, STOPPED_*
+        status = request.args.get('status')
         limit = request.args.get('limit', 1000, type=int)
         
         query = """
@@ -112,7 +130,6 @@ def get_satellites():
         columns = [desc[0] for desc in cursor.description]
         results = [dict(zip(columns, row)) for row in cursor.fetchall()]
         
-        # Convert datetime objects to strings
         for row in results:
             for key, value in row.items():
                 if isinstance(value, datetime):
@@ -133,7 +150,15 @@ def get_satellites():
 
 @app.route('/api/satellites/<int:norad_id>', methods=['GET'])
 def get_satellite_by_id(norad_id):
-    """Get detailed information for a specific satellite."""
+    """
+    Get detailed information for a specific satellite by NORAD ID.
+    
+    Args:
+        norad_id (int): NORAD catalog ID of the satellite
+    
+    Returns:
+        JSON response with complete satellite details or 404 if not found
+    """
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -151,7 +176,6 @@ def get_satellite_by_id(norad_id):
         columns = [desc[0] for desc in cursor.description]
         result = dict(zip(columns, row))
         
-        # Convert datetime to string
         for key, value in result.items():
             if isinstance(value, datetime):
                 result[key] = value.isoformat()
@@ -168,7 +192,12 @@ def get_satellite_by_id(norad_id):
 
 @app.route('/api/satellites/summary', methods=['GET'])
 def get_satellites_summary():
-    """Get summary statistics of satellites by tracking status."""
+    """
+    Get summary statistics of satellites grouped by tracking status.
+    
+    Returns:
+        JSON response with summary statistics from active_satellites_summary view
+    """
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -194,13 +223,22 @@ def get_satellites_summary():
 
 @app.route('/api/collisions', methods=['GET'])
 def get_collision_alerts():
-    """Get collision alerts (active/recent only)."""
+    """
+    Get collision alerts with optional filtering by risk level and active status.
+    
+    Query Parameters:
+        risk_level (str): Filter by risk level ('HIGH', 'MEDIUM', 'LOW')
+        active (bool): Show only active alerts (default: true)
+        limit (int): Maximum number of results to return (default: 100)
+    
+    Returns:
+        JSON response with collision count and array of collision alert objects
+    """
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Optional filters
-        risk_level = request.args.get('risk_level')  # HIGH, MEDIUM, LOW
+        risk_level = request.args.get('risk_level')
         active_only = request.args.get('active', 'true').lower() == 'true'
         limit = request.args.get('limit', 100, type=int)
         
@@ -230,7 +268,6 @@ def get_collision_alerts():
         columns = [desc[0] for desc in cursor.description]
         results = [dict(zip(columns, row)) for row in cursor.fetchall()]
         
-        # Convert datetime objects
         for row in results:
             for key, value in row.items():
                 if isinstance(value, datetime):
@@ -251,12 +288,17 @@ def get_collision_alerts():
 
 @app.route('/api/collisions/high-risk', methods=['GET'])
 def get_high_risk_collisions():
-    """Get high-risk and medium-risk collisions for dashboard alerts."""
+    """
+    Get high-risk and critical collision alerts for dashboard priority alerts.
+    
+    Returns:
+        JSON response with high-risk collision count and array of collision objects.
+        Includes CRITICAL, HIGH, and MEDIUM risk levels for comprehensive monitoring.
+    """
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Query collision_alerts directly (not the view that requires satellites)
         cursor.execute("""
             SELECT 
                 id, satellite_1_id, satellite_2_id,
@@ -293,7 +335,16 @@ def get_high_risk_collisions():
 
 @app.route('/api/tracking-changes', methods=['GET'])
 def get_tracking_changes():
-    """Get recent satellite tracking status changes."""
+    """
+    Get recent satellite tracking status changes for monitoring system health.
+    
+    Query Parameters:
+        days (int): Number of days to look back (default: 7)
+        limit (int): Maximum number of results to return (default: 100)
+    
+    Returns:
+        JSON response with tracking change count and array of change records
+    """
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -336,7 +387,15 @@ def get_tracking_changes():
 
 @app.route('/api/metrics', methods=['GET'])
 def get_system_metrics():
-    """Get latest system metrics."""
+    """
+    Get latest system performance metrics grouped by metric name.
+    
+    Query Parameters:
+        hours (int): Number of hours to look back for metrics (default: 24)
+    
+    Returns:
+        JSON response with metrics grouped by metric name for dashboard charts
+    """
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -362,7 +421,6 @@ def get_system_metrics():
         cursor.close()
         release_db_connection(conn)
         
-        # Group by metric name
         metrics_by_name = {}
         for row in results:
             name = row['metric_name']
@@ -381,28 +439,30 @@ def get_system_metrics():
 
 @app.route('/api/dashboard/stats', methods=['GET'])
 def get_dashboard_stats():
-    """Get key statistics for dashboard overview."""
+    """
+    Get key statistics for dashboard overview including satellite counts,
+    collision alerts, and system health metrics.
+    
+    Returns:
+        JSON response with comprehensive dashboard statistics including
+        active/stopped satellite counts, collision risk levels, and average altitude
+    """
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Active satellites count
         cursor.execute("SELECT COUNT(*) FROM satellites WHERE tracking_status = 'ACTIVE'")
         active_count = cursor.fetchone()[0]
         
-        # Stopped satellites count
         cursor.execute("SELECT COUNT(*) FROM satellites WHERE tracking_status != 'ACTIVE'")
         stopped_count = cursor.fetchone()[0]
         
-        # High-risk collisions count (include CRITICAL, HIGH, and MEDIUM for visibility)
         cursor.execute("SELECT COUNT(*) FROM collision_alerts WHERE risk_level IN ('CRITICAL', 'HIGH', 'MEDIUM') AND is_active = TRUE")
         high_risk_count = cursor.fetchone()[0]
         
-        # Total active collisions
         cursor.execute("SELECT COUNT(*) FROM collision_alerts WHERE is_active = TRUE")
         total_collisions = cursor.fetchone()[0]
         
-        # Average altitude of active satellites
         cursor.execute("SELECT AVG(last_altitude_km) FROM satellites WHERE tracking_status = 'ACTIVE'")
         avg_altitude = cursor.fetchone()[0]
         
@@ -425,7 +485,12 @@ def get_dashboard_stats():
 
 @app.route('/', methods=['GET'])
 def index():
-    """API documentation."""
+    """
+    API documentation endpoint providing overview of all available endpoints.
+    
+    Returns:
+        JSON response with API information, available endpoints, and configuration details
+    """
     return jsonify({
         'name': 'Space Debris Dashboard API',
         'version': '2.0 (PostgreSQL Hybrid)',

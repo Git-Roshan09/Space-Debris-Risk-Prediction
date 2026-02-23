@@ -9,7 +9,7 @@ echo 'Input:  HDFS /space-debris/sgp4_vectors'
 echo 'Output: HDFS /space-debris/collision_predictions'
 echo '        Kafka topic space_debris_collisions (alerts)'
 echo ''
-echo 'Schedule: Every 10 seconds (DEMO MODE)'
+echo 'Schedule: Every 2 minutes (smart coordination checks for new data)'
 echo ''
 
 # Wait for SGP4 data to be available
@@ -33,8 +33,8 @@ while true; do
     /opt/spark-apps/processing/spark_collision_prediction.py
   
   echo ">>> Collision prediction completed at $(date)"
-  echo '>>> Next run in 10 seconds (DEMO)...'
+  echo '>>> Next check in 2 minutes (skips if no new SGP4 data)...'
   
-  # Sleep for 10 seconds (DEMO MODE)
-  sleep 10
+  # Sleep for 2 minutes (120 seconds)
+  sleep 120
 done

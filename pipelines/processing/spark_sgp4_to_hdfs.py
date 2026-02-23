@@ -170,7 +170,8 @@ class TLE_to_SGP4_HDFS:
             .option("kafka.bootstrap.servers", self.kafka_servers) \
             .option("subscribe", "space_debris_tle") \
             .option("kafka.group.id", "spark-sgp4-consumer-group") \
-            .option("startingOffsets", "earliest") \
+            .option("startingOffsets", "latest") \
+            .option("maxOffsetsPerTrigger", "10000") \
             .option("failOnDataLoss", "false") \
             .load()
         
@@ -296,15 +297,12 @@ class TLE_to_SGP4_HDFS:
         
         # Step 4c: Update PostgreSQL with satellite metadata (foreachBatch)
         def update_postgres_metadata(batch_df, batch_id):
-            """Update satellite metadata in PostgreSQL for each batch."""
+            """Update satellite metadata in PostgreSQL for each batch using UPSERT."""
             try:
                 if batch_df.count() == 0:
                     return
                 
                 logger.info(f"Batch {batch_id}: Updating PostgreSQL with satellite metadata...")
-                
-                # Initialize PostgreSQL connector
-                pg = get_postgres_connector()
                 
                 # Aggregate latest info per satellite
                 satellite_updates = batch_df.groupBy("norad_id") \
@@ -325,18 +323,105 @@ class TLE_to_SGP4_HDFS:
                     .withColumn("status_updated_at", current_timestamp()) \
                     .withColumn("tracking_status", lit("ACTIVE"))
                 
-                # Write to PostgreSQL (will insert or update)
-                pg.write_table(
-                    satellite_updates,
-                    table_name="satellites",
-                    mode="append",
-                    batch_size=500
-                )
+                # Collect data for upsert
+                satellite_data = satellite_updates.collect()
                 
-                logger.info(f"✓ Batch {batch_id}: Updated {satellite_updates.count()} satellites in PostgreSQL")
+                if not satellite_data:
+                    return
+                
+                # Connect to PostgreSQL and perform UPSERT
+                import psycopg2
+                conn = psycopg2.connect(
+                    host=os.getenv('POSTGRES_HOST', 'postgres-debris'),
+                    port=int(os.getenv('POSTGRES_PORT', '5432')),
+                    database=os.getenv('POSTGRES_DB', 'space_debris'),
+                    user=os.getenv('POSTGRES_USER', 'postgres'),
+                    password=os.getenv('POSTGRES_PASSWORD', 'postgres')
+                )
+                cursor = conn.cursor()
+                
+                # UPSERT query using ON CONFLICT DO UPDATE
+                upsert_query = """
+                    INSERT INTO satellites (
+                        norad_id, last_tle_epoch, last_altitude_km, last_velocity_kms,
+                        last_position_x, last_position_y, last_position_z,
+                        last_sgp4_error_code, tle_age_days, inclination, eccentricity,
+                        mean_motion, total_observations, tracking_status, status_updated_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (norad_id) DO UPDATE SET
+                        last_tle_epoch = EXCLUDED.last_tle_epoch,
+                        last_altitude_km = EXCLUDED.last_altitude_km,
+                        last_velocity_kms = EXCLUDED.last_velocity_kms,
+                        last_position_x = EXCLUDED.last_position_x,
+                        last_position_y = EXCLUDED.last_position_y,
+                        last_position_z = EXCLUDED.last_position_z,
+                        last_sgp4_error_code = EXCLUDED.last_sgp4_error_code,
+                        tle_age_days = EXCLUDED.tle_age_days,
+                        inclination = EXCLUDED.inclination,
+                        eccentricity = EXCLUDED.eccentricity,
+                        mean_motion = EXCLUDED.mean_motion,
+                        total_observations = satellites.total_observations + EXCLUDED.total_observations,
+                        tracking_status = EXCLUDED.tracking_status,
+                        status_updated_at = EXCLUDED.status_updated_at
+                """
+                
+                # Batch insert/update
+                rows = [
+                    (
+                        row['norad_id'], row['last_tle_epoch'], row['last_altitude_km'],
+                        row['last_velocity_kms'], row['last_position_x'], row['last_position_y'],
+                        row['last_position_z'], row['last_sgp4_error_code'], row['tle_age_days'],
+                        row['inclination'], row['eccentricity'], row['mean_motion'],
+                        row['observations_count'], row['tracking_status'], row['status_updated_at']
+                    )
+                    for row in satellite_data
+                ]
+                
+                cursor.executemany(upsert_query, rows)
+                conn.commit()
+                
+                # Update pipeline state
+                cursor.execute("""
+                    UPDATE pipeline_state 
+                    SET last_run_end = NOW(),
+                        last_run_status = 'SUCCESS',
+                        records_processed = records_processed + %s,
+                        data_version = data_version + 1,
+                        updated_at = NOW()
+                    WHERE component_name = 'SGP4_PROCESSING'
+                """, (len(rows),))
+                conn.commit()
+                
+                cursor.close()
+                conn.close()
+                
+                logger.info(f"✓ Batch {batch_id}: UPSERTED {len(rows)} satellites in PostgreSQL")
                 
             except Exception as e:
                 logger.error(f"Error updating PostgreSQL in batch {batch_id}: {e}")
+                # Update pipeline state with error
+                try:
+                    import psycopg2
+                    conn = psycopg2.connect(
+                        host=os.getenv('POSTGRES_HOST', 'postgres-debris'),
+                        port=int(os.getenv('POSTGRES_PORT', '5432')),
+                        database=os.getenv('POSTGRES_DB', 'space_debris'),
+                        user=os.getenv('POSTGRES_USER', 'postgres'),
+                        password=os.getenv('POSTGRES_PASSWORD', 'postgres')
+                    )
+                    cursor = conn.cursor()
+                    cursor.execute("""
+                        UPDATE pipeline_state 
+                        SET last_run_status = 'FAILED',
+                            error_message = %s,
+                            updated_at = NOW()
+                        WHERE component_name = 'SGP4_PROCESSING'
+                    """, (str(e),))
+                    conn.commit()
+                    cursor.close()
+                    conn.close()
+                except:
+                    pass
         
         # Apply PostgreSQL updates using foreachBatch
         postgres_query = active_satellites \

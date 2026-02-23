@@ -148,7 +148,40 @@ COMMENT ON TABLE system_metrics IS 'System performance and operational metrics';
 
 
 -- ==========================================
--- 5. HELPER VIEWS FOR DASHBOARD
+-- 5. PIPELINE STATE MANAGEMENT
+-- ==========================================
+CREATE TABLE IF NOT EXISTS pipeline_state (
+    component_name VARCHAR(50) PRIMARY KEY,
+    last_run_start TIMESTAMP,
+    last_run_end TIMESTAMP,
+    last_run_status VARCHAR(20) NOT NULL DEFAULT 'IDLE',  -- IDLE, RUNNING, SUCCESS, FAILED
+    records_processed INTEGER DEFAULT 0,
+    data_version BIGINT DEFAULT 0,           -- Kafka offset or batch ID
+    next_run_allowed BOOLEAN DEFAULT TRUE,
+    error_message TEXT,
+    metadata JSONB,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_pipeline_state_status ON pipeline_state(last_run_status, updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_pipeline_state_updated ON pipeline_state(updated_at DESC);
+
+COMMENT ON TABLE pipeline_state IS 'Tracks execution state and coordination between pipeline components';
+COMMENT ON COLUMN pipeline_state.component_name IS 'TLE_INGESTION, SGP4_PROCESSING, COLLISION_PREDICTION';
+COMMENT ON COLUMN pipeline_state.data_version IS 'Kafka offset, batch ID, or data timestamp for coordination';
+COMMENT ON COLUMN pipeline_state.next_run_allowed IS 'Flag to prevent concurrent runs or coordinate dependent jobs';
+
+-- Initialize pipeline components
+INSERT INTO pipeline_state (component_name, last_run_status) VALUES
+    ('TLE_INGESTION', 'IDLE'),
+    ('SGP4_PROCESSING', 'IDLE'),
+    ('COLLISION_PREDICTION', 'IDLE')
+ON CONFLICT (component_name) DO NOTHING;
+
+
+-- ==========================================
+-- 6. HELPER VIEWS FOR DASHBOARD
 -- ==========================================
 
 -- View: Active satellites summary
@@ -201,7 +234,7 @@ COMMENT ON VIEW recent_status_changes IS 'Satellite status changes in last 7 day
 
 
 -- ==========================================
--- 6. INITIAL SEED DATA (Optional)
+-- 7. INITIAL SEED DATA (Optional)
 -- ==========================================
 
 -- Insert some common system metrics for dashboard
@@ -214,7 +247,7 @@ ON CONFLICT DO NOTHING;
 
 
 -- ==========================================
--- 7. UTILITY FUNCTIONS
+-- 8. UTILITY FUNCTIONS
 -- ==========================================
 
 -- Function to archive old collision alerts
@@ -281,7 +314,7 @@ GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO postgres;
 DO $$ 
 BEGIN
     RAISE NOTICE '✓ Space Debris PostgreSQL schema initialized successfully';
-    RAISE NOTICE '✓ Tables: satellites, collision_alerts, tracking_status_changes, system_metrics';
+    RAISE NOTICE '✓ Tables: satellites, collision_alerts, tracking_status_changes, system_metrics, pipeline_state';
     RAISE NOTICE '✓ Views: active_satellites_summary, high_risk_collisions_today, recent_status_changes';
     RAISE NOTICE '✓ Functions: archive_old_collision_alerts(), update_system_metrics()';
 END $$;

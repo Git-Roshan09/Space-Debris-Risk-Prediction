@@ -320,9 +320,6 @@ class CollisionPredictionEngine:
             # For SAT-SAT, use norad_id comparison to avoid duplicates
             df_pairs = df1.crossJoin(broadcast(df2)).filter(
                 col("sat1.norad_id") < col("sat2.norad_id"))
-            df_pairs = df1.filter(col("sat1.norad_id") < col("sat2.norad_id")).select(
-                "sat1.*", "sat2.*"
-            )
             
             df_distances = df_pairs.withColumn(
                 "distance_km",
@@ -353,6 +350,8 @@ class CollisionPredictionEngine:
                 col("deb1.norad_id").alias("object_2"),
                 col("sat1.norad_id").alias("norad_1"),
                 col("deb1.norad_id").alias("norad_2"),
+                coalesce(col("sat1.object_name"), lit("Unknown")).alias("object_1_name"),
+                coalesce(col("deb1.object_name"), lit("Unknown")).alias("object_2_name"),
                 col("sat1.classification").alias("classification_1"),
                 col("deb1.classification").alias("classification_2"),
                 col("distance_km"),
@@ -361,10 +360,12 @@ class CollisionPredictionEngine:
                 col("sat1.position_y").alias("obj1_y"),
                 col("sat1.position_z").alias("obj1_z"),
                 col("sat1.altitude_km").alias("obj1_altitude"),
+                col("sat1.velocity").alias("obj1_velocity"),
                 col("deb1.position_x").alias("obj2_x"),
                 col("deb1.position_y").alias("obj2_y"),
                 col("deb1.position_z").alias("obj2_z"),
                 col("deb1.altitude_km").alias("obj2_altitude"),
+                col("deb1.velocity").alias("obj2_velocity"),
                 current_timestamp().alias("detection_timestamp")
             )
         else:
@@ -373,6 +374,8 @@ class CollisionPredictionEngine:
                 col("sat2.norad_id").alias("object_2"),
                 col("sat1.norad_id").alias("norad_1"),
                 col("sat2.norad_id").alias("norad_2"),
+                coalesce(col("sat1.object_name"), lit("Unknown")).alias("object_1_name"),
+                coalesce(col("sat2.object_name"), lit("Unknown")).alias("object_2_name"),
                 col("sat1.classification").alias("classification_1"),
                 col("sat2.classification").alias("classification_2"),
                 col("distance_km"),
@@ -381,12 +384,25 @@ class CollisionPredictionEngine:
                 col("sat1.position_y").alias("obj1_y"),
                 col("sat1.position_z").alias("obj1_z"),
                 col("sat1.altitude_km").alias("obj1_altitude"),
+                col("sat1.velocity").alias("obj1_velocity"),
                 col("sat2.position_x").alias("obj2_x"),
                 col("sat2.position_y").alias("obj2_y"),
                 col("sat2.position_z").alias("obj2_z"),
                 col("sat2.altitude_km").alias("obj2_altitude"),
+                col("sat2.velocity").alias("obj2_velocity"),
                 current_timestamp().alias("detection_timestamp")
             )
+
+        # Compute relative velocity (scalar approximation)
+        df_result = df_result.withColumn(
+            "relative_velocity_kms",
+            when(
+                col("obj1_velocity").isNotNull() & col("obj2_velocity").isNotNull(),
+                (col("obj1_velocity") + col("obj2_velocity"))
+            ).otherwise(lit(None).cast(DoubleType()))
+        )
+
+        # Risk classification
         df_result = df_result.withColumn(
             "risk_level",
             when(col("distance_km") <= 1.0, "CRITICAL")
@@ -394,9 +410,16 @@ class CollisionPredictionEngine:
             .when(col("distance_km") <= self.medium_risk_threshold, "MEDIUM")
             .otherwise("LOW")
         )
+
+        # Collision probability estimate (simple inverse-distance model)
+        df_result = df_result.withColumn(
+            "collision_probability",
+            when(col("distance_km") <= 0.01, lit(1.0))
+            .otherwise(lit(1.0) / (lit(1.0) + col("distance_km") * col("distance_km")))
+        )
         
         pair_count = df_result.count()
-        logger.info(f"  {collision_type}: {pair_count:,} collision pairs detected within {self.collision_threshold_km} km")
+        logger.info(f"  {collision_type}: {pair_count:,} close approach pairs detected within {self.collision_threshold_km} km")
         
         return df_result
     
@@ -446,11 +469,14 @@ class CollisionPredictionEngine:
                     "to_json(struct(*)) as value"
                 )
                 
-                df_kafka.write \
-                    .format("kafka") \
-                    .option("kafka.bootstrap.servers", self.kafka_servers) \
-                    .option("topic", self.kafka_topic) \
-                    .save()
+                def _publish():
+                    df_kafka.write \
+                        .format("kafka") \
+                        .option("kafka.bootstrap.servers", self.kafka_servers) \
+                        .option("topic", self.kafka_topic) \
+                        .save()
+                
+                self._retry(_publish, "Kafka publish")
                 
                 logger.info(f"✓ Published {alert_count} alerts to Kafka topic: {self.kafka_topic}")
             else:
@@ -529,24 +555,28 @@ class CollisionPredictionEngine:
                 satellite_data = df_satellites.collect()
                 logger.info(f"✓ Collected {len(satellite_data)} satellite records")
                 
-                # Delete existing records for these NORAD IDs
-                logger.info("Step 3: Deleting existing satellite records...")
-                norad_ids = [row['norad_id'] for row in satellite_data]
-                if norad_ids:
-                    norad_ids_str = ','.join(map(str, norad_ids))
-                    cursor.execute(f"DELETE FROM satellites WHERE norad_id IN ({norad_ids_str})")
-                    deleted_count = cursor.rowcount
-                    logger.info(f"✓ Deleted {deleted_count} existing satellite records")
-                
-                # Batch insert new satellites
-                logger.info("Step 4: Preparing batch insert...")
-                insert_query = """
+                # UPSERT satellites using ON CONFLICT DO UPDATE
+                logger.info("Step 3: Executing UPSERT for satellites...")
+                upsert_query = """
                     INSERT INTO satellites (
                         norad_id, name, object_type, country, tracking_status,
                         last_tle_epoch, last_altitude_km, last_velocity_kms,
                         last_position_x, last_position_y, last_position_z,
                         last_sgp4_error_code, total_observations, status_updated_at
                     ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (norad_id) DO UPDATE SET
+                        name = EXCLUDED.name,
+                        object_type = EXCLUDED.object_type,
+                        tracking_status = EXCLUDED.tracking_status,
+                        last_tle_epoch = EXCLUDED.last_tle_epoch,
+                        last_altitude_km = EXCLUDED.last_altitude_km,
+                        last_velocity_kms = EXCLUDED.last_velocity_kms,
+                        last_position_x = EXCLUDED.last_position_x,
+                        last_position_y = EXCLUDED.last_position_y,
+                        last_position_z = EXCLUDED.last_position_z,
+                        last_sgp4_error_code = EXCLUDED.last_sgp4_error_code,
+                        total_observations = satellites.total_observations + EXCLUDED.total_observations,
+                        status_updated_at = EXCLUDED.status_updated_at
                 """
                 
                 rows = [
@@ -559,20 +589,20 @@ class CollisionPredictionEngine:
                     )
                     for row in satellite_data
                 ]
-                logger.info(f"✓ Prepared {len(rows)} rows for insertion")
+                logger.info(f"✓ Prepared {len(rows)} rows for UPSERT")
                 
-                logger.info("Step 5: Executing batch insert...")
-                execute_batch(cursor, insert_query, rows, page_size=1000)
-                logger.info("✓ Batch insert executed")
+                logger.info("Step 4: Executing batch UPSERT...")
+                execute_batch(cursor, upsert_query, rows, page_size=1000)
+                logger.info("✓ Batch UPSERT executed")
                 
-                logger.info("Step 6: Committing transaction...")
+                logger.info("Step 5: Committing transaction...")
                 conn.commit()
                 logger.info("✓ Transaction committed")
                 
                 cursor.close()
                 conn.close()
                 
-                logger.info(f"✅ Successfully saved {satellite_count} satellites to PostgreSQL via psycopg2")
+                logger.info(f"✅ Successfully UPSERTED {satellite_count} satellites to PostgreSQL")
                 
             except Exception as psycopg2_err:
                 logger.error(f"❌ psycopg2 error: {psycopg2_err}")
@@ -585,61 +615,137 @@ class CollisionPredictionEngine:
             logger.error(f"Error saving satellites to PostgreSQL: {e}")
             # Don't raise - continue with other operations
     
+    def _retry(self, func, description, max_retries=3):
+        """
+        Retry wrapper with exponential backoff for resilient I/O operations.
+        
+        Args:
+            func (callable): Function to execute
+            description (str): Human-readable operation name for logging
+            max_retries (int): Maximum number of retry attempts
+        """
+        import time as _time
+        for attempt in range(1, max_retries + 1):
+            try:
+                return func()
+            except Exception as e:
+                if attempt == max_retries:
+                    logger.error(f"❌ {description} failed after {max_retries} attempts: {e}")
+                    raise
+                wait = 2 ** attempt
+                logger.warning(f"⚠ {description} attempt {attempt}/{max_retries} failed: {e}. Retrying in {wait}s...")
+                _time.sleep(wait)
+
     def save_collisions_to_postgres(self, df_collisions):
         """
-        Save collision alerts to PostgreSQL for dashboard queries using Spark JDBC.
+        Save collision alerts to PostgreSQL using UPSERT to prevent duplicates.
+        Uses ON CONFLICT DO UPDATE for atomic updates without race conditions.
         """
         try:
             collision_count = df_collisions.count()
             if collision_count == 0:
-                logger.info("No collisions to save to PostgreSQL")
+                logger.info("No close approaches to save to PostgreSQL")
                 return
             
-            # Prepare collision data for PostgreSQL schema
             batch_id = datetime.now().strftime("%Y%m%d_%H%M%S")
             
             df_alerts = df_collisions.select(
                 col("object_1").cast(IntegerType()).alias("satellite_1_id"),
                 col("object_2").cast(IntegerType()).alias("satellite_2_id"),
-                lit(None).cast(StringType()).alias("satellite_1_name"),
-                lit(None).cast(StringType()).alias("satellite_2_name"),
+                col("object_1_name").alias("satellite_1_name"),
+                col("object_2_name").alias("satellite_2_name"),
                 col("detection_timestamp").alias("predicted_time"),
                 col("distance_km").alias("miss_distance_km"),
-                lit(None).cast(DoubleType()).alias("relative_velocity_kms"),
+                col("relative_velocity_kms"),
                 col("obj1_x").alias("approach_position_x"),
                 col("obj1_y").alias("approach_position_y"),
                 col("obj1_z").alias("approach_position_z"),
                 col("risk_level"),
-                lit(None).cast(DoubleType()).alias("collision_probability"),
+                col("collision_probability"),
                 current_timestamp().alias("detected_at"),
                 lit(batch_id).alias("batch_id"),
                 lit(True).alias("is_active")
             )
             
-            logger.info(f"Writing {collision_count} collision alerts to PostgreSQL...")
+            logger.info(f"Writing {collision_count} close approach alerts to PostgreSQL using UPSERT...")
             
-            # Use append mode - new collision alerts are added
-            df_alerts.write \
-                .jdbc(
-                    url=self.postgres_url,
-                    table="collision_alerts",
-                    mode="append",
-                    properties=self.postgres_properties
+            # Use psycopg2 for UPSERT to avoid race conditions
+            import psycopg2
+            from psycopg2.extras import execute_batch
+            
+            conn = psycopg2.connect(
+                host=POSTGRES_CONFIG['host'],
+                port=POSTGRES_CONFIG['port'],
+                database=POSTGRES_CONFIG['database'],
+                user=POSTGRES_CONFIG['user'],
+                password=POSTGRES_CONFIG['password']
+            )
+            cursor = conn.cursor()
+            
+            # Collect collision data
+            collision_data = df_alerts.collect()
+            
+            # UPSERT query with ON CONFLICT on unique constraint
+            upsert_query = """
+                INSERT INTO collision_alerts (
+                    satellite_1_id, satellite_2_id, satellite_1_name, satellite_2_name,
+                    predicted_time, miss_distance_km, relative_velocity_kms,
+                    approach_position_x, approach_position_y, approach_position_z,
+                    risk_level, collision_probability, detected_at, batch_id, is_active
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (satellite_1_id, satellite_2_id, predicted_time) DO UPDATE SET
+                    satellite_1_name = EXCLUDED.satellite_1_name,
+                    satellite_2_name = EXCLUDED.satellite_2_name,
+                    miss_distance_km = EXCLUDED.miss_distance_km,
+                    relative_velocity_kms = EXCLUDED.relative_velocity_kms,
+                    approach_position_x = EXCLUDED.approach_position_x,
+                    approach_position_y = EXCLUDED.approach_position_y,
+                    approach_position_z = EXCLUDED.approach_position_z,
+                    risk_level = EXCLUDED.risk_level,
+                    collision_probability = EXCLUDED.collision_probability,
+                    detected_at = EXCLUDED.detected_at,
+                    batch_id = EXCLUDED.batch_id,
+                    is_active = EXCLUDED.is_active
+            """
+            
+            rows = [
+                (
+                    row['satellite_1_id'], row['satellite_2_id'],
+                    row['satellite_1_name'], row['satellite_2_name'],
+                    row['predicted_time'], row['miss_distance_km'],
+                    row['relative_velocity_kms'],
+                    row['approach_position_x'], row['approach_position_y'], row['approach_position_z'],
+                    row['risk_level'], row['collision_probability'],
+                    row['detected_at'], row['batch_id'], row['is_active']
                 )
+                for row in collision_data
+            ]
             
-            logger.info(f"✓ Saved {collision_count} collision alerts to PostgreSQL")
+            execute_batch(cursor, upsert_query, rows, page_size=1000)
+            conn.commit()
+            
+            cursor.close()
+            conn.close()
+            
+            logger.info(f"✅ UPSERTED {collision_count} close approach alerts to PostgreSQL")
             
         except Exception as e:
-            logger.error(f"Error saving collisions to PostgreSQL: {e}")
-            
-        except Exception as e:
-            logger.error(f"Error saving collisions to PostgreSQL: {e}")
+            logger.error(f"Error saving close approaches to PostgreSQL: {e}")
     
     def run(self):
-        """Execute the optimized collision prediction pipeline."""
+        """Execute the optimized collision prediction pipeline with state coordination."""
         try:
             logger.info("🚀 Starting optimized collision prediction pipeline...")
             logger.info("📋 Pipeline scope: SAT-SAT and SAT-DEB collisions only (DEB-DEB excluded)")
+            
+            # Step 0: Check if new SGP4 data is available
+            if not self._should_run_collision_prediction():
+                logger.info("⏸️  No new SGP4 data available - skipping collision prediction")
+                logger.info("✅ Pipeline check completed - no work needed")
+                return
+            
+            # Mark pipeline as running
+            self._update_pipeline_state('RUNNING', 0, None)
             
             # Step 1: Read latest SGP4 position data with classifications
             df_positions = self.read_latest_sgp4_data()
@@ -660,14 +766,134 @@ class CollisionPredictionEngine:
             else:
                 logger.info("✅ No collisions detected within threshold - system safe")
             
+            # Update pipeline state as successful
+            self._update_pipeline_state('SUCCESS', collision_count, None)
+            
             logger.info("🎉 Optimized collision prediction pipeline completed successfully")
             logger.info(f"📊 Final results: {collision_count:,} collision pairs identified (SAT-SAT + SAT-DEB)")
             
         except Exception as e:
             logger.error(f"❌ Pipeline execution failed: {e}")
+            self._update_pipeline_state('FAILED', 0, str(e))
             raise
         finally:
             self.spark.stop()
+    
+    def _should_run_collision_prediction(self):
+        """
+        Check if new SGP4 data is available for collision prediction.
+        Coordinates with SGP4 processing pipeline via pipeline_state table.
+        
+        Returns:
+            bool: True if new data available and collision prediction should run
+        """
+        try:
+            import psycopg2
+            conn = psycopg2.connect(
+                host=POSTGRES_CONFIG['host'],
+                port=POSTGRES_CONFIG['port'],
+                database=POSTGRES_CONFIG['database'],
+                user=POSTGRES_CONFIG['user'],
+                password=POSTGRES_CONFIG['password']
+            )
+            cursor = conn.cursor()
+            
+            # Get last data version processed by SGP4 and Collision Prediction
+            cursor.execute("""
+                SELECT component_name, data_version, last_run_status, last_run_end
+                FROM pipeline_state
+                WHERE component_name IN ('SGP4_PROCESSING', 'COLLISION_PREDICTION')
+            """)
+            
+            results = {row[0]: {'version': row[1], 'status': row[2], 'end': row[3]} 
+                      for row in cursor.fetchall()}
+            
+            cursor.close()
+            conn.close()
+            
+            sgp4_version = results.get('SGP4_PROCESSING', {}).get('version', 0)
+            collision_version = results.get('COLLISION_PREDICTION', {}).get('version', 0)
+            sgp4_status = results.get('SGP4_PROCESSING', {}).get('status', 'IDLE')
+            
+            logger.info(f"📊 Data versions - SGP4: {sgp4_version}, Collision: {collision_version}")
+            logger.info(f"📊 SGP4 status: {sgp4_status}")
+            
+            # Run if SGP4 has processed new data
+            if sgp4_version > collision_version and sgp4_status == 'SUCCESS':
+                logger.info(f"✅ New SGP4 data available (version {sgp4_version}) - proceeding with collision prediction")
+                return True
+            else:
+                logger.info(f"⏸️  No new data - SGP4 version {sgp4_version} already processed")
+                return False
+                
+        except Exception as e:
+            logger.warning(f"⚠️  Could not check pipeline state: {e} - running collision prediction anyway")
+            return True  # Default to running if state check fails
+    
+    def _update_pipeline_state(self, status, records_processed, error_message):
+        """
+        Update pipeline state in PostgreSQL to coordinate with other components.
+        
+        Args:
+            status (str): Pipeline status - RUNNING, SUCCESS, FAILED
+            records_processed (int): Number of collision pairs detected
+            error_message (str): Error message if failed, None otherwise
+        """
+        try:
+            import psycopg2
+            conn = psycopg2.connect(
+                host=POSTGRES_CONFIG['host'],
+                port=POSTGRES_CONFIG['port'],
+                database=POSTGRES_CONFIG['database'],
+                user=POSTGRES_CONFIG['user'],
+                password=POSTGRES_CONFIG['password']
+            )
+            cursor = conn.cursor()
+            
+            if status == 'RUNNING':
+                cursor.execute("""
+                    UPDATE pipeline_state 
+                    SET last_run_start = NOW(),
+                        last_run_status = 'RUNNING',
+                        updated_at = NOW()
+                    WHERE component_name = 'COLLISION_PREDICTION'
+                """)
+            elif status == 'SUCCESS':
+                # Get SGP4 version to sync with
+                cursor.execute("""
+                    SELECT data_version FROM pipeline_state 
+                    WHERE component_name = 'SGP4_PROCESSING'
+                """)
+                sgp4_version = cursor.fetchone()[0] if cursor.rowcount > 0 else 0
+                
+                cursor.execute("""
+                    UPDATE pipeline_state 
+                    SET last_run_end = NOW(),
+                        last_run_status = 'SUCCESS',
+                        records_processed = records_processed + %s,
+                        data_version = %s,
+                        error_message = NULL,
+                        updated_at = NOW()
+                    WHERE component_name = 'COLLISION_PREDICTION'
+                """, (records_processed, sgp4_version))
+            elif status == 'FAILED':
+                cursor.execute("""
+                    UPDATE pipeline_state 
+                    SET last_run_end = NOW(),
+                        last_run_status = 'FAILED',
+                        error_message = %s,
+                        updated_at = NOW()
+                    WHERE component_name = 'COLLISION_PREDICTION'
+                """, (error_message,))
+            
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
+            logger.info(f"✅ Updated pipeline state: {status}")
+            
+        except Exception as e:
+            logger.warning(f"⚠️  Could not update pipeline state: {e}")
 
 
 if __name__ == "__main__":

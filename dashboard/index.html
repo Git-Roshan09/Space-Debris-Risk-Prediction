@@ -1,121 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Space Debris Collision Risk Dashboard</title>
+    <meta name="description"
+        content="Real-time monitoring dashboard for space debris collision risk prediction and satellite tracking">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
 </head>
+
 <body>
     <div class="container">
         <header>
             <h1>🛰️ Space Debris Collision Risk Dashboard</h1>
-            <div class="header-info">
-                <span id="last-update">Last Updated: --</span>
-                <span id="status-indicator" class="status-ok">● Connected</span>
+            <div class="header-controls">
+                <div class="header-info">
+                    <span id="last-update">Last Updated: --</span>
+                    <span id="status-indicator" class="status-indicator status-ok">Connected</span>
+                </div>
+                <button id="btn-auto-refresh" class="btn-refresh active" title="Toggle auto-refresh">AUTO ⟳</button>
             </div>
         </header>
 
         <!-- Summary Cards -->
         <div class="summary-cards">
-            <div class="card card-high-risk">
+            <div class="card card-critical" id="card-critical">
+                <h3>Critical</h3>
+                <div class="card-value" id="critical-risk-count">--</div>
+                <div class="card-label">Distance ≤ 1 km</div>
+            </div>
+            <div class="card card-high-risk" id="card-high">
                 <h3>High Risk</h3>
                 <div class="card-value" id="high-risk-count">--</div>
-                <div class="card-label">Collisions &lt; 5 km</div>
+                <div class="card-label">Distance ≤ 20 km</div>
             </div>
-            <div class="card card-medium-risk">
+            <div class="card card-medium-risk" id="card-medium">
                 <h3>Medium Risk</h3>
                 <div class="card-value" id="medium-risk-count">--</div>
-                <div class="card-label">Collisions &lt; 10 km</div>
+                <div class="card-label">Distance ≤ 35 km</div>
             </div>
-            <div class="card card-low-risk">
+            <div class="card card-low-risk" id="card-low">
                 <h3>Low Risk</h3>
                 <div class="card-value" id="low-risk-count">--</div>
-                <div class="card-label">Collisions &lt; 50 km</div>
+                <div class="card-label">Distance ≤ 50 km</div>
             </div>
-            <div class="card card-total">
+            <div class="card card-total" id="card-total">
                 <h3>Total Tracked</h3>
                 <div class="card-value" id="total-count">--</div>
-                <div class="card-label">All Predictions</div>
+                <div class="card-label">All Predicted Close Approaches</div>
             </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar" id="filter-bar">
+            <label>Filter:</label>
+            <button class="filter-btn active" data-risk="">All</button>
+            <button class="filter-btn" data-risk="CRITICAL">Critical</button>
+            <button class="filter-btn" data-risk="HIGH">High</button>
+            <button class="filter-btn" data-risk="MEDIUM">Medium</button>
+            <button class="filter-btn" data-risk="LOW">Low</button>
         </div>
 
         <!-- Main Content Grid -->
         <div class="dashboard-grid">
-            <!-- Collision Timeline Chart -->
-            <div class="panel panel-large">
-                <h2>Collision Timeline (Next 7 Days)</h2>
-                <canvas id="timelineChart"></canvas>
-            </div>
-
             <!-- Risk Distribution Chart -->
             <div class="panel">
-                <h2>Risk Distribution</h2>
+                <h2>📊 Risk Distribution</h2>
                 <canvas id="riskChart"></canvas>
             </div>
 
             <!-- Distance Statistics -->
             <div class="panel">
-                <h2>Distance Statistics</h2>
+                <h2>📏 Distance Statistics</h2>
                 <div class="stats-container">
                     <div class="stat-item">
                         <div class="stat-label">Minimum</div>
-                        <div class="stat-value" id="min-distance">-- km</div>
+                        <div class="stat-value" id="min-distance">--</div>
+                        <div class="stat-unit">km</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-label">Average</div>
-                        <div class="stat-value" id="avg-distance">-- km</div>
+                        <div class="stat-value" id="avg-distance">--</div>
+                        <div class="stat-unit">km</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-label">Maximum</div>
-                        <div class="stat-value" id="max-distance">-- km</div>
+                        <div class="stat-value" id="max-distance">--</div>
+                        <div class="stat-unit">km</div>
                     </div>
+                </div>
+                <!-- Closest Approach -->
+                <div class="closest-approach" id="closest-approach" style="display:none;">
+                    <div class="ca-title">⚠ Closest Approach</div>
+                    <div class="ca-detail" id="closest-detail"></div>
                 </div>
             </div>
 
-            <!-- High Risk Alerts Table -->
+            <!-- Predicted Close Approaches Monitor -->
             <div class="panel panel-full-width">
-                <h2>🚨 High Risk Collision Alerts</h2>
+                <h2>🔍 Predicted Close Approaches <span class="count-badge" id="collision-total-badge">0</span></h2>
                 <div class="table-container">
-                    <table id="alerts-table">
+                    <table id="collisions-table">
                         <thead>
                             <tr>
                                 <th>Satellite 1</th>
                                 <th>Satellite 2</th>
-                                <th>Collision Time</th>
-                                <th>Distance (km)</th>
+                                <th>Predicted Time</th>
+                                <th>Miss Distance (km)</th>
+                                <th>Velocity (km/s)</th>
+                                <th>Probability</th>
                                 <th>Risk Level</th>
                             </tr>
                         </thead>
-                        <tbody id="alerts-body">
+                        <tbody id="collisions-body">
                             <tr>
-                                <td colspan="5" class="loading">Loading data...</td>
+                                <td colspan="7" class="loading">Loading data...</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
+                <div class="pagination" id="pagination">
+                    <button id="btn-prev" disabled>← Prev</button>
+                    <span class="page-info" id="page-info">Page 1 of 1</span>
+                    <button id="btn-next" disabled>Next →</button>
+                </div>
             </div>
 
-            <!-- Satellite Pairs -->
+            <!-- Recurring Close Approach Pairs -->
             <div class="panel panel-full-width">
-                <h2>Frequently Colliding Satellite Pairs</h2>
+                <h2>🔄 Recurring Close Approach Pairs</h2>
                 <div class="table-container">
                     <table id="pairs-table">
                         <thead>
                             <tr>
                                 <th>Satellite 1</th>
                                 <th>Satellite 2</th>
-                                <th>Collision Count</th>
+                                <th>Approach Events</th>
                                 <th>Min Distance (km)</th>
                                 <th>Avg Distance (km)</th>
+                                <th>Max Distance (km)</th>
                             </tr>
                         </thead>
                         <tbody id="pairs-body">
                             <tr>
-                                <td colspan="5" class="loading">Loading data...</td>
+                                <td colspan="6" class="loading">Loading data...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -124,11 +157,13 @@
         </div>
 
         <footer>
-            <p>Space Debris Risk Prediction System - Real-time Monitoring Dashboard</p>
-            <p>Data Source: SGP4 Propagation & HDFS | Update Interval: <span id="update-interval">30</span>s</p>
+            <p>Space Debris Risk Prediction System — Close Approach Monitoring Dashboard</p>
+            <p>Data Source: Historical TLE → SGP4 Propagation → Spark → PostgreSQL | Update Interval: <span
+                    id="update-interval">30</span>s</p>
         </footer>
     </div>
 
     <script src="dashboard.js"></script>
 </body>
+
 </html>

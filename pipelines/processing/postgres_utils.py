@@ -14,7 +14,7 @@ class PostgresConnector:
     """Helper class for Spark-PostgreSQL integration."""
     
     def __init__(self, 
-                 host='postgres',
+                 host='postgres-debris',
                  port=5432,
                  database='space_debris',
                  user='postgres',
@@ -203,7 +203,7 @@ def get_postgres_connector(env_prefix='POSTGRES'):
         POSTGRES_PASSWORD (default: postgres)
     """
     return PostgresConnector(
-        host=os.getenv(f'{env_prefix}_HOST', 'postgres'),
+        host=os.getenv(f'{env_prefix}_HOST', 'postgres-debris'),
         port=int(os.getenv(f'{env_prefix}_PORT', '5432')),
         database=os.getenv(f'{env_prefix}_DB', 'space_debris'),
         user=os.getenv(f'{env_prefix}_USER', 'postgres'),

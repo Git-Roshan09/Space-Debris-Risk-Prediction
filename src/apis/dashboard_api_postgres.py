@@ -440,50 +440,243 @@ def get_system_metrics():
 @app.route('/api/dashboard/stats', methods=['GET'])
 def get_dashboard_stats():
     """
-    Get key statistics for dashboard overview including satellite counts,
-    collision alerts, and system health metrics.
-    
-    Returns:
-        JSON response with comprehensive dashboard statistics including
-        active/stopped satellite counts, collision risk levels, and average altitude
+    Get comprehensive statistics for dashboard overview.
+
+    Returns per-risk-level collision counts, distance statistics,
+    satellite counts, closest approach info, and last batch metadata.
     """
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        
+
+        # Satellite counts
         cursor.execute("SELECT COUNT(*) FROM satellites WHERE tracking_status = 'ACTIVE'")
         active_count = cursor.fetchone()[0]
-        
+
         cursor.execute("SELECT COUNT(*) FROM satellites WHERE tracking_status != 'ACTIVE'")
         stopped_count = cursor.fetchone()[0]
-        
-        cursor.execute("SELECT COUNT(*) FROM collision_alerts WHERE risk_level IN ('CRITICAL', 'HIGH', 'MEDIUM') AND is_active = TRUE")
-        high_risk_count = cursor.fetchone()[0]
-        
-        cursor.execute("SELECT COUNT(*) FROM collision_alerts WHERE is_active = TRUE")
-        total_collisions = cursor.fetchone()[0]
-        
+
+        # Per-risk collision counts
+        cursor.execute("""
+            SELECT
+                COALESCE(SUM(CASE WHEN risk_level = 'CRITICAL' THEN 1 ELSE 0 END), 0),
+                COALESCE(SUM(CASE WHEN risk_level = 'HIGH' THEN 1 ELSE 0 END), 0),
+                COALESCE(SUM(CASE WHEN risk_level = 'MEDIUM' THEN 1 ELSE 0 END), 0),
+                COALESCE(SUM(CASE WHEN risk_level = 'LOW' THEN 1 ELSE 0 END), 0),
+                COUNT(*)
+            FROM collision_alerts WHERE is_active = TRUE
+        """)
+        row = cursor.fetchone()
+        critical_count, high_count, medium_count, low_count, total_collisions = row
+
+        # Distance statistics
+        cursor.execute("""
+            SELECT
+                MIN(miss_distance_km),
+                AVG(miss_distance_km),
+                MAX(miss_distance_km)
+            FROM collision_alerts WHERE is_active = TRUE
+        """)
+        dist_row = cursor.fetchone()
+        min_dist = float(dist_row[0]) if dist_row[0] is not None else None
+        avg_dist = float(dist_row[1]) if dist_row[1] is not None else None
+        max_dist = float(dist_row[2]) if dist_row[2] is not None else None
+
+        # Closest approach details
+        cursor.execute("""
+            SELECT satellite_1_id, satellite_2_id,
+                   satellite_1_name, satellite_2_name,
+                   miss_distance_km, risk_level, predicted_time
+            FROM collision_alerts
+            WHERE is_active = TRUE
+            ORDER BY miss_distance_km ASC
+            LIMIT 1
+        """)
+        closest = cursor.fetchone()
+        closest_approach = None
+        if closest:
+            closest_approach = {
+                'satellite_1_id': closest[0],
+                'satellite_2_id': closest[1],
+                'satellite_1_name': closest[2],
+                'satellite_2_name': closest[3],
+                'miss_distance_km': float(closest[4]) if closest[4] else None,
+                'risk_level': closest[5],
+                'predicted_time': closest[6].isoformat() if closest[6] else None
+            }
+
+        # Average altitude
         cursor.execute("SELECT AVG(last_altitude_km) FROM satellites WHERE tracking_status = 'ACTIVE'")
         avg_altitude = cursor.fetchone()[0]
-        
+
+        # Last batch info
+        cursor.execute("SELECT batch_id, MAX(detected_at) FROM collision_alerts WHERE is_active = TRUE GROUP BY batch_id ORDER BY MAX(detected_at) DESC LIMIT 1")
+        batch_row = cursor.fetchone()
+        last_batch_id = batch_row[0] if batch_row else None
+        last_batch_time = batch_row[1].isoformat() if batch_row and batch_row[1] else None
+
         cursor.close()
         release_db_connection(conn)
-        
+
         return jsonify({
             'active_satellites': active_count,
             'stopped_satellites': stopped_count,
-            'high_risk_collisions': high_risk_count,
+            'critical_risk_collisions': critical_count,
+            'high_risk_collisions': high_count,
+            'medium_risk_collisions': medium_count,
+            'low_risk_collisions': low_count,
             'total_active_collisions': total_collisions,
+            'min_distance_km': min_dist,
+            'avg_distance_km': avg_dist,
+            'max_distance_km': max_dist,
+            'closest_approach': closest_approach,
             'avg_altitude_km': float(avg_altitude) if avg_altitude else 0,
+            'last_batch_id': last_batch_id,
+            'last_batch_time': last_batch_time,
             'timestamp': datetime.now().isoformat()
         })
-        
+
     except Exception as e:
         logger.error(f"Error fetching dashboard stats: {e}")
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/', methods=['GET'])
+@app.route('/api/collisions/all', methods=['GET'])
+def get_all_collisions():
+    """
+    Get all active collision alerts with pagination, filtering, and sorting.
+
+    Query Parameters:
+        risk_level (str): Filter by risk level ('CRITICAL', 'HIGH', 'MEDIUM', 'LOW')
+        page (int): Page number (default: 1)
+        per_page (int): Results per page (default: 50, max: 200)
+        sort_by (str): Column to sort by (default: 'miss_distance_km')
+        sort_order (str): 'asc' or 'desc' (default: 'asc')
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        risk_level = request.args.get('risk_level')
+        page = max(1, request.args.get('page', 1, type=int))
+        per_page = min(200, max(1, request.args.get('per_page', 50, type=int)))
+        sort_by = request.args.get('sort_by', 'miss_distance_km')
+        sort_order = request.args.get('sort_order', 'asc').upper()
+
+        allowed_sort_cols = ['miss_distance_km', 'predicted_time', 'risk_level', 'detected_at', 'satellite_1_id']
+        if sort_by not in allowed_sort_cols:
+            sort_by = 'miss_distance_km'
+        if sort_order not in ('ASC', 'DESC'):
+            sort_order = 'ASC'
+
+        offset = (page - 1) * per_page
+        params = []
+
+        where_clause = "WHERE is_active = TRUE"
+        if risk_level:
+            where_clause += " AND risk_level = %s"
+            params.append(risk_level.upper())
+
+        # Count total matching
+        cursor.execute(f"SELECT COUNT(*) FROM collision_alerts {where_clause}", params)
+        total_count = cursor.fetchone()[0]
+
+        query = f"""
+            SELECT
+                id, satellite_1_id, satellite_2_id,
+                satellite_1_name, satellite_2_name,
+                predicted_time, miss_distance_km,
+                relative_velocity_kms, risk_level,
+                collision_probability, detected_at,
+                batch_id, is_active
+            FROM collision_alerts
+            {where_clause}
+            ORDER BY {sort_by} {sort_order}
+            LIMIT %s OFFSET %s
+        """
+        params.extend([per_page, offset])
+        cursor.execute(query, params)
+
+        columns = [desc[0] for desc in cursor.description]
+        results = [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+        for row in results:
+            for key, value in row.items():
+                if isinstance(value, datetime):
+                    row[key] = value.isoformat()
+
+        cursor.close()
+        release_db_connection(conn)
+
+        total_pages = (total_count + per_page - 1) // per_page if per_page > 0 else 1
+
+        return jsonify({
+            'count': len(results),
+            'total_count': total_count,
+            'page': page,
+            'per_page': per_page,
+            'total_pages': total_pages,
+            'collisions': results
+        })
+
+    except Exception as e:
+        logger.error(f"Error fetching all collisions: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/collisions/frequency', methods=['GET'])
+def get_collision_frequency():
+    """
+    Get frequently colliding satellite pairs with aggregated statistics.
+
+    Query Parameters:
+        limit (int): Maximum number of pairs to return (default: 20)
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        limit = request.args.get('limit', 20, type=int)
+
+        cursor.execute("""
+            SELECT
+                satellite_1_id, satellite_2_id,
+                MAX(satellite_1_name) as satellite_1_name,
+                MAX(satellite_2_name) as satellite_2_name,
+                COUNT(*) as collision_count,
+                MIN(miss_distance_km) as min_distance_km,
+                AVG(miss_distance_km) as avg_distance_km,
+                MAX(miss_distance_km) as max_distance_km,
+                MIN(predicted_time) as earliest_collision,
+                MAX(predicted_time) as latest_collision
+            FROM collision_alerts
+            WHERE is_active = TRUE
+            GROUP BY satellite_1_id, satellite_2_id
+            ORDER BY COUNT(*) DESC, MIN(miss_distance_km) ASC
+            LIMIT %s
+        """, (limit,))
+
+        columns = [desc[0] for desc in cursor.description]
+        results = [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+        for row in results:
+            for key, value in row.items():
+                if isinstance(value, datetime):
+                    row[key] = value.isoformat()
+
+        cursor.close()
+        release_db_connection(conn)
+
+        return jsonify({
+            'count': len(results),
+            'pairs': results
+        })
+
+    except Exception as e:
+        logger.error(f"Error fetching collision frequency: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
 def index():
     """
     API documentation endpoint providing overview of all available endpoints.
@@ -501,9 +694,11 @@ def index():
             '/api/satellites/summary': 'Get satellite status summary',
             '/api/collisions': 'Get collision alerts (optional: ?risk_level=HIGH&active=true&limit=100)',
             '/api/collisions/high-risk': 'Get high-risk collisions in next 7 days',
+            '/api/collisions/all': 'Get all collisions with pagination (optional: ?risk_level=HIGH&page=1&per_page=50&sort_by=miss_distance_km&sort_order=asc)',
+            '/api/collisions/frequency': 'Get frequently colliding satellite pairs (optional: ?limit=20)',
             '/api/tracking-changes': 'Get recent tracking status changes (optional: ?days=7&limit=100)',
             '/api/metrics': 'Get system metrics (optional: ?hours=24)',
-            '/api/dashboard/stats': 'Get key dashboard statistics'
+            '/api/dashboard/stats': 'Get comprehensive dashboard statistics with per-risk counts and distance stats'
         },
         'database': 'PostgreSQL (fast queries) + HDFS (historical data)',
         'performance': 'Query response time: 10-50ms (PostgreSQL indexed)'

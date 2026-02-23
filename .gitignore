@@ -2,6 +2,9 @@
 .env
 .venv
 
+# Archive - ignore large sample data only
+archive/backup_demo_data/
+
 # Data directories - exclude all data files
 data/raw/*.csv
 data/processed/**/*.csv
@@ -10,11 +13,14 @@ data/processed/TLE_History_Satellites/
 data/external/*.bsp
 data/archive/**
 data/alldata/**
-backup_demo_data
 
 # Logs
 logs/
 *.log
+
+# Temp
+.temp/
+notebooks/
 
 # Python cache
 __pycache__/
@@ -34,4 +40,3 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
-

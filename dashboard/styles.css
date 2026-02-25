@@ -72,6 +72,20 @@ header h1 {
     color: var(--text-dim); align-items: center;
 }
 
+#simulation-time {
+    background: rgba(68,138,255,0.12);
+    border: 1px solid rgba(68,138,255,0.25);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    color: var(--text-light);
+    font-weight: 600;
+}
+
+#simulation-time strong {
+    color: var(--accent-cyan);
+    font-weight: 700;
+}
+
 .status-indicator {
     padding: 5px 14px; border-radius: 20px;
     font-weight: 600; font-size: 0.78rem;
@@ -309,6 +323,17 @@ tbody tr:hover { background: rgba(68,138,255,0.06); }
 /* Pulse for critical badges */
 @keyframes badge-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(224,64,251,0.3)} 50%{box-shadow:0 0 0 6px rgba(224,64,251,0)} }
 .risk-critical { animation: badge-pulse 2s ease-in-out infinite; }
+
+/* Simulation timestamps styling */
+.sim-timestamp {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--accent-cyan);
+    background: rgba(24, 255, 255, 0.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    font-weight: 500;
+}
 
 /* Pagination */
 .pagination {

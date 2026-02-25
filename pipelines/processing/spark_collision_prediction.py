@@ -17,6 +17,12 @@ import logging
 import os
 import csv
 
+try:
+    import requests
+    HAS_REQUESTS = True
+except ImportError:
+    HAS_REQUESTS = False
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -154,6 +160,35 @@ class CollisionPredictionEngine:
             self.satellite_ids = set()
             self.debris_ids = set()
             self.classification_df = self.spark.createDataFrame([], 'norad_id int, classification string')
+    
+    def get_simulation_time(self):
+        """
+        Get the current simulation time from the dashboard API.
+        
+        Returns:
+            datetime: Current simulation time, or current time if API unavailable
+        """
+        if not HAS_REQUESTS:
+            logger.warning("⚠️  requests module not available, using current time instead of simulation time")
+            return datetime.now(timezone.utc)
+            
+        try:
+            # Try to get simulation time from dashboard API
+            dashboard_url = os.getenv('DASHBOARD_API_URL', 'http://dashboard-api:5001')
+            response = requests.get(f"{dashboard_url}/api/simulation/time", timeout=5)
+            
+            if response.status_code == 200:
+                data = response.json()
+                sim_time = datetime.fromisoformat(data['current_simulated_time'].replace('Z', '+00:00'))
+                logger.info(f"🕐 Using simulation time: {sim_time.isoformat()}")
+                return sim_time
+            else:
+                logger.warning(f"⚠️  Dashboard API returned {response.status_code}, using current time")
+                return datetime.now(timezone.utc)
+                
+        except Exception as e:
+            logger.warning(f"⚠️  Could not get simulation time from API ({e}), using current time")
+            return datetime.now(timezone.utc)
     
     def read_latest_sgp4_data(self):
         """
@@ -366,7 +401,7 @@ class CollisionPredictionEngine:
                 col("deb1.position_z").alias("obj2_z"),
                 col("deb1.altitude_km").alias("obj2_altitude"),
                 col("deb1.velocity").alias("obj2_velocity"),
-                current_timestamp().alias("detection_timestamp")
+                lit(self.get_simulation_time()).cast(TimestampType()).alias("detection_timestamp")
             )
         else:
             df_result = df_collisions.select(
@@ -390,7 +425,7 @@ class CollisionPredictionEngine:
                 col("sat2.position_z").alias("obj2_z"),
                 col("sat2.altitude_km").alias("obj2_altitude"),
                 col("sat2.velocity").alias("obj2_velocity"),
-                current_timestamp().alias("detection_timestamp")
+                lit(self.get_simulation_time()).cast(TimestampType()).alias("detection_timestamp")
             )
 
         # Compute relative velocity (scalar approximation)
@@ -434,7 +469,7 @@ class CollisionPredictionEngine:
             df_collisions (DataFrame): Collision predictions to save
         """
         try:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            timestamp = self.get_simulation_time().strftime("%Y%m%d_%H%M%S")
             output_path = f"{self.hdfs_output}/batch_{timestamp}"
             
             df_collisions.write \
@@ -513,7 +548,7 @@ class CollisionPredictionEngine:
                 col("position_z").alias("last_position_z"),
                 coalesce(col("sgp4_error_code"), lit(0)).alias("last_sgp4_error_code"),
                 lit(1).alias("total_observations"),
-                current_timestamp().alias("status_updated_at")
+                lit(self.get_simulation_time()).cast(TimestampType()).alias("status_updated_at")
             ).dropDuplicates(["norad_id"])
             
             # Filter out invalid data:
@@ -647,7 +682,7 @@ class CollisionPredictionEngine:
                 logger.info("No close approaches to save to PostgreSQL")
                 return
             
-            batch_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+            batch_id = self.get_simulation_time().strftime("%Y%m%d_%H%M%S")
             
             df_alerts = df_collisions.select(
                 col("object_1").cast(IntegerType()).alias("satellite_1_id"),
@@ -662,7 +697,7 @@ class CollisionPredictionEngine:
                 col("obj1_z").alias("approach_position_z"),
                 col("risk_level"),
                 col("collision_probability"),
-                current_timestamp().alias("detected_at"),
+                lit(self.get_simulation_time()).cast(TimestampType()).alias("detected_at"),
                 lit(batch_id).alias("batch_id"),
                 lit(True).alias("is_active")
             )

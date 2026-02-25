@@ -1,6 +1,7 @@
 """
 Enhanced Dashboard API - PostgreSQL + HDFS Hybrid
 Fast queries from PostgreSQL, historical data from HDFS
+DEMO MODE: Simulates time progression at accelerated rate (10 days per minute)
 """
 
 from flask import Flask, jsonify, request
@@ -11,12 +12,19 @@ from datetime import datetime, timedelta
 import os
 import logging
 import json
+import time
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 CORS(app)
+
+# Event-Driven Simulation Configuration
+# Simulation advances manually when processing for a day completes
+SIMULATION_CURRENT_DATE = datetime(2004, 1, 1, 0, 0, 0)  # Current simulated datetime
+SIMULATION_EPOCH = datetime(2004, 1, 1, 0, 0, 0)  # Starting datetime for simulation
+SIMULATION_LOCKED = False  # Prevents concurrent simulation updates
 
 POSTGRES_CONFIG = {
     'host': os.getenv('POSTGRES_HOST', 'postgres-debris'),
@@ -35,6 +43,79 @@ try:
 except Exception as e:
     logger.error(f"❌ Failed to initialize PostgreSQL pool: {e}")
     db_pool = None
+
+
+def get_simulated_time():
+    """
+    Get the current simulated time.
+    
+    This is event-driven - time only advances when explicitly updated
+    via advance_simulation_time() after processing completes for a day.
+    
+    Returns:
+        datetime: Current simulated datetime
+    """
+    return SIMULATION_CURRENT_DATE
+
+
+def set_simulation_time(new_time):
+    """
+    Set the simulation to a specific datetime.
+    
+    Args:
+        new_time (datetime): New simulated datetime
+    """
+    global SIMULATION_CURRENT_DATE
+    SIMULATION_CURRENT_DATE = new_time
+    logger.info(f"Simulation time set to {new_time.isoformat()}")
+
+
+def advance_simulation_time(days=1, hours=0, minutes=0):
+    """
+    Advance the simulation time by specified amount.
+    
+    This should be called after processing completes for a time period.
+    For example, call advance_simulation_time(days=1) after all data
+    processing for the current day finishes.
+    
+    Args:
+        days (int): Number of days to advance (default: 1)
+        hours (int): Number of hours to advance (default: 0)
+        minutes (int): Number of minutes to advance (default: 0)
+        
+    Returns:
+        datetime: New simulated datetime after advancement
+    """
+    global SIMULATION_CURRENT_DATE, SIMULATION_LOCKED
+    
+    if SIMULATION_LOCKED:
+        logger.warning("Simulation is locked - another process is updating time")
+        return SIMULATION_CURRENT_DATE
+    
+    SIMULATION_LOCKED = True
+    try:
+        old_time = SIMULATION_CURRENT_DATE
+        SIMULATION_CURRENT_DATE = SIMULATION_CURRENT_DATE + timedelta(days=days, hours=hours, minutes=minutes)
+        logger.info(f"Simulation advanced from {old_time.isoformat()} to {SIMULATION_CURRENT_DATE.isoformat()}")
+        return SIMULATION_CURRENT_DATE
+    finally:
+        SIMULATION_LOCKED = False
+
+
+def reset_simulation(new_epoch=None):
+    """
+    Reset simulation to epoch or specified datetime.
+    
+    Args:
+        new_epoch (datetime, optional): New starting datetime. If None, uses original SIMULATION_EPOCH
+    """
+    global SIMULATION_CURRENT_DATE, SIMULATION_EPOCH
+    
+    if new_epoch:
+        SIMULATION_EPOCH = new_epoch
+    
+    SIMULATION_CURRENT_DATE = SIMULATION_EPOCH
+    logger.info(f"Simulation reset to {SIMULATION_CURRENT_DATE.isoformat()}")
 
 
 def get_db_connection():
@@ -80,7 +161,11 @@ def health_check():
         return jsonify({
             'status': 'healthy',
             'database': 'connected',
-            'timestamp': datetime.now().isoformat()
+            'real_time': datetime.now().isoformat(),  # Server's actual time (for logging)
+            'simulated_time': get_simulated_time().isoformat(),  # Event-driven simulated time
+            'simulation_epoch': SIMULATION_EPOCH.isoformat(),
+            'simulation_mode': 'event-driven',
+            'simulation_description': 'Time advances when processing completes'
         })
     except Exception as e:
         return jsonify({
@@ -278,7 +363,8 @@ def get_collision_alerts():
         
         return jsonify({
             'count': len(results),
-            'collisions': results
+            'collisions': results,
+            'simulated_time': get_simulated_time().isoformat()
         })
         
     except Exception as e:
@@ -325,7 +411,8 @@ def get_high_risk_collisions():
         
         return jsonify({
             'count': len(results),
-            'high_risk_collisions': results
+            'high_risk_collisions': results,
+            'simulated_time': get_simulated_time().isoformat()
         })
         
     except Exception as e:
@@ -341,6 +428,7 @@ def get_tracking_changes():
     Query Parameters:
         days (int): Number of days to look back (default: 7)
         limit (int): Maximum number of results to return (default: 100)
+        use_simulation (bool): Use simulated time filtering (default: true)
     
     Returns:
         JSON response with tracking change count and array of change records
@@ -351,18 +439,36 @@ def get_tracking_changes():
         
         days = request.args.get('days', 7, type=int)
         limit = request.args.get('limit', 100, type=int)
+        use_sim = request.args.get('use_simulation', 'true').lower() == 'true'
         
-        cursor.execute("""
-            SELECT 
-                id, norad_id, satellite_name,
-                old_status, new_status, reason,
-                altitude_km, tle_age_days, sgp4_error_code,
-                changed_at
-            FROM tracking_status_changes
-            WHERE changed_at >= NOW() - INTERVAL '%s days'
-            ORDER BY changed_at DESC
-            LIMIT %s
-        """, (days, limit))
+        if use_sim:
+            # Use simulated time for filtering
+            sim_time = get_simulated_time()
+            cutoff_time = sim_time - timedelta(days=days)
+            
+            cursor.execute("""
+                SELECT 
+                    id, norad_id, satellite_name,
+                    old_status, new_status, reason,
+                    altitude_km, tle_age_days, sgp4_error_code,
+                    changed_at
+                FROM tracking_status_changes
+                WHERE changed_at >= %s AND changed_at <= %s
+                ORDER BY changed_at DESC
+                LIMIT %s
+            """, (cutoff_time, sim_time, limit))
+        else:
+            cursor.execute("""
+                SELECT 
+                    id, norad_id, satellite_name,
+                    old_status, new_status, reason,
+                    altitude_km, tle_age_days, sgp4_error_code,
+                    changed_at
+                FROM tracking_status_changes
+                WHERE changed_at >= NOW() - INTERVAL '%s days'
+                ORDER BY changed_at DESC
+                LIMIT %s
+            """, (days, limit))
         
         columns = [desc[0] for desc in cursor.description]
         results = [dict(zip(columns, row)) for row in cursor.fetchall()]
@@ -375,10 +481,15 @@ def get_tracking_changes():
         cursor.close()
         release_db_connection(conn)
         
-        return jsonify({
+        response = {
             'count': len(results),
             'changes': results
-        })
+        }
+        
+        if use_sim:
+            response['simulated_time'] = get_simulated_time().isoformat()
+        
+        return jsonify(response)
         
     except Exception as e:
         logger.error(f"Error fetching tracking changes: {e}")
@@ -392,6 +503,7 @@ def get_system_metrics():
     
     Query Parameters:
         hours (int): Number of hours to look back for metrics (default: 24)
+        use_simulation (bool): Use simulated time filtering (default: true)
     
     Returns:
         JSON response with metrics grouped by metric name for dashboard charts
@@ -401,15 +513,30 @@ def get_system_metrics():
         cursor = conn.cursor()
         
         hours = request.args.get('hours', 24, type=int)
+        use_sim = request.args.get('use_simulation', 'true').lower() == 'true'
         
-        cursor.execute("""
-            SELECT 
-                metric_name, metric_value, metric_unit,
-                metric_description, recorded_at
-            FROM system_metrics
-            WHERE recorded_at >= NOW() - INTERVAL '%s hours'
-            ORDER BY recorded_at DESC
-        """, (hours,))
+        if use_sim:
+            # Use simulated time for filtering
+            sim_time = get_simulated_time()
+            cutoff_time = sim_time - timedelta(hours=hours)
+            
+            cursor.execute("""
+                SELECT 
+                    metric_name, metric_value, metric_unit,
+                    metric_description, recorded_at
+                FROM system_metrics
+                WHERE recorded_at >= %s AND recorded_at <= %s
+                ORDER BY recorded_at DESC
+            """, (cutoff_time, sim_time))
+        else:
+            cursor.execute("""
+                SELECT 
+                    metric_name, metric_value, metric_unit,
+                    metric_description, recorded_at
+                FROM system_metrics
+                WHERE recorded_at >= NOW() - INTERVAL '%s hours'
+                ORDER BY recorded_at DESC
+            """, (hours,))
         
         columns = [desc[0] for desc in cursor.description]
         results = [dict(zip(columns, row)) for row in cursor.fetchall()]
@@ -428,9 +555,14 @@ def get_system_metrics():
                 metrics_by_name[name] = []
             metrics_by_name[name].append(row)
         
-        return jsonify({
+        response = {
             'metrics': metrics_by_name
-        })
+        }
+        
+        if use_sim:
+            response['simulated_time'] = get_simulated_time().isoformat()
+        
+        return jsonify(response)
         
     except Exception as e:
         logger.error(f"Error fetching system metrics: {e}")
@@ -677,6 +809,97 @@ def get_collision_frequency():
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/simulation/time', methods=['GET'])
+def get_simulation_time_endpoint():
+    """
+    Get current simulated time and simulation parameters.
+    
+    Returns:
+        JSON response with current simulated time, epoch, and elapsed days
+    """
+    sim_time = get_simulated_time()
+    elapsed_sim = sim_time - SIMULATION_EPOCH
+    
+    return jsonify({
+        'current_simulated_time': sim_time.isoformat(),
+        'simulation_epoch': SIMULATION_EPOCH.isoformat(),
+        'simulation_mode': 'event-driven',
+        'simulation_description': 'Time advances when processing completes for a day',
+        'elapsed_simulated_days': elapsed_sim.total_seconds() / 86400,
+        'simulation_locked': SIMULATION_LOCKED
+    })
+
+
+@app.route('/api/simulation/advance', methods=['POST'])
+def advance_simulation():
+    """
+    Advance the simulation time (call after processing completes).
+    
+    Request Body (JSON):
+        days (int, optional): Number of days to advance (default: 1)
+        hours (int, optional): Number of hours to advance (default: 0)
+        minutes (int, optional): Number of minutes to advance (default: 0)
+        
+    Returns:
+        JSON response with updated simulation time
+    """
+    try:
+        data = request.get_json() or {}
+        
+        days = data.get('days', 1)
+        hours = data.get('hours', 0)
+        minutes = data.get('minutes', 0)
+        
+        new_time = advance_simulation_time(days=days, hours=hours, minutes=minutes)
+        
+        return jsonify({
+            'status': 'advanced',
+            'current_simulated_time': new_time.isoformat(),
+            'simulation_epoch': SIMULATION_EPOCH.isoformat(),
+            'elapsed_days': (new_time - SIMULATION_EPOCH).total_seconds() / 86400
+        })
+    except Exception as e:
+        logger.error(f"Error advancing simulation: {e}")
+        return jsonify({'error': str(e)}), 400
+
+
+@app.route('/api/simulation/set', methods=['POST'])
+def set_simulation():
+    """
+    Set simulation to a specific datetime or reset to epoch.
+    
+    Request Body (JSON):
+        time (str, optional): Specific datetime in ISO format
+        reset (bool, optional): If true, reset to epoch
+        epoch (str, optional): New epoch datetime in ISO format
+        
+    Returns:
+        JSON response with updated simulation configuration
+    """
+    try:
+        data = request.get_json() or {}
+        
+        if data.get('reset'):
+            new_epoch = None
+            if 'epoch' in data:
+                new_epoch = datetime.fromisoformat(data['epoch'])
+            reset_simulation(new_epoch)
+        elif 'time' in data:
+            new_time = datetime.fromisoformat(data['time'])
+            set_simulation_time(new_time)
+        else:
+            return jsonify({'error': 'Must provide either "time", "reset":true, or "epoch"'}), 400
+        
+        return jsonify({
+            'status': 'updated',
+            'current_simulated_time': get_simulated_time().isoformat(),
+            'simulation_epoch': SIMULATION_EPOCH.isoformat()
+        })
+    except Exception as e:
+        logger.error(f"Error setting simulation: {e}")
+        return jsonify({'error': str(e)}), 400
+
+
 def index():
     """
     API documentation endpoint providing overview of all available endpoints.
@@ -686,9 +909,9 @@ def index():
     """
     return jsonify({
         'name': 'Space Debris Dashboard API',
-        'version': '2.0 (PostgreSQL Hybrid)',
+        'version': '2.0 (PostgreSQL Hybrid + Simulation)',
         'endpoints': {
-            '/api/health': 'Health check',
+            '/api/health': 'Health check with simulation info',
             '/api/satellites': 'Get all satellites (optional: ?status=ACTIVE&limit=100)',
             '/api/satellites/<norad_id>': 'Get specific satellite details',
             '/api/satellites/summary': 'Get satellite status summary',
@@ -696,17 +919,40 @@ def index():
             '/api/collisions/high-risk': 'Get high-risk collisions in next 7 days',
             '/api/collisions/all': 'Get all collisions with pagination (optional: ?risk_level=HIGH&page=1&per_page=50&sort_by=miss_distance_km&sort_order=asc)',
             '/api/collisions/frequency': 'Get frequently colliding satellite pairs (optional: ?limit=20)',
-            '/api/tracking-changes': 'Get recent tracking status changes (optional: ?days=7&limit=100)',
-            '/api/metrics': 'Get system metrics (optional: ?hours=24)',
-            '/api/dashboard/stats': 'Get comprehensive dashboard statistics with per-risk counts and distance stats'
+            '/api/tracking-changes': 'Get recent tracking status changes (optional: ?days=7&limit=100&use_simulation=true)',
+            '/api/metrics': 'Get system metrics (optional: ?hours=24&use_simulation=true)',
+            '/api/dashboard/stats': 'Get comprehensive dashboard statistics with per-risk counts and distance stats',
+            '/api/simulation/time': 'Get current simulated time and parameters',
+            '/api/simulation/advance': 'Advance time after processing (POST: {"days": 1, "hours": 0, "minutes": 0})',
+            '/api/simulation/set': 'Set time or reset (POST: {"time": "ISO-datetime"} or {"reset": true})'
         },
         'database': 'PostgreSQL (fast queries) + HDFS (historical data)',
-        'performance': 'Query response time: 10-50ms (PostgreSQL indexed)'
+        'performance': 'Query response time: 10-50ms (PostgreSQL indexed)',
+        'simulation': {
+            'enabled': True,
+            'mode': 'event-driven',
+            'description': 'Time advances when processing completes',
+            'epoch': SIMULATION_EPOCH.isoformat(),
+            'current_simulated_time': get_simulated_time().isoformat(),
+            'elapsed_days': (get_simulated_time() - SIMULATION_EPOCH).total_seconds() / 86400
+        }
     })
 
 
 if __name__ == '__main__':
     PORT = int(os.getenv('DASHBOARD_PORT', 5001))
-    logger.info(f"Starting Dashboard API on port {PORT}...")
+    logger.info("=" * 60)
+    logger.info("Starting Dashboard API with EVENT-DRIVEN SIMULATION")
+    logger.info("=" * 60)
     logger.info(f"PostgreSQL: {POSTGRES_CONFIG['host']}:{POSTGRES_CONFIG['port']}/{POSTGRES_CONFIG['database']}")
+    logger.info(f"Simulation Epoch: {SIMULATION_EPOCH.isoformat()}")
+    logger.info(f"Current Simulated Time: {SIMULATION_CURRENT_DATE.isoformat()}")
+    logger.info(f"Simulation Mode: Event-driven (advances when processing completes)")
+    logger.info(f"API Port: {PORT}")
+    logger.info("=" * 60)
+    logger.info("Simulation Endpoints:")
+    logger.info("  GET  /api/simulation/time    - Get current simulated time")
+    logger.info("  POST /api/simulation/advance - Advance time after processing")
+    logger.info("  POST /api/simulation/set     - Set time or reset to epoch")
+    logger.info("=" * 60)
     app.run(host='0.0.0.0', port=PORT, debug=False)

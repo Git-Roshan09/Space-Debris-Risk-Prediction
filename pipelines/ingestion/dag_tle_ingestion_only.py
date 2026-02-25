@@ -2,8 +2,6 @@
 Airflow DAG for TLE Data Ingestion ONLY
 This DAG ONLY handles data ingestion from the TLE API to Kafka.
 
-NOTE: Spark Streaming and Kafka consumers run separately as standalone services.
-      Airflow is NOT used to orchestrate Spark or Kafka - only for API ingestion.
 """
 
 import uuid

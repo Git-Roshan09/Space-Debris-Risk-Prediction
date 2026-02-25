@@ -45,10 +45,11 @@ async function updateDashboard() {
     try {
         setStatus('ok', 'Connected');
 
-        const [stats, allCollisions, pairs] = await Promise.all([
+        const [stats, allCollisions, pairs, simulationTime] = await Promise.all([
             safeFetch(`${API_BASE_URL}/dashboard/stats`),
             safeFetch(`${API_BASE_URL}/collisions/all?page=${currentPage}&per_page=50${currentRiskFilter ? '&risk_level=' + currentRiskFilter : ''}`),
-            safeFetch(`${API_BASE_URL}/collisions/frequency?limit=20`)
+            safeFetch(`${API_BASE_URL}/collisions/frequency?limit=20`),
+            safeFetch(`${API_BASE_URL}/simulation/time`)
         ]);
 
         if (stats) {
@@ -64,6 +65,9 @@ async function updateDashboard() {
         if (pairs) {
             updatePairsTable(pairs);
         }
+        if (simulationTime) {
+            updateSimulationTime(simulationTime);
+        }
 
         document.getElementById('last-update').textContent =
             `Last Updated: ${new Date().toLocaleTimeString()}`;
@@ -78,6 +82,50 @@ function setStatus(type, text) {
     const el = document.getElementById('status-indicator');
     el.className = `status-indicator status-${type}`;
     el.textContent = text;
+}
+
+// ═══════════════════════════════════════════
+// SIMULATION TIME FORMATTING
+// ═══════════════════════════════════════════
+function formatSimulationDateTime(dateValue) {
+    if (!dateValue) return '<span class="sim-timestamp">Unknown</span>';
+    
+    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+    if (isNaN(date.getTime())) return '<span class="sim-timestamp">Invalid Date</span>';
+    
+    // Format as simulation time with clear indication it's not real-time
+    const options = {
+        year: 'numeric',
+        month: '2-digit', 
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        timeZone: 'UTC'  // Use UTC to avoid confusion with local time
+    };
+    
+    const formattedTime = date.toLocaleString('en-GB', options);  // DD/MM/YYYY format
+    return `<span class="sim-timestamp">Sim: ${formattedTime}</span>`;
+}
+
+// ═══════════════════════════════════════════
+// SIMULATION TIME UPDATE
+// ═══════════════════════════════════════════
+function updateSimulationTime(simulationData) {
+    const simTime = new Date(simulationData.current_simulated_time);
+    const elapsedDays = Math.floor(simulationData.elapsed_simulated_days);
+    
+    // Format the simulation time nicely
+    const formattedTime = simTime.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    document.getElementById('simulation-time').innerHTML = 
+        `🕐 Simulation Time: <strong>${formattedTime}</strong> (Day ${elapsedDays + 1})`;
 }
 
 // ═══════════════════════════════════════════
@@ -134,7 +182,7 @@ function updateClosestApproach(stats) {
             ? `${ca.satellite_2_name} <span class="norad-id">[${ca.satellite_2_id}]</span>`
             : ca.satellite_2_id;
         const dist = ca.miss_distance_km != null ? ca.miss_distance_km.toFixed(3) : '--';
-        const time = ca.predicted_time ? new Date(ca.predicted_time).toLocaleString() : 'Unknown';
+        const time = formatSimulationDateTime(ca.predicted_time);
 
         detail.innerHTML = `<strong>${name1}</strong> ↔ <strong>${name2}</strong> — ` +
             `<strong>${dist} km</strong> | ${time} | ` +
@@ -232,7 +280,7 @@ function updateCollisionsTable(data) {
 
     tbody.innerHTML = collisions.map(c => {
         const time = parseTimestamp(c.predicted_time);
-        const timeText = time ? time.toLocaleString() : 'Unknown';
+        const timeText = formatSimulationDateTime(time);
         const riskClass = (c.risk_level || 'low').toLowerCase();
         const distance = Number.isFinite(c.miss_distance_km) ? c.miss_distance_km.toFixed(3) : '--';
         const velocity = Number.isFinite(c.relative_velocity_kms) ? c.relative_velocity_kms.toFixed(3) : '--';

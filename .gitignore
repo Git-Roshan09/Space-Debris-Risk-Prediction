@@ -13,9 +13,13 @@ data/processed/TLE_History_Satellites/
 data/external/*.bsp
 data/archive/**
 data/alldata/**
+Output/**
 
 # Logs
 logs/
+!logs/
+logs/**
+!logs/.gitkeep
 *.log
 
 # Temp

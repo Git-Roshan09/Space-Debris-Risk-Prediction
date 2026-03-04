@@ -2,6 +2,9 @@
 
 # Space Debris Risk Prediction System
 
+
+![alt text](image.png)
+
 [![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Scala](https://img.shields.io/badge/Scala-2.12-DC322F?style=for-the-badge&logo=scala&logoColor=white)](https://www.scala-lang.org/)
 [![Apache Spark](https://img.shields.io/badge/Apache%20Spark-3.5.0-E25A1C?style=for-the-badge&logo=apachespark&logoColor=white)](https://spark.apache.org/)
@@ -9,6 +12,7 @@
 [![React](https://img.shields.io/badge/React-TypeScript-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![Branch](https://img.shields.io/badge/branch-final-brightgreen?style=for-the-badge&logo=git&logoColor=white)](https://github.com/Git-Roshan09/Space-Debris-Risk-Prediction/tree/final)
+
 
 A real-time orbital collision risk assessment pipeline combining SGP4 propagation, Apache Spark, and Kafka to monitor thousands of tracked objects simultaneously and surface high-risk conjunction events to a live 3D dashboard.
 

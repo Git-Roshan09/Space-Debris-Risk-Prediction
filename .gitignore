@@ -1,1 +1,44 @@
+# ── Secrets ──────────────────────────────────────────────────────────────────
 .env
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+venv/
+.venv/
+*.egg-info/
+
+# ── Scala / sbt ───────────────────────────────────────────────────────────────
+target/
+project/target/
+project/project/
+*.class
+*.jar
+
+# ── Logs & runtime ────────────────────────────────────────────────────────────
+scheduler.log
+scheduler.pid
+*.log
+
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+
+# ── Data & output (large files) ───────────────────────────────────────────────
+Output/TLE_History/
+Output/TLE_Processed/
+Output/TLE_Processed_Spark/
+data/raw/
+orekit-data.zip
+
+# ── Build artifacts ───────────────────────────────────────────────────────────
+dashboard/node_modules/
+dashboard/dist/
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+*.swp
+*~
+.~lock.*
+*.md

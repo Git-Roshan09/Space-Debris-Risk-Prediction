@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background-color: #060a13;
+    color: #f1f5f9;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  #root { height: 100vh; overflow: hidden; }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #0a0e17; }
+  ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+}
+
+@layer components {
+  .card-glow-critical { box-shadow: 0 0 20px rgba(239, 68, 68, 0.15), inset 0 1px 0 rgba(239, 68, 68, 0.1); }
+  .card-glow-high     { box-shadow: 0 0 20px rgba(249, 115, 22, 0.12), inset 0 1px 0 rgba(249, 115, 22, 0.08); }
+  .card-glow-blue     { box-shadow: 0 0 20px rgba(59, 130, 246, 0.12),  inset 0 1px 0 rgba(59, 130, 246, 0.08); }
+  .font-tabular       { font-variant-numeric: tabular-nums; }
+}
+
+.recharts-default-tooltip {
+  background-color: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  border-radius: 8px !important;
+}

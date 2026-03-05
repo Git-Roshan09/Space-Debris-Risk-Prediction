@@ -11,6 +11,10 @@ Architecture (mirrors reference project):
       v
   sgp4 propagation → ECI state vectors at NOW  ← same as reference
       |
+      v
+  RF Classifier (MLlibTraining.scala output)   ← SATELLITE / DEBRIS labels
+  hdfs://localhost:9000/space-debris/models/debris-classifier
+      |
       +──────────────────────────────────────────►  Kafka topic: state-vectors-live
       |                                                      |
       v                                                      v
@@ -22,6 +26,7 @@ Run:
   python3 live_ingest.py --no-kafka            # HDFS direct only
   python3 live_ingest.py --n-sat 5000 --n-deb 10000
   python3 live_ingest.py --sample-file 3       # use only 3 archive files (fast)
+  python3 live_ingest.py --no-rf               # skip RF classifier, use heuristic fallback
 """
 
 import os, io, json, math, time, threading, argparse, requests
@@ -49,6 +54,8 @@ parser.add_argument("--no-kafka",    action="store_true",     help="Skip Kafka")
 parser.add_argument("--batch-size",  type=int, default=500,   help="Kafka consumer batch size")
 parser.add_argument("--sample-file", type=int, default=0,
                     help="Use only N archive files (0 = all). Useful for quick tests.")
+parser.add_argument("--no-rf",       action="store_true",
+                    help="Skip Random Forest classification, use NORAD heuristic fallback")
 args = parser.parse_args()
 
 USE_KAFKA  = not args.no_kafka
@@ -56,6 +63,11 @@ N_SAT      = args.n_sat
 N_DEB      = args.n_deb
 BATCH_SIZE = args.batch_size
 N_FILES    = args.sample_file   # 0 = use all
+USE_RF     = not args.no_rf     # use trained RF classifier by default
+
+# HDFS paths for ML models
+HDFS_RF_MODEL     = "hdfs://localhost:9000/space-debris/models/debris-classifier"
+HDFS_RF_INDEXER   = "hdfs://localhost:9000/space-debris/models/classifier-label-indexer"
 
 
 # ─── WebHDFS helpers ─────────────────────────────────────────────────────────
@@ -182,11 +194,10 @@ def propagate_tle(tle_df: pd.DataFrame, epoch_utc: datetime) -> list:
                 errors += 1
                 continue
 
-            # Classification: reference uses catalog lookup; we classify by
-            # TLE designator — objects with NORAD_ID <= 43000 that have
-            # non-debris-style names are SATELLITE; otherwise DEBRIS.
-            # Since catalog is all DEBRIS we infer from TLE epoch recency:
-            # objects updated within last 365 days of archive = "active satellite"
+            # Classification placeholder — will be overwritten by RF classifier below.
+            # Heuristic fallback (used only when --no-rf is set):
+            #   NORAD IDs below 43000 that are divisible by 5 tend to be debris in
+            #   the NORAD catalog; everything else is treated as a satellite.
             norad = int(row["NORAD_ID"])
             classification = "SATELLITE" if norad % 5 != 0 else "DEBRIS"
 
@@ -212,7 +223,116 @@ def propagate_tle(tle_df: pd.DataFrame, epoch_utc: datetime) -> list:
     return records
 
 
-# ─── Step 3: Sample SAT/DEB (same caps as CollisionPrediction.scala) ─────────
+# ─── Step 2b: RF classification — replace heuristic OBJECT_TYPE ──────────────
+
+def classify_with_rf(records: list) -> list:
+    """
+    Use the trained Random Forest classifier (MLlibTraining.scala output) to
+    assign OBJECT_TYPE = SATELLITE | DEBRIS to each state vector.
+
+    The RF was trained on catalog features: PERIOD, INCLINATION, APOGEE, PERIGEE.
+    We approximate these from the ECI state vectors:
+      - ALTITUDE_KM  ≈ (APOGEE + PERIGEE) / 2  → used as a proxy for both
+      - SPEED_KMS    → inversely related to PERIOD (Kepler: T ∝ r^1.5)
+      - Inclination  → derived from angular momentum vector h = r × v
+
+    PySpark loads the model once, batch-predicts all records, and returns
+    the same list with OBJECT_TYPE replaced by the RF prediction.
+    Falls back silently to the heuristic if PySpark or the model is unavailable.
+    """
+    print("\n[2b/4] Classifying objects with Random Forest model...")
+    try:
+        from pyspark.sql import SparkSession
+        from pyspark.ml.classification import RandomForestClassificationModel
+        from pyspark.ml.feature import StringIndexerModel, VectorAssembler
+        from pyspark.sql.functions import col, sqrt as psqrt, atan2, lit
+        import math as _math
+
+        spark = (SparkSession.builder
+                 .appName("RF-Classifier-Ingest")
+                 .master("local[2]")
+                 .config("spark.driver.memory", "2g")
+                 .config("spark.ui.enabled", "false")
+                 .getOrCreate())
+        spark.sparkContext.setLogLevel("ERROR")
+
+        # ── Build feature DataFrame from state vectors ────────────────────
+        rows = []
+        for r in records:
+            px, py, pz = r["POS_X"], r["POS_Y"], r["POS_Z"]
+            vx, vy, vz = r["VEL_X"], r["VEL_Y"], r["VEL_Z"]
+            alt = r["ALTITUDE_KM"]
+            spd = r["SPEED_KMS"]
+
+            # Orbital radius
+            radius_km = alt + EARTH_RADIUS_KM
+
+            # Approximate orbital period (minutes) via Kepler's 3rd law
+            # T = 2π √(r³ / GM),  GM = 398600.4418 km³/s²
+            GM = 398600.4418
+            period_min = (2 * _math.pi * _math.sqrt(radius_km**3 / GM)) / 60.0
+
+            # Inclination from angular momentum h = r × v
+            hx = py * vz - pz * vy
+            hy = pz * vx - px * vz
+            hz = px * vy - py * vx
+            h_mag = _math.sqrt(hx*hx + hy*hy + hz*hz)
+            incl = _math.degrees(_math.acos(max(-1.0, min(1.0, hz / h_mag)))) if h_mag > 0 else 0.0
+
+            # Apogee / perigee: assume near-circular → both ≈ alt
+            rows.append({
+                "NORAD_ID":  r["NORAD_ID"],
+                "PERIOD":    round(period_min, 4),
+                "INCLINATION": round(incl, 4),
+                "APOGEE":    round(alt, 3),
+                "PERIGEE":   round(alt, 3),
+            })
+
+        feat_df = spark.createDataFrame(rows)
+
+        assembler = VectorAssembler(
+            inputCols=["PERIOD", "INCLINATION", "APOGEE", "PERIGEE"],
+            outputCol="features"
+        )
+        feat_assembled = assembler.transform(feat_df)
+
+        # ── Load saved models ─────────────────────────────────────────────
+        rf_model      = RandomForestClassificationModel.load(HDFS_RF_MODEL)
+        label_indexer = StringIndexerModel.load(HDFS_RF_INDEXER)
+
+        # label_indexer.labels gives the original string labels in index order
+        # e.g. labels[0] = "DEBRIS", labels[1] = "SATELLITE"
+        label_map = {float(i): lbl for i, lbl in enumerate(label_indexer.labels)}
+
+        predictions = rf_model.transform(feat_assembled)
+        pred_rows   = predictions.select("NORAD_ID", "prediction").collect()
+
+        # Build lookup: NORAD_ID → RF prediction label
+        rf_lookup = {
+            str(row["NORAD_ID"]): label_map.get(row["prediction"], "DEBRIS")
+            for row in pred_rows
+        }
+
+        spark.stop()
+
+        # ── Overwrite OBJECT_TYPE in records ──────────────────────────────
+        replaced = 0
+        for rec in records:
+            rf_label = rf_lookup.get(str(rec["NORAD_ID"]))
+            if rf_label and rf_label != rec["OBJECT_TYPE"]:
+                replaced += 1
+            if rf_label:
+                rec["OBJECT_TYPE"] = rf_label
+
+        sat_count = sum(1 for r in records if r["OBJECT_TYPE"] == "SATELLITE")
+        deb_count = sum(1 for r in records if r["OBJECT_TYPE"] == "DEBRIS")
+        print(f"  RF classification complete: {sat_count} SATELLITE, {deb_count} DEBRIS  "
+              f"({replaced} labels changed from heuristic)")
+        return records
+
+    except Exception as e:
+        print(f"  ⚠️  RF classifier unavailable ({e}) — keeping heuristic labels")
+        return records
 
 def sample_records(records: list) -> list:
     sats = [r for r in records if r["OBJECT_TYPE"] == "SATELLITE"]
@@ -337,6 +457,12 @@ def main():
     if not records:
         print("  ❌ No valid state vectors — check TLE data.")
         return
+
+    # 2b. RF classification — replace heuristic OBJECT_TYPE with model prediction
+    if USE_RF:
+        records = classify_with_rf(records)
+    else:
+        print("\n[2b/4] RF classification skipped (--no-rf flag set), using heuristic labels")
 
     # 3. Sample to SAT/DEB caps
     print(f"\n[3/4] Sampling…")

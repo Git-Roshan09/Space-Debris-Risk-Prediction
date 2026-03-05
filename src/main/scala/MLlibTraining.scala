@@ -36,8 +36,7 @@ object MLlibTraining extends App {
   println("  PART 1: LINEAR REGRESSION - TRAJECTORY PREDICTION")
   println("=" * 60)
 
-  // Load state vectors from HDFS (Parquet format)
-  // Sample 500K records for practical ML training (full dataset is 31+ GB)
+
   val allStateVectors = spark.read
     .parquet("hdfs://localhost:9000/space-debris/state-vectors")
     .select(
@@ -62,15 +61,11 @@ object MLlibTraining extends App {
   println("\nComputed Features (Altitude & Speed):")
   featuredDF.select("ALTITUDE", "SPEED").describe().show()
 
-  // Create sliding window: use current state to predict next POS_X
-  // Add row number per object to create sequential ordering
   val windowedDF = featuredDF
     .withColumn("row_num", monotonically_increasing_id())
     .orderBy("row_num")
 
-  // Use current velocity and position to predict next position (simple regression)
-  // Features: [POS_X, POS_Y, POS_Z, VEL_X, VEL_Y, VEL_Z]
-  // Label: ALTITUDE (predict orbital altitude)
+  
   val assembler = new VectorAssembler()
     .setInputCols(Array("POS_X", "POS_Y", "POS_Z", "VEL_X", "VEL_Y", "VEL_Z"))
     .setOutputCol("features")

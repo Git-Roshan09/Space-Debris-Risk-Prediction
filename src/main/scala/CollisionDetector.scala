@@ -187,7 +187,6 @@ object CollisionDetector {
   def loadStateVectors(spark: SparkSession, debrisIds: Set[Int]): DataFrame = {
     import spark.implicits._
 
-    // Schema produced by TLEProcessor / TLEStreamProcessor
     val batchSchema = new StructType()
       .add("NORAD_ID",     StringType,  true)
       .add("EPOCH",        StringType,  true)

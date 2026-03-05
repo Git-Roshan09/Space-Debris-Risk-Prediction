@@ -3,6 +3,9 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.Window
+import org.apache.spark.ml.clustering.KMeansModel
+import org.apache.spark.ml.regression.LinearRegressionModel
+import org.apache.spark.ml.feature.VectorAssembler
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -21,20 +24,15 @@ import java.time.format.DateTimeFormatter
  */
 object CollisionPrediction {
 
-  // ============================================================
-  // THRESHOLDS (matching reference project)
-  // ============================================================
   val COLLISION_THRESHOLD_KM   = 50.0
   val CRITICAL_THRESHOLD_KM    = 1.0
-  val HIGH_RISK_THRESHOLD_KM   = 20.0   // reference uses 20
-  val MEDIUM_RISK_THRESHOLD_KM = 35.0   // reference uses 35
+  val HIGH_RISK_THRESHOLD_KM   = 20.0   
+  val MEDIUM_RISK_THRESHOLD_KM = 35.0   
   val EARTH_RADIUS_KM          = 6371.0
   val MIN_ALTITUDE_KM          = 150.0
   val MAX_ALTITUDE_KM          = 100000.0
-  val BUCKET_SIZE              = 50.0   // Grid size for collision detection to avoid OOM
+  val BUCKET_SIZE              = 50.0   
 
-  // How many hours back to consider "recent" state vectors. 
-  // Only the latest snapshot per NORAD_ID matters for collision detection.
   val RECENT_HOURS             = sys.env.getOrElse("RECENT_HOURS", "24").toInt
 
   // Max objects per class to protect against huge cross-joins on low-disk machines
@@ -49,6 +47,9 @@ object CollisionPrediction {
   val HDFS_CATALOG           = s"$HDFS_BASE/catalog"
   val HDFS_COLLISION_OUTPUT  = s"$HDFS_BASE/collision-predictions"
   val HDFS_STOPPED_TRACKING  = s"$HDFS_BASE/stopped-tracking"
+  val HDFS_KMEANS_MODEL      = s"$HDFS_BASE/models/orbit-clustering"
+  val HDFS_LR_ALTITUDE_MODEL = s"$HDFS_BASE/models/trajectory-altitude"
+  val HDFS_LR_SPEED_MODEL    = s"$HDFS_BASE/models/trajectory-speed"
   val KAFKA_BOOTSTRAP        = "localhost:19092"
   val KAFKA_COLLISION_TOPIC  = "space_debris_collisions"
 
@@ -67,18 +68,16 @@ object CollisionPrediction {
     // ============================================================
     val spark = SparkSession.builder()
       .appName("SpaceDebris-CollisionPrediction")
-      .master("local[*]")
+      .master("local[14]")
       .config("spark.driver.memory", "6g")
       .config("spark.driver.maxResultSize", "1g")
       // Reduce shuffle partitions — default 200 is too many for local mode
       .config("spark.sql.shuffle.partitions", "32")
       // Point Spark temp/shuffle dirs to /tmp (usually a separate mount)
       .config("spark.local.dir", "/tmp/spark-local")
-      // Adaptive query execution
       .config("spark.sql.adaptive.enabled", "true")
       .config("spark.sql.adaptive.coalescePartitions.enabled", "true")
       .config("spark.sql.adaptive.skewJoin.enabled", "true")
-      // Avoid memory spills by limiting sort in-memory buffer
       .config("spark.sql.execution.arrow.pyspark.enabled", "false")
       .config("spark.hadoop.dfs.replication", "1")
       .getOrCreate()
@@ -111,7 +110,6 @@ object CollisionPrediction {
 
       // Compute altitude & velocity if not present
       val enrichedDF = rawVectors
-        // Now parse NORAD_ID as integer for cross-join key (<, = comparisons)
         .withColumn("NORAD_ID", col("NORAD_ID").cast(IntegerType))
         .withColumn("ALTITUDE_KM",
           coalesce(col("ALTITUDE_KM"),
@@ -136,9 +134,7 @@ object CollisionPrediction {
           col("OBJECT_NAME"),
           col("COUNTRY"),
           col("RCS_SIZE")
-          // NOTE: Do NOT pull OBJECT_TYPE from catalog — the catalog is 100% DEBRIS.
-          //       live_ingest.py already writes the correct SATELLITE/DEBRIS split
-          //       directly into the state-vector parquet as the OBJECT_TYPE column.
+         
         )
         .na.drop(Seq("CAT_NORAD_ID"))
 
@@ -148,12 +144,8 @@ object CollisionPrediction {
         .withColumn("row_num", row_number().over(Window.partitionBy("NORAD_ID").orderBy(col("EPOCH").desc)))
         .filter(col("row_num") === 1)
         .drop("row_num")
-        // Join catalog for name/country enrichment only — NOT for OBJECT_TYPE
         .join(broadcast(catalogDF), col("NORAD_ID") === col("CAT_NORAD_ID"), "left")
         .drop("CAT_NORAD_ID")
-        // CLASSIFICATION: use OBJECT_TYPE already in parquet (SATELLITE or DEBRIS)
-        // If somehow missing, treat as SATELLITE (conservative — keeps it in detection)
-        .withColumn("CLASSIFICATION",
           when(col("OBJECT_TYPE") === "DEBRIS", "DEBRIS")
           .when(col("OBJECT_TYPE") === "SATELLITE", "SATELLITE")
           .otherwise("SATELLITE")  // default to SATELLITE rather than discarding
@@ -200,15 +192,124 @@ object CollisionPrediction {
       }
 
       // ============================================================
+      // 4b. ORBIT SHELL TAGGING (K-Means model from MLlibTraining)
+      // ============================================================
+      println("\n[4b/7] Tagging objects with orbit shell (K-Means)...")
+
+      // The K-Means model was trained on [PERIOD, INCLINATION, APOGEE, PERIGEE].
+      // We approximate those from the ECI state vectors already in the parquet:
+      //   PERIOD  ≈ 2π √(r³/GM) / 60   (minutes)
+      //   APOGEE  ≈ PERIGEE ≈ ALTITUDE_KM  (near-circular approximation)
+      //   INCLINATION — not stored in state vector, set to 0 as placeholder
+      //
+      // The cluster index maps to an orbit shell label:
+      //   K-Means K=4 → LEO (<2000 km), MEO (2000-20000), GEO (~35786), HEO (elliptical)
+      // We re-derive the label from altitude rather than the cluster index because
+      // cluster ordering is non-deterministic across training runs.
+
+      val GM_EARTH = 398600.4418   // km³/s²
+
+      val activeWithShell = try {
+        val kmeansModel = KMeansModel.load(HDFS_KMEANS_MODEL)
+
+        val orbitAssembler = new VectorAssembler()
+          .setInputCols(Array("PERIOD_APPROX", "INCLINATION_APPROX", "ALTITUDE_KM", "ALTITUDE_KM"))
+          .setOutputCol("orbit_features")
+
+        val withOrbitalFeatures = activeObjects
+          .withColumn("PERIOD_APPROX",
+            lit(2.0 * math.Pi) * sqrt(
+              pow(col("ALTITUDE_KM") + EARTH_RADIUS_KM, 3) / lit(GM_EARTH)
+            ) / lit(60.0)
+          )
+          .withColumn("INCLINATION_APPROX", lit(0.0))  // placeholder — not in ECI parquet
+
+        val assembled = orbitAssembler.transform(withOrbitalFeatures)
+        val predicted = kmeansModel.transform(assembled)
+
+        // Map cluster index → human-readable shell using altitude thresholds
+        // (more reliable than raw cluster index which can shift between training runs)
+        val taggedDF = predicted
+          .withColumn("ORBIT_SHELL",
+            when(col("ALTITUDE_KM") < 2000.0,  lit("LEO"))
+            .when(col("ALTITUDE_KM") < 20000.0, lit("MEO"))
+            .when(col("ALTITUDE_KM") < 40000.0, lit("GEO"))
+            .otherwise(lit("HEO"))
+          )
+          .withColumn("ORBIT_CLUSTER", col("prediction").cast(IntegerType))
+          .drop("orbit_features", "PERIOD_APPROX", "INCLINATION_APPROX", "prediction")
+
+        println("  Orbit shell distribution:")
+        taggedDF.groupBy("ORBIT_SHELL").count().orderBy("ORBIT_SHELL").show()
+
+        taggedDF
+
+      } catch {
+        case e: Exception =>
+          println(s"  ⚠️  K-Means model load failed (${e.getMessage}) — skipping shell tagging")
+          // Add placeholder columns so downstream code always sees them
+          activeObjects
+            .withColumn("ORBIT_SHELL",
+              when(col("ALTITUDE_KM") < 2000.0,  lit("LEO"))
+              .when(col("ALTITUDE_KM") < 20000.0, lit("MEO"))
+              .when(col("ALTITUDE_KM") < 40000.0, lit("GEO"))
+              .otherwise(lit("HEO"))
+            )
+            .withColumn("ORBIT_CLUSTER", lit(-1).cast(IntegerType))
+      }
+
+      // ============================================================
+      // 4c. LINEAR REGRESSION — PREDICTED ALTITUDE & SPEED CROSS-CHECK
+      // ============================================================
+      println("\n[4c/7] Adding LR-predicted altitude & speed cross-check...")
+
+      val lrAssembler6 = new VectorAssembler()
+        .setInputCols(Array("POS_X", "POS_Y", "POS_Z", "VEL_X", "VEL_Y", "VEL_Z"))
+        .setOutputCol("lr6_features")
+
+      val lrAssembler3 = new VectorAssembler()
+        .setInputCols(Array("POS_X", "POS_Y", "POS_Z"))
+        .setOutputCol("lr3_features")
+
+      val activeWithML = try {
+        val lrAlt   = LinearRegressionModel.load(HDFS_LR_ALTITUDE_MODEL)
+        val lrSpeed = LinearRegressionModel.load(HDFS_LR_SPEED_MODEL)
+
+        val with6   = lrAssembler6.transform(activeWithShell)
+        val altPred = lrAlt.transform(with6)
+          .withColumn("PREDICTED_ALTITUDE_KM", round(col("prediction"), 3))
+          .withColumn("ALTITUDE_DELTA_KM",     round(abs(col("ALTITUDE_KM") - col("PREDICTED_ALTITUDE_KM")), 3))
+          .drop("lr6_features", "prediction")
+
+        val with3    = lrAssembler3.transform(altPred)
+        val speedPred = lrSpeed.transform(with3)
+          .withColumn("PREDICTED_SPEED_KMS", round(col("prediction"), 6))
+          .withColumn("SPEED_DELTA_KMS",     round(abs(col("VELOCITY_KMS") - col("PREDICTED_SPEED_KMS")), 6))
+          .drop("lr3_features", "prediction")
+
+        println("  LR predictions applied — PREDICTED_ALTITUDE_KM, PREDICTED_SPEED_KMS columns added")
+        speedPred
+
+      } catch {
+        case e: Exception =>
+          println(s"  ⚠️  LR model load failed (${e.getMessage}) — adding null placeholders")
+          activeWithShell
+            .withColumn("PREDICTED_ALTITUDE_KM", lit(null).cast(DoubleType))
+            .withColumn("ALTITUDE_DELTA_KM",     lit(null).cast(DoubleType))
+            .withColumn("PREDICTED_SPEED_KMS",   lit(null).cast(DoubleType))
+            .withColumn("SPEED_DELTA_KMS",       lit(null).cast(DoubleType))
+      }
+
+      // ============================================================
       // 6. COLLISION DETECTION (SAT-SAT, SAT-DEB)
       // ============================================================
       println("\n[5/7] Detecting potential collisions...")
       println(s"  Collision threshold: $COLLISION_THRESHOLD_KM km")
       println(s"  Types: SAT-SAT, SAT-DEB (DEB-DEB excluded per reference)")
 
-      val satellites = activeObjects.filter(col("CLASSIFICATION") === "SATELLITE")
+      val satellites = activeWithML.filter(col("CLASSIFICATION") === "SATELLITE")
         .limit(MAX_SATELLITES).cache()
-      val debris = activeObjects.filter(col("CLASSIFICATION") === "DEBRIS")
+      val debris = activeWithML.filter(col("CLASSIFICATION") === "DEBRIS")
         .limit(MAX_DEBRIS).cache()
 
       val satCount = satellites.count()
@@ -224,6 +325,7 @@ object CollisionPrediction {
         val sat1 = satellites.select(
           col("NORAD_ID").alias("norad_1"), col("OBJECT_NAME").alias("name_1"),
           col("CLASSIFICATION").alias("class_1"),
+          col("ORBIT_SHELL").alias("orbit_shell_1"),
           col("POS_X").alias("x1"), col("POS_Y").alias("y1"), col("POS_Z").alias("z1"),
           col("ALTITUDE_KM").alias("alt_1"), col("VELOCITY_KMS").alias("vel_1")
         ).withColumn("bucket", floor(col("alt_1") / BUCKET_SIZE))
@@ -231,6 +333,7 @@ object CollisionPrediction {
         val sat2 = satellites.select(
           col("NORAD_ID").alias("norad_2"), col("OBJECT_NAME").alias("name_2"),
           col("CLASSIFICATION").alias("class_2"),
+          col("ORBIT_SHELL").alias("orbit_shell_2"),
           col("POS_X").alias("x2"), col("POS_Y").alias("y2"), col("POS_Z").alias("z2"),
           col("ALTITUDE_KM").alias("alt_2"), col("VELOCITY_KMS").alias("vel_2")
         ).withColumn("bucket", explode(array(
@@ -259,6 +362,7 @@ object CollisionPrediction {
         val sat1 = satellites.select(
           col("NORAD_ID").alias("norad_1"), col("OBJECT_NAME").alias("name_1"),
           col("CLASSIFICATION").alias("class_1"),
+          col("ORBIT_SHELL").alias("orbit_shell_1"),
           col("POS_X").alias("x1"), col("POS_Y").alias("y1"), col("POS_Z").alias("z1"),
           col("ALTITUDE_KM").alias("alt_1"), col("VELOCITY_KMS").alias("vel_1")
         ).withColumn("bucket", floor(col("alt_1") / BUCKET_SIZE))
@@ -266,6 +370,7 @@ object CollisionPrediction {
         val deb1 = debris.select(
           col("NORAD_ID").alias("norad_2"), col("OBJECT_NAME").alias("name_2"),
           col("CLASSIFICATION").alias("class_2"),
+          col("ORBIT_SHELL").alias("orbit_shell_2"),
           col("POS_X").alias("x2"), col("POS_Y").alias("y2"), col("POS_Z").alias("z2"),
           col("ALTITUDE_KM").alias("alt_2"), col("VELOCITY_KMS").alias("vel_2")
         ).withColumn("bucket", explode(array(
@@ -435,6 +540,8 @@ object CollisionPrediction {
 
       // Unpersist cached DataFrames
       activeObjects.unpersist()
+      activeWithShell.unpersist()
+      activeWithML.unpersist()
       satellites.unpersist()
       debris.unpersist()
 

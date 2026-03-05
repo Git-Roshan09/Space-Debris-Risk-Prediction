@@ -146,6 +146,7 @@ object CollisionPrediction {
         .drop("row_num")
         .join(broadcast(catalogDF), col("NORAD_ID") === col("CAT_NORAD_ID"), "left")
         .drop("CAT_NORAD_ID")
+        .withColumn("CLASSIFICATION",
           when(col("OBJECT_TYPE") === "DEBRIS", "DEBRIS")
           .when(col("OBJECT_TYPE") === "SATELLITE", "SATELLITE")
           .otherwise("SATELLITE")  // default to SATELLITE rather than discarding
@@ -265,11 +266,11 @@ object CollisionPrediction {
 
       val lrAssembler6 = new VectorAssembler()
         .setInputCols(Array("POS_X", "POS_Y", "POS_Z", "VEL_X", "VEL_Y", "VEL_Z"))
-        .setOutputCol("lr6_features")
+        .setOutputCol("features")
 
       val lrAssembler3 = new VectorAssembler()
         .setInputCols(Array("POS_X", "POS_Y", "POS_Z"))
-        .setOutputCol("lr3_features")
+        .setOutputCol("pos_features")
 
       val activeWithML = try {
         val lrAlt   = LinearRegressionModel.load(HDFS_LR_ALTITUDE_MODEL)
@@ -277,15 +278,15 @@ object CollisionPrediction {
 
         val with6   = lrAssembler6.transform(activeWithShell)
         val altPred = lrAlt.transform(with6)
-          .withColumn("PREDICTED_ALTITUDE_KM", round(col("prediction"), 3))
+          .withColumn("PREDICTED_ALTITUDE_KM", round(col("prediction") - lit(EARTH_RADIUS_KM), 3))
           .withColumn("ALTITUDE_DELTA_KM",     round(abs(col("ALTITUDE_KM") - col("PREDICTED_ALTITUDE_KM")), 3))
-          .drop("lr6_features", "prediction")
+          .drop("features", "prediction")
 
         val with3    = lrAssembler3.transform(altPred)
         val speedPred = lrSpeed.transform(with3)
           .withColumn("PREDICTED_SPEED_KMS", round(col("prediction"), 6))
           .withColumn("SPEED_DELTA_KMS",     round(abs(col("VELOCITY_KMS") - col("PREDICTED_SPEED_KMS")), 6))
-          .drop("lr3_features", "prediction")
+          .drop("pos_features", "prediction")
 
         println("  LR predictions applied — PREDICTED_ALTITUDE_KM, PREDICTED_SPEED_KMS columns added")
         speedPred

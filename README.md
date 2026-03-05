@@ -91,13 +91,13 @@ HDFS Archive (/space-debris/state-vectors-archive)
 
 All models are trained once via `sbt "runMain MLlibTraining"` and saved to HDFS. They are loaded automatically on every pipeline run — no retraining needed.
 
-| Model | Algorithm | HDFS Path | Used In | What It Does |
-|---|---|---|---|---|
-| Debris Classifier | Random Forest (20 trees) | `models/debris-classifier` | `live_ingest.py` Step 2b | Classifies each propagated object as SATELLITE or DEBRIS using orbital features derived from ECI vectors (period, inclination, altitude) |
-| Label Indexer | StringIndexer | `models/classifier-label-indexer` | `live_ingest.py` Step 2b | Maps RF prediction index back to SATELLITE / DEBRIS string label |
-| Orbit Shell Tagger | K-Means (K=4) | `models/orbit-clustering` | `CollisionPrediction.scala` Step 4b | Tags every active object LEO / MEO / GEO / HEO; column travels into collision output and Kafka alerts |
-| Altitude Predictor | Linear Regression | `models/trajectory-altitude` | `CollisionPrediction.scala` Step 4c | Predicts altitude from position + velocity; large delta (actual − predicted) flags a stale TLE |
-| Speed Predictor | Linear Regression | `models/trajectory-speed` | `CollisionPrediction.scala` Step 4c | Predicts orbital speed from ECI position; large delta flags a manoeuvring object |
+| Model | Algorithm | HDFS Path | What It Does |
+|---|---|---|---|
+| Debris Classifier | Random Forest (20 trees) | `models/debris-classifier` | Classifies each propagated object as SATELLITE or DEBRIS using orbital features derived from ECI vectors (period, inclination, altitude) |
+| Label Indexer | StringIndexer | `models/classifier-label-indexer` | Maps RF prediction index back to SATELLITE / DEBRIS string label |
+| Orbit Shell Tagger | K-Means (K=4) | `models/orbit-clustering` | Tags every active object LEO / MEO / GEO / HEO; column travels into collision output and Kafka alerts |
+| Altitude Predictor | Linear Regression | `models/trajectory-altitude` | Predicts altitude from position + velocity; large delta (actual − predicted) flags a stale TLE |
+| Speed Predictor | Linear Regression | `models/trajectory-speed` | Predicts orbital speed from ECI position; large delta flags a manoeuvring object |
 
 ---
 
